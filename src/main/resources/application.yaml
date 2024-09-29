@@ -1,0 +1,30 @@
+server:
+  port: 9999
+
+spring:
+  security:
+    enabled: false
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/thebook1
+    username: postgres
+    password: 123123
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+
+jwt:
+  signerKey: "CYXfKCsUaBwDgqbbZJ8iv5Xz8muv+o3DdfrFZkc/x39KcUfRVkaE00anvOVDkgy4"
+  valid-duration: 60  # 1 ngay
+  refreshable-duration: 120 # 1 tuan
+
+sms:
+ key: "8rHmonzVEr9JuCHhfxDxt71rFb12L_h3"
+ device: "df88a66e8fcfb6e2"
+
