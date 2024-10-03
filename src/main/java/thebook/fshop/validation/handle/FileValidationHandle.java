@@ -33,7 +33,7 @@ public class FileValidationHandle implements ConstraintValidator<FileValidation,
             String extension = getFileExtension(fileName);
             if (!allowedExtensions.contains(extension.toLowerCase())) {
                 // Throw custom exception for unsupported file types
-                throw new AppException(ErrorCode.INVALID_FILE);
+                throw new AppException(ErrorCode.INVALID_FILE_NULL);
             }
             return true; // Valid if extension is allowed
         }

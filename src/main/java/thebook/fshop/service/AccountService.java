@@ -86,7 +86,7 @@ public class AccountService {
                 account.setAvatar(PATH_AVATAR + fileName);
             } catch (IOException e) {
                 log.error(e.getMessage());
-                throw new AppException(ErrorCode.INVALID_FILE);
+                throw new AppException(ErrorCode.INVALID_FILE_NULL);
             }
         }
         accountsRepository.save(account);
