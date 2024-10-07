@@ -10,8 +10,7 @@ import thebook.fshop.entity.Book;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookReadHistoryResponse {
-    int id; // ID của lịch sử đọc sách
-    Book book; // Tên sách
-    AccountResponse account;
-
+    int id;
+    Book book;
+    int accID;
 }
