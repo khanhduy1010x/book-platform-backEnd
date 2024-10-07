@@ -21,27 +21,13 @@ import java.util.List;
 @Slf4j
 public class BookReadHistoryService {
 BookReadHistoryMapper bookReadHistoryMapper;
-     BooKReadHistoryRepository booKReadHistoryRepository;
+BooKReadHistoryRepository booKReadHistoryRepository;
     SecurityService securityService;
 
-
-    // Thêm lịch sử đọc sách
-    public void addBookReadHistory(Account account, Book book) {
-        BookReadHistory history = BookReadHistory.builder()
-                .account(account)
-                .book(book)
-                .build();
-        booKReadHistoryRepository.save(history);
-    }
-
-    // Lấy danh sách lịch sử đọc sách theo tài khoản
     public List<BookReadHistoryResponse> getBookReadHistoryByAccount() {
         var account = securityService.getAccountByJWT();
         return booKReadHistoryRepository.findByAccount_AccID(account.getAccID()).stream().map(bookReadHistoryMapper::toBookReadHistoryResponse).toList();
     }
 
-    // Lấy lịch sử đọc sách theo tài khoản và sách
-    public List<BookReadHistoryResponse> getBookReadHistoryByAccountAndBook(int accID, int ID) {
-        return booKReadHistoryRepository.findByAccount_AccIDAndBook_ID(accID, ID).stream().map(bookReadHistoryMapper::toBookReadHistoryResponse).toList();
-    }
+
 }

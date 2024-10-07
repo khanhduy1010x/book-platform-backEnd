@@ -7,6 +7,6 @@ import thebook.fshop.entity.BookReadHistory;
 
 @Mapper(componentModel = "spring")
 public interface BookReadHistoryMapper {
-        @Mapping(source = "account" , target = "account")
+        @Mapping(source = "account.accID" , target = "accID")
     BookReadHistoryResponse toBookReadHistoryResponse(BookReadHistory bookReadHistory);
 }
