@@ -1,6 +1,7 @@
 package thebook.fshop.entity;
 
 import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import thebook.fshop.helper.MemberType;
@@ -19,15 +20,17 @@ public class Book {
     int ID;
 
     @ManyToOne
-    @JoinColumn(name="cateID")
+    @JoinColumn(name = "cateID")
     Category category;
 
     String bookName;
     String author;
     long price;
+
+    @Enumerated(EnumType.STRING)
     MemberType memberType;
+
     String url;
     String coverImage;
     String description;
-
 }

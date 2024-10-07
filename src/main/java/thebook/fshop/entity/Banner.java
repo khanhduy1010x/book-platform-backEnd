@@ -1,6 +1,7 @@
 package thebook.fshop.entity;
 
 import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -16,5 +17,6 @@ public class Banner {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "bannerID")
     int ID;
+
     String imageURL;
 }
