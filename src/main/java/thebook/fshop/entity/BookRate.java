@@ -1,7 +1,7 @@
 package thebook.fshop.entity;
 
-
 import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import thebook.fshop.helper.Rate;
@@ -22,8 +22,8 @@ public class BookRate {
     @JoinColumn(name = "bookID")
     Book book;
 
+    @Enumerated(EnumType.STRING)
     Rate rate;
 
     String comment;
-
 }

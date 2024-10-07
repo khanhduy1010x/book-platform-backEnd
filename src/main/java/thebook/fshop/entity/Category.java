@@ -1,7 +1,7 @@
 package thebook.fshop.entity;
 
-
 import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -15,8 +15,8 @@ import lombok.experimental.FieldDefaults;
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="categoryID")
+    @Column(name = "categoryID")
     int ID;
-    String cateName;
 
+    String cateName;
 }

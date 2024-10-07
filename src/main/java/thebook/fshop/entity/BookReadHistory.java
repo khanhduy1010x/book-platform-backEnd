@@ -1,6 +1,7 @@
 package thebook.fshop.entity;
 
 import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -24,5 +25,4 @@ public class BookReadHistory {
     @ManyToOne
     @JoinColumn(name = "bookID")
     Book book;
-
 }

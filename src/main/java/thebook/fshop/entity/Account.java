@@ -21,13 +21,19 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "accID")
     int accID;
+
     String phone;
     String password;
+
     @Enumerated(EnumType.STRING)
     Role role;
+
     Long amount;
     String avatar;
     String fullName;
+
+    @Enumerated(EnumType.STRING)
     MemberType memberType;
+
     Date birth;
 }

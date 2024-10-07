@@ -1,11 +1,12 @@
 package thebook.fshop.entity;
 
+import java.util.Date;
+
 import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import thebook.fshop.helper.TransactionType;
-
-import java.util.Date;
 
 @Entity
 @Data
@@ -19,11 +20,15 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "transactionID")
     int ID;
+
     @ManyToOne
-    @JoinColumn(name ="accID")
+    @JoinColumn(name = "accID")
     Account account;
+
     Date time;
     long amount;
     String content;
+
+    @Enumerated(EnumType.STRING)
     TransactionType transactionType;
 }

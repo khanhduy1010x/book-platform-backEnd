@@ -1,5 +1,7 @@
 package thebook.fshop.helper;
 
 public enum TransactionType {
-    NONE
+    NONE,
+    INCREASE,
+    DECREASE
 }

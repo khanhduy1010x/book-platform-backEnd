@@ -1,6 +1,7 @@
 package thebook.fshop.entity;
 
 import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -26,5 +27,4 @@ public class OrderDetail {
     Book book;
 
     int quantity;
-
 }

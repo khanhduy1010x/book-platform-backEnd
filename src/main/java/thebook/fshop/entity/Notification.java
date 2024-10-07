@@ -1,10 +1,11 @@
 package thebook.fshop.entity;
 
+import java.util.Date;
+
 import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.Date;
 
 @Entity
 @Data
@@ -16,11 +17,11 @@ import java.util.Date;
 public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name ="notificationID")
+    @Column(name = "notificationID")
     int ID;
 
     @ManyToOne
-    @JoinColumn(name= "accID")
+    @JoinColumn(name = "accID")
     Account account;
 
     String message;
@@ -28,5 +29,4 @@ public class Notification {
     boolean isRead;
 
     Date createAt;
-
 }
