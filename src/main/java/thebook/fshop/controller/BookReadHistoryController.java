@@ -1,5 +1,8 @@
 package thebook.fshop.controller;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import thebook.fshop.DTO.Response.ApiResponse;
 import thebook.fshop.DTO.Response.BookReadHistoryResponse;
 import thebook.fshop.entity.BookReadHistory;
@@ -13,12 +16,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/account/book")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class BookReadHistoryController {
 
-    @Autowired
-    private BookReadHistoryService bookReadHistoryService;
+     BookReadHistoryService bookReadHistoryService;
 
-    @GetMapping("/account/history")
+    @GetMapping("/history")
     public ApiResponse<List<BookReadHistoryResponse>> getBookReadHistory() {
         return ApiResponse.<List<BookReadHistoryResponse>>builder()
                 .result(bookReadHistoryService.getBookReadHistoryByAccount())

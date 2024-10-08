@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import thebook.fshop.DTO.Response.BookReadHistoryResponse;
 import thebook.fshop.entity.BookReadHistory;
 import thebook.fshop.entity.Account;
@@ -28,6 +29,4 @@ BooKReadHistoryRepository booKReadHistoryRepository;
         var account = securityService.getAccountByJWT();
         return booKReadHistoryRepository.findByAccount_AccID(account.getAccID()).stream().map(bookReadHistoryMapper::toBookReadHistoryResponse).toList();
     }
-
-
 }
