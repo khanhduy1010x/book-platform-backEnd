@@ -51,7 +51,10 @@ public enum ErrorCode {
     INVALID_OTP(1028, "Invalid OTP", HttpStatus.BAD_REQUEST),
     INVALID_AVATAR(1029, "Invalid OTP", HttpStatus.BAD_REQUEST),
     INVALID_FILE_NULL(1030, "Invalid OTP", HttpStatus.BAD_REQUEST),
-    PASSWORD_MISMATCH(1031,"Password error does not match user data" ,HttpStatus.BAD_REQUEST);
+    PASSWORD_MISMATCH(1031,"Password error does not match user data" ,HttpStatus.BAD_REQUEST),
+    DUPLICATE_BOOK(1029, "Already Exist", HttpStatus.BAD_REQUEST);
+
+
     private int code;
     private String message;
     HttpStatusCode statusCode;
