@@ -1,6 +1,9 @@
 package thebook.fshop.service;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,7 +15,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.multipart.MultipartFile;
 import thebook.fshop.DTO.Request.AccountCreationRequest;
+import thebook.fshop.DTO.Request.AvatarRequest;
 import thebook.fshop.DTO.Response.AccountResponse;
 import thebook.fshop.entity.Account;
 import thebook.fshop.exception.AppException;
@@ -30,7 +35,8 @@ public class AccountService {
     AccountsRepository accountsRepository;
     AccountMapper accountMapper;
     SecurityService securityService;
-    private RedisTemplate<String, Object> template;
+    private RedisTemplate<String, Object>
+            template;
 
     public AccountResponse createAccount(AccountCreationRequest request) {
         String otp = (String) template.opsForValue().get(request.getPhone());
@@ -59,4 +65,35 @@ public class AccountService {
         var account = securityService.getAccountByJWT();
         return accountMapper.toAccountResponse(account);
     }
+    public void updateAvatar(AvatarRequest request) {
+
+        String UPLOAD_PATH = "D:\\OJT\\Book4.0\\book4_0\\src\\main\\resources\\static\\avatars";
+        String PATH_AVATAR = "http://localhost:9999/avatars/";
+        // Retrieve the account associated with the currently authenticated user
+        var account = securityService.getAccountByJWT();
+        MultipartFile fileAvatar = request.getAvatar();
+        if (fileAvatar != null && !fileAvatar.isEmpty()) {
+            String fileName = fileAvatar.getOriginalFilename();
+            log.info(fileName);
+            File uploadDir = new File(UPLOAD_PATH);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+            String filePart = UPLOAD_PATH+ File.separator;
+            log.info(filePart);
+            try {
+                fileAvatar.transferTo(new File(filePart,fileName));
+                account.setAvatar(PATH_AVATAR + fileName);
+            } catch (IOException e) {
+                log.error(e.getMessage());
+                throw new AppException(ErrorCode.INVALID_FILE_NULL);
+            }
+        }
+        accountsRepository.save(account);
+    }
+
+
+
 }
+
+

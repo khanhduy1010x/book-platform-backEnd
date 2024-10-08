@@ -49,6 +49,8 @@ public enum ErrorCode {
     NULL_OTP(1026, "OTP must not be null", HttpStatus.BAD_REQUEST),
     EXPIRED_OTP(1027, "Expired OTP", HttpStatus.BAD_REQUEST),
     INVALID_OTP(1028, "Invalid OTP", HttpStatus.BAD_REQUEST),
+    INVALID_AVATAR(1029, "Invalid OTP", HttpStatus.BAD_REQUEST),
+    INVALID_FILE_NULL(1030, "Invalid OTP", HttpStatus.BAD_REQUEST),
     ;
     private int code;
     private String message;
