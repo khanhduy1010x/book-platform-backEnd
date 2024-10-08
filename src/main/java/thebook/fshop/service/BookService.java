@@ -32,6 +32,15 @@ public class BookService {
     CategoryRepository categoryRepository;
     SearchBookMapper searchBookMapper;
 
+    public List<Book> searchBook(SearchRequest query) {
+        // Fetching books from the repository
+        List<Book> books = bookRepository.findByBookNameAndAuthorAndMemberType(query.getQuery().toLowerCase());
+        if (books.isEmpty()) {
+            throw new AppException(ErrorCode.NOT_FOUND);
+        }
+        return books;
+    }
+
 
     public List<ListBookByCateResponse> getListBook() {
         List<Category> categories = categoryRepository.findAll();
@@ -54,12 +63,4 @@ public class BookService {
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
     }
 
-    public List<Book> searchBook(SearchRequest query) {
-        List<Book> books = bookRepository.findByBookNameAndAuthorAndMemberType(query.getQuery());
-        if (books.isEmpty()) {
-            throw new AppException(ErrorCode.NOT_FOUND);
-        }
-
-        return books;
-    }
 }
