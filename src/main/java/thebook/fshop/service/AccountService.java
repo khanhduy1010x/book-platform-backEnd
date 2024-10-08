@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 import thebook.fshop.DTO.Request.AccountCreationRequest;
 import thebook.fshop.DTO.Request.AvatarRequest;
+import thebook.fshop.DTO.Request.UpdateAccountInformationRequest;
 import thebook.fshop.DTO.Response.AccountResponse;
 import thebook.fshop.entity.Account;
 import thebook.fshop.exception.AppException;
@@ -93,7 +94,20 @@ public class AccountService {
     }
 
 
+    public void updateInformation(UpdateAccountInformationRequest request) {
+        var account = securityService.getAccountByJWT();
 
+        if (request.getName() != null) {
+            account.setFullName(request.getName());
+        }
+
+        if (request.getBirth() != null) {
+            account.setBirth(request.getBirth());
+        }
+        log.info(request.getName());
+        log.info(request.getBirth().toString());
+        accountsRepository.save(account);
+    }
 }
 
 
