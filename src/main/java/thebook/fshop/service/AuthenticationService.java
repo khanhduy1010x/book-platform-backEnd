@@ -42,7 +42,7 @@ public class AuthenticationService {
 
     private WebClient webClient = WebClient.create();
     private RedisTemplate<String, Object> template;
-
+    SecurityService securityService;
     AccountsRepository accountsRepository;
     InvalidateTokenRepository invalidateRepository;
 
@@ -220,5 +220,18 @@ public class AuthenticationService {
         //                        error -> {
         //                            throw new AppException(ErrorCode.ERROR_SEND);
         //                        });
+    }
+
+    public void changePassword(ChangePasswordRequest request) {
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        var account = securityService.getAccountByJWT();
+        if (passwordEncoder.matches(request.getCurrentPassword(), account.getPassword())){
+            account.setPassword(passwordEncoder.encode(request.getConfirmationNewPassword()));
+            accountsRepository.save(account);
+        }else {
+            log.info(account.getPassword());
+            log.info(passwordEncoder.encode(request.getCurrentPassword()));
+            throw new AppException(ErrorCode.PASSWORD_MISMATCH);
+        }
     }
 }
