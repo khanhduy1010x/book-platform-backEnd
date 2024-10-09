@@ -1,8 +1,10 @@
 package thebook.fshop.repository;
 
-import thebook.fshop.entity.Transaction;
-import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import thebook.fshop.entity.Transaction;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
     // Lấy danh sách giao dịch theo tài khoản

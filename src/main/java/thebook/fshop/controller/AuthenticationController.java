@@ -75,10 +75,11 @@ public class AuthenticationController {
         var respone = authenticationService.refreshToken(request);
         return ApiResponse.<AuthenticationResponse>builder().result(respone).build();
     }
+
     @PostMapping("/changePassword")
     ApiResponse<AuthenticationResponse> changePassword(@RequestBody @Valid ChangePasswordRequest request)
             throws ParseException, JOSEException {
-    authenticationService.changePassword(request);
+        authenticationService.changePassword(request);
         return ApiResponse.<AuthenticationResponse>builder().build();
     }
 }

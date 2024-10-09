@@ -15,5 +15,4 @@ public class BookRateResponse {
     Rate rate;
     String comment;
     AccountResponse accountResponse;
-
 }

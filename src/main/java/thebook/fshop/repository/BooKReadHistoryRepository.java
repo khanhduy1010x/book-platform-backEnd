@@ -1,8 +1,10 @@
 package thebook.fshop.repository;
 
-import thebook.fshop.entity.BookReadHistory;
-import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import thebook.fshop.entity.BookReadHistory;
 
 public interface BooKReadHistoryRepository extends JpaRepository<BookReadHistory, Integer> {
     // Lấy danh sách lịch sử đọc sách theo tài khoản

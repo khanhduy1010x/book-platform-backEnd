@@ -235,5 +235,4 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.PASSWORD_MISMATCH);
         }
     }
-
 }

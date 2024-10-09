@@ -3,19 +3,18 @@ package thebook.fshop.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
-import java.util.UUID;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.multipart.MultipartFile;
 import thebook.fshop.DTO.Request.AccountCreationRequest;
 import thebook.fshop.DTO.Request.AvatarRequest;
 import thebook.fshop.DTO.Request.UpdateAccountInformationRequest;
@@ -36,8 +35,7 @@ public class AccountService {
     AccountsRepository accountsRepository;
     AccountMapper accountMapper;
     SecurityService securityService;
-    private RedisTemplate<String, Object>
-            template;
+    private RedisTemplate<String, Object> template;
 
     public AccountResponse createAccount(AccountCreationRequest request) {
         String otp = (String) template.opsForValue().get(request.getPhone());
@@ -66,6 +64,7 @@ public class AccountService {
         var account = securityService.getAccountByJWT();
         return accountMapper.toAccountResponse(account);
     }
+
     public void updateAvatar(AvatarRequest request) {
 
         String UPLOAD_PATH = "D:\\OJT\\Book4.0\\book4_0\\src\\main\\resources\\static\\avatars";
@@ -80,10 +79,10 @@ public class AccountService {
             if (!uploadDir.exists()) {
                 uploadDir.mkdirs();
             }
-            String filePart = UPLOAD_PATH+ File.separator;
+            String filePart = UPLOAD_PATH + File.separator;
             log.info(filePart);
             try {
-                fileAvatar.transferTo(new File(filePart,fileName));
+                fileAvatar.transferTo(new File(filePart, fileName));
                 account.setAvatar(PATH_AVATAR + fileName);
             } catch (IOException e) {
                 log.error(e.getMessage());
@@ -92,7 +91,6 @@ public class AccountService {
         }
         accountsRepository.save(account);
     }
-
 
     public void updateInformation(UpdateAccountInformationRequest request) {
         var account = securityService.getAccountByJWT();
@@ -113,7 +111,4 @@ public class AccountService {
         log.info(request.getBirth().toString());
         accountsRepository.save(account);
     }
-
 }
-
-

@@ -28,11 +28,13 @@ public class BookManagementController {
     @GetMapping("/list-book")
     public ApiResponse<List<ListBookByCateResponse>> viewListBook() {
         var response = bookService.getListBook();
-        return ApiResponse.<List<ListBookByCateResponse>>builder().result(response).build();
+        return ApiResponse.<List<ListBookByCateResponse>>builder()
+                .result(response)
+                .build();
     }
 
     @GetMapping("/book-detail")
     public ApiResponse<Book> viewBookDetail(@RequestBody BookDetailRequest book) {
-        return ApiResponse.<Book>builder().result( bookService.getBookById(book)).build();
+        return ApiResponse.<Book>builder().result(bookService.getBookById(book)).build();
     }
 }

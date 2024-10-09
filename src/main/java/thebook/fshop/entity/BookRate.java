@@ -26,7 +26,7 @@ public class BookRate {
     Rate rate;
 
     @ManyToOne
-    @JoinColumn(name ="accID")
+    @JoinColumn(name = "accID")
     Account account;
 
     String comment;

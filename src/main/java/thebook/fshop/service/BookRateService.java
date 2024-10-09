@@ -1,9 +1,12 @@
 package thebook.fshop.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.stereotype.Service;
 import thebook.fshop.DTO.Request.BookRateRequest;
 import thebook.fshop.DTO.Response.BookRateResponse;
 import thebook.fshop.entity.Book;
@@ -14,9 +17,6 @@ import thebook.fshop.mapper.BookRateMapper;
 import thebook.fshop.repository.BookRateRepository;
 import thebook.fshop.repository.BookRepository;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -26,18 +26,17 @@ public class BookRateService {
     BookRateMapper bookRateMapper;
     SecurityService securityService;
 
-
     public void addBookRate(BookRateRequest request) {
         var account = securityService.getAccountByJWT();
-        Book book = bookRepository.findById(request.getBookID())
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+        Book book =
+                bookRepository.findById(request.getBookID()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
         BookRate bookRate = BookRate.builder()
                 .book(book)
                 .account(account)
                 .rate(request.getRate())
                 .comment(request.getComment())
                 .build();
-          bookRateRepository.save(bookRate);
+        bookRateRepository.save(bookRate);
     }
 
     public List<BookRateResponse> getBookRatesByBookID(int bookID) {

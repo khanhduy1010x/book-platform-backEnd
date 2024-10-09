@@ -1,10 +1,11 @@
 package thebook.fshop.service;
 
+import org.springframework.stereotype.Service;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import thebook.fshop.DTO.Request.AddToFavoriteRequest;
 import thebook.fshop.entity.WishList;
 import thebook.fshop.exception.AppException;
@@ -32,7 +33,9 @@ public class FavoriteService {
         }
         var wishList = WishList.builder()
                 .account(account)
-                .book(bookRepository.findById(request.getBookID()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND)))
+                .book(bookRepository
+                        .findById(request.getBookID())
+                        .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND)))
                 .build();
         wishListRepository.save(wishList); // Save the wishlist item in the database
     }
@@ -41,10 +44,10 @@ public class FavoriteService {
     public void deleteFavorite(Integer id) {
         var account = securityService.getAccountByJWT();
         var wishBook = wishListRepository.findByBook_IDAndAccount_AccID(id, account.getAccID());
-        if (wishBook !=null) {
+        if (wishBook != null) {
             wishListRepository.deleteById(wishBook.getID()); // Delete the wishlist item by ID
         } else {
-        throw new AppException(ErrorCode.NOT_FOUND);
+            throw new AppException(ErrorCode.NOT_FOUND);
         }
     }
 }

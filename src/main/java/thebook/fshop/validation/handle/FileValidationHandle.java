@@ -1,25 +1,28 @@
 package thebook.fshop.validation.handle;
 
+import java.util.Arrays;
+import java.util.List;
+
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.web.multipart.MultipartFile;
+
+import lombok.extern.slf4j.Slf4j;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
 import thebook.fshop.validation.FileValidation;
-
-
-import java.util.Arrays;
-import java.util.List;
 
 @Slf4j
 public class FileValidationHandle implements ConstraintValidator<FileValidation, MultipartFile> {
 
     private final List<String> allowedExtensions = Arrays.asList("jpg", "png", "webp");
+
     @Override
     public void initialize(FileValidation constraintAnnotation) {
         ConstraintValidator.super.initialize(constraintAnnotation);
     }
+
     @Override
     public boolean isValid(MultipartFile file, ConstraintValidatorContext context) {
 
