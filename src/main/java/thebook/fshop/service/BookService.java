@@ -7,9 +7,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import thebook.fshop.DTO.Response.BookResponse;
+import thebook.fshop.DTO.Response.ListBookByCateResponse;
 import thebook.fshop.entity.Book;
+import thebook.fshop.entity.Category;
+import thebook.fshop.exception.AppException;
+import thebook.fshop.exception.ErrorCode;
 import thebook.fshop.repository.BookRepository;
+import thebook.fshop.repository.CategoryRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,20 +25,21 @@ import java.util.stream.Collectors;
 @Slf4j
 public class BookService {
     BookRepository bookRepository;
-    public List<BookResponse> getListBook() {
-        List<Book> books = bookRepository.findBooksWithCategory();
+    CategoryRepository categoryRepository;
 
-        // Mapping each Book entity to BookResponse
-        return books.stream().map(book -> BookResponse.builder()
-                .ID(book.getID())
-                .category(book.getCategory())
-                .bookName(book.getBookName())
-                .author(book.getAuthor())
-                .price(book.getPrice())
-                .memberType(book.getMemberType())
-                .url(book.getUrl())
-                .coverImage(book.getCoverImage())
-                .description(book.getDescription())
-                .build()).collect(Collectors.toList());
+
+    public List<ListBookByCateResponse> getListBook() {
+        List<Category> categories = categoryRepository.findAll();
+        if(categories.isEmpty()) throw new AppException(ErrorCode.NOT_FOUND);
+        List<ListBookByCateResponse> books = new ArrayList<>();
+        for (Category category : categories) {
+            var listBook =  bookRepository.findBookByCategory_ID(category.getID());
+            ListBookByCateResponse listBookResponse = ListBookByCateResponse.builder()
+                    .cateName(category.getCateName())
+                    .listBook(listBook)
+                    .build();
+            books.add(listBookResponse);
+        }
+        return books;
     }
 }

@@ -11,6 +11,5 @@ import java.util.List;
 @Repository
 public interface BookRepository extends JpaRepository<Book, Integer> {
 
-    @Query("SELECT b FROM Book b WHERE b.category IS NOT NULL")
-    List<Book> findBooksWithCategory();
+    List<Book> findBookByCategory_ID(int ID);
 }
