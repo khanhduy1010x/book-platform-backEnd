@@ -16,15 +16,13 @@ public class BookRateController {
 
     private final BookRateService bookRateService;
 
-    // API để thêm đánh giá sách
     @PostMapping("/add")
-    public ApiResponse<BookRateResponse> addBookRate(@RequestBody BookRateRequest request) {
-        return ApiResponse.<BookRateResponse>builder()
-                .result(bookRateService.addBookRate(request))
+    public ApiResponse<?> addBookRate(@RequestBody BookRateRequest request) {
+        bookRateService.addBookRate(request);
+        return ApiResponse.builder()
                 .build();
     }
 
-    // API để lấy danh sách đánh giá theo ID của sách
     @GetMapping("/book/{bookID}")
     public ApiResponse<List<BookRateResponse>> getBookRatesByBookID(@PathVariable int bookID) {
         return ApiResponse.<List<BookRateResponse>>builder()

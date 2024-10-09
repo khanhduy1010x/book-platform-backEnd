@@ -25,5 +25,9 @@ public class BookRate {
     @Enumerated(EnumType.STRING)
     Rate rate;
 
+    @ManyToOne
+    @JoinColumn(name ="accID")
+    Account account;
+
     String comment;
 }

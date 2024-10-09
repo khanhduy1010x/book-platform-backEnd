@@ -10,7 +10,7 @@ import thebook.fshop.helper.Rate;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookRateRequest {
-    int bookID;  // ID của sách
-    Rate rate;   // Đánh giá (số sao hoặc mức độ hài lòng)
-    String comment;  // Bình luận của người dùng
+    int bookID;
+    Rate rate;
+    String comment;
 }

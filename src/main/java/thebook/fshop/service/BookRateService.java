@@ -8,6 +8,8 @@ import thebook.fshop.DTO.Request.BookRateRequest;
 import thebook.fshop.DTO.Response.BookRateResponse;
 import thebook.fshop.entity.Book;
 import thebook.fshop.entity.BookRate;
+import thebook.fshop.exception.AppException;
+import thebook.fshop.exception.ErrorCode;
 import thebook.fshop.mapper.BookRateMapper;
 import thebook.fshop.repository.BookRateRepository;
 import thebook.fshop.repository.BookRepository;
@@ -22,31 +24,25 @@ public class BookRateService {
     BookRateRepository bookRateRepository;
     BookRepository bookRepository;
     BookRateMapper bookRateMapper;
+    SecurityService securityService;
 
-    // Thêm đánh giá sách
-    public BookRateResponse addBookRate(BookRateRequest request) {
-        // Lấy sách từ cơ sở dữ liệu
+
+    public void addBookRate(BookRateRequest request) {
+        var account = securityService.getAccountByJWT();
         Book book = bookRepository.findById(request.getBookID())
-                .orElseThrow(() -> new RuntimeException("Sách không tồn tại"));
-
-        // Tạo đối tượng BookRate mới
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
         BookRate bookRate = BookRate.builder()
                 .book(book)
+                .account(account)
                 .rate(request.getRate())
                 .comment(request.getComment())
                 .build();
-
-        // Lưu vào cơ sở dữ liệu
-        BookRate savedBookRate = bookRateRepository.save(bookRate);
-
-        // Chuyển đổi và trả về DTO
-        return bookRateMapper.toBookRateResponse(savedBookRate);
+          bookRateRepository.save(bookRate);
     }
 
-    // Lấy danh sách đánh giá của sách theo ID
     public List<BookRateResponse> getBookRatesByBookID(int bookID) {
         return bookRateRepository.findByBook_ID(bookID).stream()
                 .map(bookRateMapper::toBookRateResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 }
