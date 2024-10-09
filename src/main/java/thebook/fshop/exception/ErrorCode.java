@@ -50,6 +50,10 @@ public enum ErrorCode {
     NULL_OTP(1026, "OTP must not be null", HttpStatus.BAD_REQUEST),
     EXPIRED_OTP(1027, "Expired OTP", HttpStatus.BAD_REQUEST),
     INVALID_OTP(1028, "Invalid OTP", HttpStatus.BAD_REQUEST),
+<<<<<<< src/main/java/thebook/fshop/exception/ErrorCode.java
+    INVALID_AVATAR(1029, "Invalid OTP", HttpStatus.BAD_REQUEST),
+    INVALID_FILE_NULL(1030, "Invalid OTP", HttpStatus.BAD_REQUEST),
+    PASSWORD_MISMATCH(1031,"Password error does not match user data" ,HttpStatus.BAD_REQUEST),
     INVALID_AVATAR(1029, "Invalid Avatar", HttpStatus.BAD_REQUEST),
     INVALID_FILE_NULL(1030, "Invalid File", HttpStatus.BAD_REQUEST),
     NULL_AVATAR(1032, "Avatar must not be null", HttpStatus.BAD_REQUEST),
@@ -57,7 +61,8 @@ public enum ErrorCode {
     PASSWORD_MISMATCH(1031,"Password error does not match user data" ,HttpStatus.BAD_REQUEST),
     INVALID_NAME_NULL(1034,"Name is not null or empty" ,HttpStatus.BAD_REQUEST),
     INVALID_NAME(1035,"Names are allowed to contain characters that do not contain numbers and special characters " ,HttpStatus.BAD_REQUEST),
-    INVALID_BIRTH(1036,"birth is not null or empty" ,HttpStatus.BAD_REQUEST);
+    INVALID_BIRTH(1036,"birth is not null or empty" ,HttpStatus.BAD_REQUEST),
+    DUPLICATE_BOOK(1029, "Already Exist", HttpStatus.BAD_REQUEST);
     private int code;
     private String message;
     HttpStatusCode statusCode;
