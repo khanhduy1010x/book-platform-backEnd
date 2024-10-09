@@ -61,7 +61,9 @@ public enum ErrorCode {
             "Names are allowed to contain characters that do not contain numbers and special characters ",
             HttpStatus.BAD_REQUEST),
     INVALID_BIRTH(1036, "birth is not null or empty", HttpStatus.BAD_REQUEST),
-    DUPLICATE_BOOK(1029, "Already Exist", HttpStatus.BAD_REQUEST);
+    DUPLICATE_BOOK(1037, "Already Exist", HttpStatus.BAD_REQUEST),
+    INVALID_NEW_PASSWORD(1038, "Invalid password", HttpStatus.BAD_REQUEST);
+
     private int code;
     private String message;
     HttpStatusCode statusCode;
