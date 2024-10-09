@@ -225,13 +225,15 @@ public class AuthenticationService {
     public void changePassword(ChangePasswordRequest request) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         var account = securityService.getAccountByJWT();
-        if (passwordEncoder.matches(request.getCurrentPassword(), account.getPassword())){
+        if (!request.getNewPassword().equals(request.getConfirmationNewPassword())) {
+            throw new AppException(ErrorCode.INVALID_NEW_PASSWORD);
+        }
+        if (passwordEncoder.matches(request.getCurrentPassword(), account.getPassword())) {
             account.setPassword(passwordEncoder.encode(request.getConfirmationNewPassword()));
             accountsRepository.save(account);
-        }else {
-            log.info(account.getPassword());
-            log.info(passwordEncoder.encode(request.getCurrentPassword()));
+        } else {
             throw new AppException(ErrorCode.PASSWORD_MISMATCH);
         }
     }
+
 }

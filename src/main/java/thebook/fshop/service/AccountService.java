@@ -97,17 +97,23 @@ public class AccountService {
     public void updateInformation(UpdateAccountInformationRequest request) {
         var account = securityService.getAccountByJWT();
 
-        if (request.getName() != null) {
-            account.setFullName(request.getName());
+        if (request.getName() == null || request.getName().trim().isEmpty()) {
+            throw new AppException(ErrorCode.INVALID_NAME_NULL);
+        }
+        if (!request.getName().matches("^[A-Za-zÀ-ỹ\\s]+$")) {
+            throw new AppException(ErrorCode.INVALID_NAME);
         }
 
-        if (request.getBirth() != null) {
-            account.setBirth(request.getBirth());
+        if (request.getBirth() == null || request.getBirth().toString().trim().isEmpty()) {
+            throw new AppException(ErrorCode.INVALID_BIRTH);
         }
+        account.setFullName(request.getName());
+        account.setBirth(request.getBirth());
         log.info(request.getName());
         log.info(request.getBirth().toString());
         accountsRepository.save(account);
     }
+
 }
 
 
