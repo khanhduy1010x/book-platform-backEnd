@@ -16,7 +16,7 @@ import thebook.fshop.helper.Rate;
 public class BookRate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int ID;
+    int id;
 
     @ManyToOne
     @JoinColumn(name = "bookID")
@@ -24,6 +24,10 @@ public class BookRate {
 
     @Enumerated(EnumType.STRING)
     Rate rate;
+
+    @ManyToOne
+    @JoinColumn(name ="accID")
+    Account account;
 
     String comment;
 }
