@@ -10,11 +10,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import thebook.fshop.DTO.Request.AvatarRequest;
+import thebook.fshop.DTO.Request.UpdateAccountInformationRequest;
 import thebook.fshop.DTO.Response.AccountResponse;
 import thebook.fshop.DTO.Response.ApiResponse;
 import thebook.fshop.DTO.Response.AuthenticationResponse;
 import thebook.fshop.service.AccountService;
 import thebook.fshop.validation.FileValidation;
+
+import java.util.Date;
 
 @RestController
 @RequestMapping("/account")
@@ -32,6 +35,11 @@ public class AccountManagementController {
     public ApiResponse<AccountResponse> editAvatar(@RequestParam(value = "avatar", required = false) @FileValidation MultipartFile avatar) {
         var request = new AvatarRequest(avatar);
         accountService.updateAvatar(request);
+        return ApiResponse.<AccountResponse>builder().build();
+    }
+    @PostMapping(value = "/edit-information")
+    public ApiResponse<AccountResponse> editInfor(@RequestBody UpdateAccountInformationRequest request) {
+        accountService.updateInformation(request);
         return ApiResponse.<AccountResponse>builder().build();
     }
 }
