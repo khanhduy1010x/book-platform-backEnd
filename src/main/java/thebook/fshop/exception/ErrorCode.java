@@ -50,10 +50,6 @@ public enum ErrorCode {
     NULL_OTP(1026, "OTP must not be null", HttpStatus.BAD_REQUEST),
     EXPIRED_OTP(1027, "Expired OTP", HttpStatus.BAD_REQUEST),
     INVALID_OTP(1028, "Invalid OTP", HttpStatus.BAD_REQUEST),
-<<<<<<< src/main/java/thebook/fshop/exception/ErrorCode.java
-    INVALID_AVATAR(1029, "Invalid OTP", HttpStatus.BAD_REQUEST),
-    INVALID_FILE_NULL(1030, "Invalid OTP", HttpStatus.BAD_REQUEST),
-    PASSWORD_MISMATCH(1031,"Password error does not match user data" ,HttpStatus.BAD_REQUEST),
     INVALID_AVATAR(1029, "Invalid Avatar", HttpStatus.BAD_REQUEST),
     INVALID_FILE_NULL(1030, "Invalid File", HttpStatus.BAD_REQUEST),
     NULL_AVATAR(1032, "Avatar must not be null", HttpStatus.BAD_REQUEST),
