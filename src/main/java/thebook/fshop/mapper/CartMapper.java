@@ -12,7 +12,6 @@ public class CartMapper {
         return CartResponse.builder()
                 .cartID(cart.getID())
                 .accountID(cart.getAccount().getAccID())
-                .accountFullName(cart.getAccount().getFullName())
                 .accountMemberType(cart.getAccount().getMemberType())
                 .bookID(cart.getBook().getID())
                 .bookName(cart.getBook().getBookName())
