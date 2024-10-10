@@ -1,7 +1,7 @@
 package thebook.fshop.entity;
 
-
 import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -14,7 +14,7 @@ import lombok.experimental.FieldDefaults;
 @Table(name = "WishLists")
 public class WishList {
     @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "wishListID")
     int ID;
 
@@ -25,5 +25,4 @@ public class WishList {
     @ManyToOne
     @JoinColumn(name = "bookID")
     Book book;
-
 }

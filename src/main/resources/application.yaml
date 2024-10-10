@@ -21,8 +21,8 @@ spring:
 
 jwt:
   signerKey: "CYXfKCsUaBwDgqbbZJ8iv5Xz8muv+o3DdfrFZkc/x39KcUfRVkaE00anvOVDkgy4"
-  valid-duration: 60  # 1 ngay
-  refreshable-duration: 120 # 1 tuan
+  valid-duration: 8640  # 1 ngay
+  refreshable-duration: 86400 # 1 tuan
 
 sms:
  key: "8rHmonzVEr9JuCHhfxDxt71rFb12L_h3"

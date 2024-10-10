@@ -1,7 +1,7 @@
 package thebook.fshop.entity;
 
-
 import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import thebook.fshop.helper.Rate;
@@ -16,14 +16,18 @@ import thebook.fshop.helper.Rate;
 public class BookRate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int ID;
+    int id;
 
     @ManyToOne
     @JoinColumn(name = "bookID")
     Book book;
 
+    @Enumerated(EnumType.STRING)
     Rate rate;
 
-    String comment;
+    @ManyToOne
+    @JoinColumn(name = "accID")
+    Account account;
 
+    String comment;
 }

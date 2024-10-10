@@ -1,13 +1,14 @@
 package thebook.fshop.entity;
 
+import java.util.Date;
+
 import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import thebook.fshop.helper.PaymentMethod;
 import thebook.fshop.helper.PaymentStatus;
 import thebook.fshop.helper.ShipStatus;
-
-import java.util.Date;
 
 @Entity
 @Data
@@ -32,15 +33,14 @@ public class Order {
 
     Date date;
 
+    @Enumerated(EnumType.STRING)
     PaymentMethod paymentMethod;
 
+    @Enumerated(EnumType.STRING)
     PaymentStatus paymentStatus;
 
+    @Enumerated(EnumType.STRING)
     ShipStatus shipStatus;
 
     long totalAmount;
-
-
-
-
 }

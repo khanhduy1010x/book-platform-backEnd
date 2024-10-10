@@ -1,6 +1,7 @@
 package thebook.fshop.entity;
 
 import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -16,6 +17,7 @@ public class MembershipPackage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "MP_ID")
     int ID;
+
     String packageName;
 
     long price;
@@ -25,6 +27,4 @@ public class MembershipPackage {
     String features;
 
     String description;
-
-
 }

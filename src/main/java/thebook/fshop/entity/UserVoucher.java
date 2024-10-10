@@ -1,10 +1,11 @@
 package thebook.fshop.entity;
 
+import java.util.Date;
+
 import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.Date;
 
 @Entity
 @Data
@@ -19,7 +20,7 @@ public class UserVoucher {
     int ID;
 
     @ManyToOne
-    @JoinColumn(name ="accID")
+    @JoinColumn(name = "accID")
     Account Account;
 
     @ManyToOne
@@ -29,6 +30,4 @@ public class UserVoucher {
     Date expiration_date;
 
     boolean isUsed;
-
-
 }

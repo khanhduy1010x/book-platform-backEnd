@@ -1,6 +1,7 @@
 package thebook.fshop.entity;
 
 import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import thebook.fshop.helper.DiscountType;
@@ -15,12 +16,14 @@ import thebook.fshop.helper.DiscountType;
 public class Voucher {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-            @Column(name = "voucherID")
+    @Column(name = "voucherID")
     int ID;
 
     String voucherName;
+
+    @Enumerated(EnumType.STRING)
     DiscountType discountType;
+
     double discountValue;
     String voucherDescription;
-
 }
