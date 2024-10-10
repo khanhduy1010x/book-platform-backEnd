@@ -54,16 +54,9 @@ public enum ErrorCode {
     INVALID_FILE_NULL(1030, "Invalid File", HttpStatus.BAD_REQUEST),
     NULL_AVATAR(1032, "Avatar must not be null", HttpStatus.BAD_REQUEST),
     NULL_BIRTH(1033, "Username must not be null", HttpStatus.BAD_REQUEST),
-    PASSWORD_MISMATCH(1031, "Password error does not match user data", HttpStatus.BAD_REQUEST),
-    INVALID_NAME_NULL(1034, "Name is not null or empty", HttpStatus.BAD_REQUEST),
-    INVALID_NAME(
-            1035,
-            "Names are allowed to contain characters that do not contain numbers and special characters ",
-            HttpStatus.BAD_REQUEST),
-    INVALID_BIRTH(1036, "birth is not null or empty", HttpStatus.BAD_REQUEST),
-    DUPLICATE_BOOK(1037, "Already Exist", HttpStatus.BAD_REQUEST),
-    INVALID_NEW_PASSWORD(1038, "Invalid password", HttpStatus.BAD_REQUEST);
-
+    INVALID_BANNER_NULL(1039, "Banner is not null or empty", HttpStatus.BAD_REQUEST),
+    NULL_BANNER(1040, "Banner haven't in database", HttpStatus.BAD_REQUEST),
+    INVALID_BANNER(1042, "File banner must be .jgg .png .wepg ", HttpStatus.BAD_REQUEST);
     private int code;
     private String message;
     HttpStatusCode statusCode;
