@@ -2,9 +2,12 @@ package thebook.fshop.controller;
 
 import java.util.List;
 
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -27,5 +30,25 @@ public class BannerController {
         return ApiResponse.<List<Banner>>builder()
                 .result(bannerService.viewBanner())
                 .build();
+    }
+
+    @PostMapping(
+            value = "/edit-banner",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiResponse<Banner> editBanner(
+            @RequestParam(value = "id", required = false) int id,
+            @RequestParam(value = "banner", required = false) MultipartFile banner) {
+        bannerService.updateBanner(id, banner);
+        return ApiResponse.<Banner>builder().build();
+    }
+
+    @PostMapping(
+            value = "/create-banner",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ApiResponse<Banner> createBanner(@RequestParam(value = "banner", required = false) MultipartFile banner) {
+        bannerService.createBanner(banner);
+        return ApiResponse.<Banner>builder().build();
     }
 }
