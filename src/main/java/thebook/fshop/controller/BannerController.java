@@ -51,4 +51,9 @@ public class BannerController {
         bannerService.createBanner(banner);
         return ApiResponse.<Banner>builder().build();
     }
+    @DeleteMapping( value = "/delete-banner")
+    public ApiResponse<Banner> deleteBanner(@RequestParam(value = "id", required = false) int id) {
+        log.info("delete banner id:{}", id);
+        bannerService.deleteBanner(id);
+        return ApiResponse.<Banner>builder().build();}
 }
