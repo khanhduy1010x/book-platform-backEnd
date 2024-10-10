@@ -10,11 +10,13 @@ import org.springframework.stereotype.Service;
 import thebook.fshop.DTO.Request.AddtoCartRequest;
 import thebook.fshop.DTO.Request.UpdateCartRequest;
 import thebook.fshop.DTO.Request.DeleteCartRequest;
+import thebook.fshop.DTO.Response.CartResponse;
 import thebook.fshop.entity.Cart;
 import thebook.fshop.entity.Account;
 import thebook.fshop.entity.Book;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
+import thebook.fshop.mapper.CartMapper;
 import thebook.fshop.repository.CartRepository;
 import thebook.fshop.repository.BookRepository;
 import java.util.List;
@@ -29,13 +31,11 @@ public class CartService {
     CartRepository cartRepository;
     BookRepository bookRepository;
     SecurityService securityService;
-
-    // Function to add a book to the cart
+    CartMapper cartMapper;
     public void addToCart(AddtoCartRequest request) {
-        Account account = getCurrentAccount();
+        var account = securityService.getAccountByJWT();
         Book book = bookRepository.findById(request.getBookID())
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
-
         Cart existingCart = cartRepository.findByAccount_AccIDAndBook_ID(account.getAccID(), book.getID());
         if (existingCart != null) {
             existingCart.setQuantity(existingCart.getQuantity() + request.getQuantity());
@@ -50,17 +50,15 @@ public class CartService {
         }
     }
 
-    // Function to view the cart of a specific account
-    public List<Cart> viewCart(Account account) {
-        return cartRepository.findByAccount(account);
+    public List<CartResponse> viewCart() {
+        Account account = securityService.getAccountByJWT();
+        return cartRepository.findByAccount_AccID(account.getAccID()).stream().map(cartMapper::toCartResponse).toList();
     }
 
-    // Function to update the quantity of a book in the cart
     public void updateCart(UpdateCartRequest request) {
-        Account account = getCurrentAccount();
+        Account account = securityService.getAccountByJWT();
         Book book = bookRepository.findById(request.getBookID())
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
-
         Cart existingCart = cartRepository.findByAccount_AccIDAndBook_ID(account.getAccID(), book.getID());
         if (existingCart != null) {
             if (request.getQuantity() > 0) {
@@ -74,12 +72,10 @@ public class CartService {
         }
     }
 
-    // Function to delete a book from the cart
     public void deleteFromCart(DeleteCartRequest request) {
-        Account account = getCurrentAccount();
+        Account account = securityService.getAccountByJWT();
         Book book = bookRepository.findById(request.getBookID())
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
-
         Cart existingCart = cartRepository.findByAccount_AccIDAndBook_ID(account.getAccID(), book.getID());
         if (existingCart != null) {
             cartRepository.delete(existingCart);
@@ -88,8 +84,5 @@ public class CartService {
         }
     }
 
-    // Helper method to get the current authenticated account
-    public Account getCurrentAccount() {
-        return securityService.getAccountByJWT();
-    }
+
 }

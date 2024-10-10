@@ -2,6 +2,7 @@ package thebook.fshop.DTO.Response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import thebook.fshop.entity.Book;
 import thebook.fshop.helper.MemberType;
 
 @Data
@@ -12,13 +13,6 @@ import thebook.fshop.helper.MemberType;
 public class CartResponse {
     int cartID;
     int accountID;
-    String accountUsername;
-    MemberType accountMemberType;
-    int bookID;
-    String bookName;
-    String bookAuthor;
-    long bookPrice;
-    MemberType bookMemberType;
-    String bookCoverImage;
+    Book book;
     int quantity;
 }

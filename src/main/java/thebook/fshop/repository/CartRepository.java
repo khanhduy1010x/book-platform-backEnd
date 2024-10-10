@@ -12,5 +12,5 @@ import java.util.List;
 
 public interface CartRepository extends JpaRepository<Cart, Integer> {
     Cart findByAccount_AccIDAndBook_ID(int accID, int bookID);
-    List<Cart> findByAccount(Account account);
+    List<Cart> findByAccount_AccID(int accID);
 }
