@@ -10,9 +10,9 @@ import thebook.fshop.DTO.Response.CartResponse;
 import thebook.fshop.entity.Account;
 import thebook.fshop.entity.Cart;
 import thebook.fshop.service.CartService;
+import thebook.fshop.mapper.CartMapper;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/cart")
@@ -25,7 +25,7 @@ public class CartController {
     @PostMapping("/add")
     public ApiResponse<?> addToCart(@RequestBody AddtoCartRequest request) {
         cartService.addToCart(request);
-        return ApiResponse.builder().build(); // Removed the message
+        return ApiResponse.builder().build(); // Removed message
     }
 
     // API to view the cart of the current account
@@ -34,32 +34,19 @@ public class CartController {
         Account account = cartService.getCurrentAccount();
         List<Cart> carts = cartService.viewCart(account);
 
-        List<CartResponse> cartResponses = carts.stream()
-                .map(cart -> CartResponse.builder()
-                        .cartID(cart.getID())
-                        .accountID(cart.getAccount().getAccID())
-                        .accountFullName(cart.getAccount().getFullName())
-                        .accountMemberType(cart.getAccount().getMemberType())
-                        .bookID(cart.getBook().getID())
-                        .bookName(cart.getBook().getBookName())
-                        .bookAuthor(cart.getBook().getAuthor())
-                        .bookPrice(cart.getBook().getPrice())
-                        .bookMemberType(cart.getBook().getMemberType())
-                        .bookCoverImage(cart.getBook().getCoverImage())
-                        .quantity(cart.getQuantity())
-                        .build())
-                .collect(Collectors.toList());
+        // Use CartMapper to map the cart list
+        List<CartResponse> cartResponses = CartMapper.toCartResponseList(carts);
 
         return ApiResponse.<List<CartResponse>>builder()
                 .result(cartResponses)
-                .build(); // Message removed
+                .build(); // Removed message
     }
 
     // API to update the quantity of a book in the cart
     @PutMapping("/update")
     public ApiResponse<?> updateCart(@RequestBody UpdateCartRequest request) {
         cartService.updateCart(request);
-        return ApiResponse.builder().build(); // Removed the message
+        return ApiResponse.builder().build(); // Removed message
     }
 
     // API to delete a book from the cart
@@ -69,6 +56,7 @@ public class CartController {
                 .bookID(bookID)
                 .build();
         cartService.deleteFromCart(request);
-        return ApiResponse.builder().build(); // Removed the message
+        return ApiResponse.builder().build(); // Removed message
     }
 }
+
