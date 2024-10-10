@@ -8,6 +8,4 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class BannerRequest {
-
-}
+public class BannerRequest {}
