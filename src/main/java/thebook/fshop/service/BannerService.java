@@ -8,8 +8,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+
 import thebook.fshop.entity.Banner;
 import thebook.fshop.repository.BannerRepository;
+
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +21,7 @@ public class BannerService {
     BannerRepository bannerRepository;
 
     public List<Banner> viewBanner() {
-        return bannerRepository.findAll();
+return bannerRepository.findAll();
+
     }
 }
