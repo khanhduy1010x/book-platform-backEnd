@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import thebook.fshop.entity.Account;
+import thebook.fshop.helper.MemberType;
 import thebook.fshop.helper.Role;
 import thebook.fshop.repository.AccountsRepository;
 
@@ -31,6 +32,9 @@ public class ApplicationConfig {
                         .phone("9999")
                         .birth(new Date("10/10/2002"))
                         .avatar("No avatar")
+                        .amount(9999999L)
+                        .fullName("ADMIN")
+                        .memberType(MemberType.PREMIUM)
                         .password(passwordEncoder.encode("admin"))
                         .role(Role.ADMIN)
                         .build();

@@ -1,5 +1,11 @@
 package thebook.fshop.service;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -24,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 import thebook.fshop.DTO.Request.*;
 import thebook.fshop.DTO.Response.AuthenticationResponse;
 import thebook.fshop.DTO.Response.IntrorespectResponse;
@@ -31,6 +38,8 @@ import thebook.fshop.entity.Account;
 import thebook.fshop.entity.InvalidToken;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
+import thebook.fshop.helper.MemberType;
+import thebook.fshop.helper.Role;
 import thebook.fshop.repository.AccountsRepository;
 import thebook.fshop.repository.InvalidateTokenRepository;
 
@@ -40,11 +49,19 @@ import thebook.fshop.repository.InvalidateTokenRepository;
 @Slf4j
 public class AuthenticationService {
 
+
     private WebClient webClient = WebClient.create();
     private RedisTemplate<String, Object> template;
     SecurityService securityService;
     AccountsRepository accountsRepository;
     InvalidateTokenRepository invalidateRepository;
+    @NonFinal
+    @Value("${upload.path}")
+    String UPLOAD_PATH;
+
+    @NonFinal
+    @Value("${path.avatar}")
+    String PATH_AVATAR;
 
     @NonFinal
     @Value("${sms.key}")
@@ -86,7 +103,7 @@ public class AuthenticationService {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean authenticated = passwordEncoder.matches(request.getPassword(), accounts.getPassword());
         if (!authenticated) throw new AppException(ErrorCode.UNAUTHENTICATED);
-        var tokenData = gerenarated(accounts);
+        var tokenData = generate(accounts);
         return AuthenticationResponse.builder()
                 .token(tokenData.getToken())
                 .expiryTime(tokenData.getExpiryTime())
@@ -122,7 +139,7 @@ public class AuthenticationService {
         var phone = signToken.getJWTClaimsSet().getSubject();
         var account = accountsRepository.findByPhone(phone).orElseThrow(() -> new AppException(ErrorCode.UNAUTHORIZED));
 
-        var tokenData = gerenarated(account);
+        var tokenData = generate(account);
 
         return AuthenticationResponse.builder()
                 .token(tokenData.getToken())
@@ -150,7 +167,7 @@ public class AuthenticationService {
         return signedJWT;
     }
 
-    private AuthenticationResponse gerenarated(Account account) {
+    private AuthenticationResponse generate(Account account) {
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
         Date expiryTime =
                 new Date(Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli());
@@ -235,4 +252,67 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.PASSWORD_MISMATCH);
         }
     }
+    public Mono<AuthenticationResponse> getUserByGoogleToken(GoogleLoginRequest request) {
+        log.info("in service");
+        return webClient.get()
+                .uri("https://www.googleapis.com/oauth2/v3/userinfo")
+                .headers(headers -> headers.setBearerAuth(request.getToken()))
+                .retrieve()
+                .bodyToMono(Map.class)
+                .flatMap(response -> {
+
+                    String email = (String) response.get("email");
+                    Optional<Account> accountExits = accountsRepository.findByEmail(email);
+                    if (accountExits.isEmpty()) {
+                        String name = (String) response.get("name");
+                        String avatarImageURL = (String) response.get("picture");
+                        String uniqueId = UUID.randomUUID().toString();
+                        String fileName = "avatar_" + uniqueId + ".jpg";
+                        String savedAvatarPath = "";
+                        try {
+                            URL url = new URL(avatarImageURL);
+                            InputStream inputStream = url.openStream();
+                            File uploadDir = new File(UPLOAD_PATH);
+                            if (!uploadDir.exists()) {
+                                uploadDir.mkdirs();
+                            }
+                            File file = new File(UPLOAD_PATH + File.separator + fileName);
+                            Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                            inputStream.close();
+                            savedAvatarPath = PATH_AVATAR + fileName;
+                        } catch (IOException e) {
+                            return Mono.error(new AppException(ErrorCode.SERVER_ERROR));
+                        }
+                        var account = Account.builder()
+                                .email(email)
+                                .avatar(savedAvatarPath)
+                                .role(Role.USER)
+                                .amount(0L)
+                                .memberType(MemberType.NONE)
+                                .fullName(name)
+                                .build();
+                        accountsRepository.save(account);
+                        var tokenData = generate(account);
+                        return Mono.just(AuthenticationResponse.builder()
+                                .token(tokenData.getToken())
+                                .expiryTime(tokenData.getExpiryTime())
+                                .refreshedTime(tokenData.getRefreshedTime())
+                                .authenticated(true)
+                                .build());
+                    }else {
+                        var tokenData = generate(accountExits.get());
+                        return Mono.just(AuthenticationResponse.builder()
+                                .token(tokenData.getToken())
+                                .expiryTime(tokenData.getExpiryTime())
+                                .refreshedTime(tokenData.getRefreshedTime())
+                                .authenticated(true)
+                                .build());
+                    }
+                })
+                .onErrorResume(error -> {
+                    log.info(error.getMessage());
+                    return Mono.error(new AppException(ErrorCode.SERVER_ERROR));
+                });
+    }
+
 }
