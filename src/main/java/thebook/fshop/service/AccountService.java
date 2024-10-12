@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
+import lombok.experimental.NonFinal;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -35,7 +37,15 @@ public class AccountService {
     AccountsRepository accountsRepository;
     AccountMapper accountMapper;
     SecurityService securityService;
-    private RedisTemplate<String, Object> template;
+    RedisTemplate<String, Object> template;
+
+    @NonFinal
+    @Value("${upload.path}")
+    String UPLOAD_PATH;
+
+    @NonFinal
+    @Value("${path.avatar}")
+    String PATH_AVATAR;
 
     public AccountResponse createAccount(AccountCreationRequest request) {
         String otp = (String) template.opsForValue().get(request.getPhone());
@@ -66,9 +76,6 @@ public class AccountService {
     }
 
     public void updateAvatar(AvatarRequest request) {
-
-        String UPLOAD_PATH = "D:\\OJT\\Book4.0\\book4_0\\src\\main\\resources\\static\\avatars";
-        String PATH_AVATAR = "http://localhost:9999/avatars/";
         // Retrieve the account associated with the currently authenticated user
         var account = securityService.getAccountByJWT();
         MultipartFile fileAvatar = request.getAvatar();

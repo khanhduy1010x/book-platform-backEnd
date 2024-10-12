@@ -12,11 +12,14 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 import thebook.fshop.DTO.Request.*;
 import thebook.fshop.DTO.Response.AccountResponse;
 import thebook.fshop.DTO.Response.ApiResponse;
 import thebook.fshop.DTO.Response.AuthenticationResponse;
 import thebook.fshop.DTO.Response.IntrorespectResponse;
+import thebook.fshop.exception.AppException;
+import thebook.fshop.exception.ErrorCode;
 import thebook.fshop.service.AccountService;
 import thebook.fshop.service.AuthenticationService;
 
@@ -81,5 +84,17 @@ public class AuthenticationController {
             throws ParseException, JOSEException {
         authenticationService.changePassword(request);
         return ApiResponse.<AuthenticationResponse>builder().build();
+    }
+
+    @PostMapping("/verify-google")
+    public Mono<ApiResponse<AuthenticationResponse>> verifyGoogleToken(@RequestBody GoogleLoginRequest request) {
+        log.info("here");
+        return authenticationService.getUserByGoogleToken(request)
+                .map(authResponse -> ApiResponse.<AuthenticationResponse>builder()
+                        .result(authResponse)
+                        .build())
+                .onErrorResume(error -> {
+                   throw new AppException(ErrorCode.SERVER_ERROR);
+                });
     }
 }

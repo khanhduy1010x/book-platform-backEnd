@@ -3,8 +3,21 @@ server:
 
 spring:
   security:
-    enabled: false
-
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 969220749279-fhocrc4hmpm138tanbgv4dun7ve34ir8.apps.googleusercontent.com
+            client-secret: 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
+            scope: profile, email
+            redirect-uri:
+            client-name: Google
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
   datasource:
     url: jdbc:postgresql://localhost:5432/thebook1
     username: postgres
@@ -13,12 +26,15 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
 
+  web:
+    resources:
+      static-locations: classpath:/static/
 jwt:
   signerKey: "CYXfKCsUaBwDgqbbZJ8iv5Xz8muv+o3DdfrFZkc/x39KcUfRVkaE00anvOVDkgy4"
   valid-duration: 8640  # 1 ngay
@@ -27,4 +43,9 @@ jwt:
 sms:
  key: "8rHmonzVEr9JuCHhfxDxt71rFb12L_h3"
  device: "df88a66e8fcfb6e2"
+
+upload:
+  path: "/Users/khanhduy/Desktop/Project_Spring/fshop/src/main/resources/static/avatars"
+path:
+  avatar: "http://localhost:9999/avatars/"
 

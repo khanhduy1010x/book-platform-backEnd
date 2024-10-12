@@ -36,4 +36,6 @@ public class Account {
     MemberType memberType;
 
     Date birth;
+
+    String email;
 }

@@ -62,7 +62,8 @@ public enum ErrorCode {
     INVALID_BIRTH(1044, "Invalid birthDay", HttpStatus.BAD_REQUEST),
     INVALID_NEW_PASSWORD(1045, "Invalid birthDAY", HttpStatus.BAD_REQUEST),
     PASSWORD_MISMATCH(1046, "Invalid password", HttpStatus.BAD_REQUEST),
-    DUPLICATE_BOOK(1047,"Invalid book", HttpStatus.BAD_REQUEST);
+    DUPLICATE_BOOK(1047,"Invalid book", HttpStatus.BAD_REQUEST),
+    SERVER_ERROR(1048,"Error in server", HttpStatus.INTERNAL_SERVER_ERROR),;
     private int code;
     private String message;
     HttpStatusCode statusCode;
