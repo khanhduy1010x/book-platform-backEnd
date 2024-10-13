@@ -62,8 +62,13 @@ public enum ErrorCode {
     INVALID_BIRTH(1044, "Invalid birthDay", HttpStatus.BAD_REQUEST),
     INVALID_NEW_PASSWORD(1045, "Invalid birthDAY", HttpStatus.BAD_REQUEST),
     PASSWORD_MISMATCH(1046, "Invalid password", HttpStatus.BAD_REQUEST),
-    DUPLICATE_BOOK(1047,"Invalid book", HttpStatus.BAD_REQUEST),
-    SERVER_ERROR(1048,"Error in server", HttpStatus.INTERNAL_SERVER_ERROR),;
+    DUPLICATE_BOOK(1047, "Invalid book", HttpStatus.BAD_REQUEST),
+    SERVER_ERROR(1048, "Error in server", HttpStatus.INTERNAL_SERVER_ERROR),
+    INVALID_FILE_SIZE(1049, "Invalid file size", HttpStatus.BAD_REQUEST),
+    INVALID_FILE_TYPE(1050, "Invalid file type", HttpStatus.BAD_REQUEST),
+    ;
+    ;
+
     private int code;
     private String message;
     HttpStatusCode statusCode;

@@ -3,7 +3,6 @@ package thebook.fshop.DTO.Response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import thebook.fshop.entity.Book;
-import thebook.fshop.helper.MemberType;
 
 @Data
 @Builder

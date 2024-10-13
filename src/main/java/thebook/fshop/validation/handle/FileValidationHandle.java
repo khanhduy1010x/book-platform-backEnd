@@ -9,8 +9,6 @@ import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.extern.slf4j.Slf4j;
-import thebook.fshop.exception.AppException;
-import thebook.fshop.exception.ErrorCode;
 import thebook.fshop.validation.FileValidation;
 
 @Slf4j
@@ -25,23 +23,11 @@ public class FileValidationHandle implements ConstraintValidator<FileValidation,
 
     @Override
     public boolean isValid(MultipartFile file, ConstraintValidatorContext context) {
-
-        // Check if the file is null or empty, and throw an exception if it is
-        if (file == null || file.isEmpty()) {
-            throw new AppException(ErrorCode.INVALID_FILE_NULL); // Throw exception for empty file
-        }
-
         String fileName = file.getOriginalFilename();
-        if (fileName != null) {
-            String extension = getFileExtension(fileName);
-            if (!allowedExtensions.contains(extension.toLowerCase())) {
-                // Throw custom exception for unsupported file types
-                throw new AppException(ErrorCode.INVALID_FILE_NULL);
-            }
-            return true; // Valid if extension is allowed
-        }
-
-        return false; // Invalid if no extension is found
+        if (fileName == null) return false;
+        String extension = getFileExtension(fileName);
+        if (!allowedExtensions.contains(extension.toLowerCase())) return false;
+        return true;
     }
 
     private String getFileExtension(String fileName) {

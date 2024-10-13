@@ -21,8 +21,12 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/thebook1
     username: postgres
-    password: thongdt1422
+    password: 123123 #Thay đổi ở máy mỗi người
     driver-class-name: org.postgresql.Driver
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
   jpa:
     hibernate:
@@ -45,7 +49,7 @@ sms:
  device: "df88a66e8fcfb6e2"
 
 upload:
-  path: "/Users/khanhduy/Desktop/Project_Spring/fshop/src/main/resources/static/avatars"
+  path: "/Users/khanhduy/Desktop/Project_Spring/fshop/src/main/resources/static/avatars" #Thay đổi ở máy mỗi người
 path:
   avatar: "http://localhost:9999/avatars/"
 

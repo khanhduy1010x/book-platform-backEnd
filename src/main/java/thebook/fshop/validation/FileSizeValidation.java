@@ -8,13 +8,15 @@ import java.lang.annotation.Target;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
-import thebook.fshop.validation.handle.FileValidationHandle;
+import thebook.fshop.validation.handle.FileSizeValidationHandle;
 
-@Target({ElementType.FIELD})
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = FileValidationHandle.class)
-public @interface FileValidation {
-    String message() default "INVALID_FILE_TYPE";
+@Constraint(validatedBy = FileSizeValidationHandle.class)
+public @interface FileSizeValidation {
+    String message() default "INVALID_FILE_SIZE";
+
+    long maxFileSize() default 1048576;
 
     Class<?>[] groups() default {};
 

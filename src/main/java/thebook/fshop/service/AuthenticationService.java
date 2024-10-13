@@ -49,12 +49,12 @@ import thebook.fshop.repository.InvalidateTokenRepository;
 @Slf4j
 public class AuthenticationService {
 
-
     private WebClient webClient = WebClient.create();
     private RedisTemplate<String, Object> template;
     SecurityService securityService;
     AccountsRepository accountsRepository;
     InvalidateTokenRepository invalidateRepository;
+
     @NonFinal
     @Value("${upload.path}")
     String UPLOAD_PATH;
@@ -252,15 +252,16 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.PASSWORD_MISMATCH);
         }
     }
+
     public Mono<AuthenticationResponse> getUserByGoogleToken(GoogleLoginRequest request) {
         log.info("in service");
-        return webClient.get()
+        return webClient
+                .get()
                 .uri("https://www.googleapis.com/oauth2/v3/userinfo")
                 .headers(headers -> headers.setBearerAuth(request.getToken()))
                 .retrieve()
                 .bodyToMono(Map.class)
                 .flatMap(response -> {
-
                     String email = (String) response.get("email");
                     Optional<Account> accountExits = accountsRepository.findByEmail(email);
                     if (accountExits.isEmpty()) {
@@ -299,7 +300,7 @@ public class AuthenticationService {
                                 .refreshedTime(tokenData.getRefreshedTime())
                                 .authenticated(true)
                                 .build());
-                    }else {
+                    } else {
                         var tokenData = generate(accountExits.get());
                         return Mono.just(AuthenticationResponse.builder()
                                 .token(tokenData.getToken())
@@ -314,5 +315,4 @@ public class AuthenticationService {
                     return Mono.error(new AppException(ErrorCode.SERVER_ERROR));
                 });
     }
-
 }

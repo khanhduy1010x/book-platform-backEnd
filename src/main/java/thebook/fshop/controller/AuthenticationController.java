@@ -89,12 +89,13 @@ public class AuthenticationController {
     @PostMapping("/verify-google")
     public Mono<ApiResponse<AuthenticationResponse>> verifyGoogleToken(@RequestBody GoogleLoginRequest request) {
         log.info("here");
-        return authenticationService.getUserByGoogleToken(request)
+        return authenticationService
+                .getUserByGoogleToken(request)
                 .map(authResponse -> ApiResponse.<AuthenticationResponse>builder()
                         .result(authResponse)
                         .build())
                 .onErrorResume(error -> {
-                   throw new AppException(ErrorCode.SERVER_ERROR);
+                    throw new AppException(ErrorCode.SERVER_ERROR);
                 });
     }
 }
