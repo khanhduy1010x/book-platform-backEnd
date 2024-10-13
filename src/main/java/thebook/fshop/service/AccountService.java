@@ -19,6 +19,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import thebook.fshop.DTO.Request.AccountCreationRequest;
+import thebook.fshop.DTO.Request.CreatePasswordRequest;
 import thebook.fshop.DTO.Request.UpdateAccountInformationRequest;
 import thebook.fshop.DTO.Request.UpdateAvatarRequest;
 import thebook.fshop.DTO.Response.AccountResponse;
@@ -73,7 +74,12 @@ public class AccountService {
 
     public AccountResponse getMyInfo() {
         var account = securityService.getAccountByJWT();
-        return accountMapper.toAccountResponse(account);
+        AccountResponse accountResponse = accountMapper.toAccountResponse(account);
+        accountResponse.setHasPassword(true);
+        if(account.getPassword()==null) {
+            accountResponse.setHasPassword(false);
+        }
+        return accountResponse;
     }
 
     public void updateAvatar(UpdateAvatarRequest request) {
@@ -119,4 +125,5 @@ public class AccountService {
         log.info(request.getBirth().toString());
         accountsRepository.save(account);
     }
+
 }

@@ -22,4 +22,5 @@ public class AccountResponse {
     String address;
     String avatar;
     Date birth;
+    boolean hasPassword;
 }

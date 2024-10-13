@@ -98,4 +98,10 @@ public class AuthenticationController {
                     throw new AppException(ErrorCode.SERVER_ERROR);
                 });
     }
+
+    @PostMapping("/create-password")
+    public ApiResponse<?> createPassword (@RequestBody CreatePasswordRequest request) {
+        authenticationService.createPassword(request);
+        return ApiResponse.builder().build();
+    }
 }
