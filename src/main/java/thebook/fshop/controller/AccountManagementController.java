@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import thebook.fshop.DTO.Request.SetPasswordPromptRequest;
 import thebook.fshop.DTO.Request.UpdateAccountInformationRequest;
 import thebook.fshop.DTO.Request.UpdateAvatarRequest;
 import thebook.fshop.DTO.Response.AccountResponse;
@@ -42,5 +43,11 @@ public class AccountManagementController {
     public ApiResponse<AccountResponse> editInfor(@RequestBody UpdateAccountInformationRequest request) {
         accountService.updateInformation(request);
         return ApiResponse.<AccountResponse>builder().build();
+    }
+
+    @PostMapping(value = "/set-password-prompt")
+    public ApiResponse<?> setPasswordPrompt(@RequestBody SetPasswordPromptRequest request) {
+            accountService.setPasswordPrompt(request);
+        return ApiResponse.builder().build();
     }
 }

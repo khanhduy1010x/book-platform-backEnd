@@ -38,6 +38,7 @@ import thebook.fshop.entity.Account;
 import thebook.fshop.entity.InvalidToken;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
+import thebook.fshop.helper.LoginType;
 import thebook.fshop.helper.MemberType;
 import thebook.fshop.helper.Role;
 import thebook.fshop.repository.AccountsRepository;
@@ -97,13 +98,16 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        var accounts = accountsRepository
-                .findByPhone(request.getPhone())
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXITS_USERNAME));
+        Optional<Account> accounts = accountsRepository
+                .findByPhone(request.getPhoneOrMail());
+        if(accounts.isEmpty()){
+            accounts = accountsRepository.findByEmail(request.getPhoneOrMail());
+            if(accounts.isEmpty())throw new AppException(ErrorCode.INVALID_USERNAME);
+        }
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
-        boolean authenticated = passwordEncoder.matches(request.getPassword(), accounts.getPassword());
+        boolean authenticated = passwordEncoder.matches(request.getPassword(), accounts.get().getPassword());
         if (!authenticated) throw new AppException(ErrorCode.UNAUTHENTICATED);
-        var tokenData = generate(accounts);
+        var tokenData = generate(accounts.get());
         return AuthenticationResponse.builder()
                 .token(tokenData.getToken())
                 .expiryTime(tokenData.getExpiryTime())
@@ -180,6 +184,7 @@ public class AuthenticationService {
                 .issueTime(new Date())
                 .expirationTime(expiryTime)
                 .claim("scope", buildScope(account))
+                .claim("email", account.getEmail())
                 .build();
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
         JWSObject jwsObject = new JWSObject(jwsHeader, payload);
@@ -291,6 +296,7 @@ public class AuthenticationService {
                                 .amount(0L)
                                 .memberType(MemberType.NONE)
                                 .fullName(name)
+                                .loginType(LoginType.GOOGLE)
                                 .build();
                         accountsRepository.save(account);
                         var tokenData = generate(account);
@@ -314,5 +320,11 @@ public class AuthenticationService {
                     log.info(error.getMessage());
                     return Mono.error(new AppException(ErrorCode.SERVER_ERROR));
                 });
+    }
+    public void createPassword(CreatePasswordRequest request) {
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        var account = securityService.getAccountByJWT();
+        account.setPassword(passwordEncoder.encode(request.getPassword()));
+        accountsRepository.save(account);
     }
 }

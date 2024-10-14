@@ -1,7 +1,9 @@
 package thebook.fshop.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import lombok.AccessLevel;
@@ -24,7 +26,14 @@ public class SecurityService {
     public Account getAccountByJWT() {
         var context = SecurityContextHolder.getContext();
         var phone = context.getAuthentication().getName();
-        log.info("So dien thoai la " + phone);
-        return accountsRepository.findByPhone(phone).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+        if(phone !=null) return accountsRepository.findByPhone(phone).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+        Authentication authentication = context.getAuthentication();
+        if (authentication == null) throw new AppException(ErrorCode.UNAUTHORIZED);
+        var principal = authentication.getPrincipal();
+        if( principal instanceof Jwt jwt ) {
+            String email = jwt.getClaim("email");
+            return accountsRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+        }
+        throw new AppException(ErrorCode.NOT_FOUND);
     }
 }

@@ -18,13 +18,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
-import thebook.fshop.DTO.Request.AccountCreationRequest;
-import thebook.fshop.DTO.Request.UpdateAccountInformationRequest;
-import thebook.fshop.DTO.Request.UpdateAvatarRequest;
+import thebook.fshop.DTO.Request.*;
 import thebook.fshop.DTO.Response.AccountResponse;
 import thebook.fshop.entity.Account;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
+import thebook.fshop.helper.LoginType;
 import thebook.fshop.helper.MemberType;
 import thebook.fshop.helper.Role;
 import thebook.fshop.mapper.AccountMapper;
@@ -62,6 +61,7 @@ public class AccountService {
         account.setRole(Role.USER);
         account.setMemberType(MemberType.NONE);
         account.setAmount(0L);
+        account.setLoginType(LoginType.NORMAL);
         return accountMapper.toAccountResponse(accountsRepository.save(account));
     }
 
@@ -73,7 +73,12 @@ public class AccountService {
 
     public AccountResponse getMyInfo() {
         var account = securityService.getAccountByJWT();
-        return accountMapper.toAccountResponse(account);
+        AccountResponse accountResponse = accountMapper.toAccountResponse(account);
+        accountResponse.setHasPassword(true);
+        if(account.getPassword()==null) {
+            accountResponse.setHasPassword(false);
+        }
+        return accountResponse;
     }
 
     public void updateAvatar(UpdateAvatarRequest request) {
@@ -117,6 +122,13 @@ public class AccountService {
         account.setBirth(request.getBirth());
         log.info(request.getName());
         log.info(request.getBirth().toString());
+        accountsRepository.save(account);
+    }
+
+    public void setPasswordPrompt (SetPasswordPromptRequest request) {
+        var account = securityService.getAccountByJWT();
+        account.setSkip_password_prompt(request.isSkip());
+        log.info("Is: {}", request.isSkip());
         accountsRepository.save(account);
     }
 }
