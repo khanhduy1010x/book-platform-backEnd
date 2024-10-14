@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import thebook.fshop.helper.LoginType;
 import thebook.fshop.helper.MemberType;
 import thebook.fshop.helper.Role;
 
@@ -38,4 +39,9 @@ public class Account {
     Date birth;
 
     String email;
+
+    @Column(name = "skip_password_prompt", nullable = false)
+    boolean skip_password_prompt;
+
+    LoginType loginType;
 }

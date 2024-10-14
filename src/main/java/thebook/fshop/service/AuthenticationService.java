@@ -38,6 +38,7 @@ import thebook.fshop.entity.Account;
 import thebook.fshop.entity.InvalidToken;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
+import thebook.fshop.helper.LoginType;
 import thebook.fshop.helper.MemberType;
 import thebook.fshop.helper.Role;
 import thebook.fshop.repository.AccountsRepository;
@@ -295,6 +296,7 @@ public class AuthenticationService {
                                 .amount(0L)
                                 .memberType(MemberType.NONE)
                                 .fullName(name)
+                                .loginType(LoginType.GOOGLE)
                                 .build();
                         accountsRepository.save(account);
                         var tokenData = generate(account);
