@@ -2,6 +2,7 @@ package thebook.fshop.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import thebook.fshop.DTO.Request.*;
 import thebook.fshop.DTO.Response.AccountResponse;
 import thebook.fshop.entity.Account;
+import thebook.fshop.entity.Book;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
 import thebook.fshop.helper.LoginType;
@@ -131,4 +133,16 @@ public class AccountService {
         log.info("Is: {}", request.isSkip());
         accountsRepository.save(account);
     }
+
+    public List<Account> searchAccount(SearchRequest query) {
+        String searchQuery = query.getQuery().toLowerCase().replace(" ", "");
+
+        List<Account> accounts = accountsRepository.findByAccountNameOrEmailOrPhone(searchQuery);
+
+        if (accounts.isEmpty()) {
+            throw new AppException(ErrorCode.NOT_FOUND);
+        }
+        return accounts;
+    }
+
 }
