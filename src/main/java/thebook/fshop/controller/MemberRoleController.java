@@ -15,7 +15,6 @@ import thebook.fshop.DTO.Request.MemberRoleUpRequest;
 import thebook.fshop.DTO.Response.AccountResponse;
 import thebook.fshop.DTO.Response.ApiResponse;
 
-import thebook.fshop.entity.Account;
 import thebook.fshop.service.AccountService;
 
 @RestController
@@ -23,7 +22,7 @@ import thebook.fshop.service.AccountService;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class MemberRoleUPController {
+public class MemberRoleController {
     AccountService accountService;
 
     @PostMapping("/up")
