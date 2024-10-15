@@ -1,6 +1,7 @@
 package thebook.fshop.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -8,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import thebook.fshop.DTO.Request.BookRateRequest;
+import thebook.fshop.DTO.Response.ApiResponse;
 import thebook.fshop.DTO.Response.BookRateResponse;
 import thebook.fshop.entity.Book;
 import thebook.fshop.entity.BookRate;
@@ -26,6 +28,7 @@ public class BookRateService {
     BookRateMapper bookRateMapper;
     SecurityService securityService;
 
+    // Thêm đánh giá sách
     public void addBookRate(BookRateRequest request) {
         var account = securityService.getAccountByJWT();
         Book book =
@@ -39,9 +42,40 @@ public class BookRateService {
         bookRateRepository.save(bookRate);
     }
 
+    // Lấy danh sách đánh giá sách theo bookID
     public List<BookRateResponse> getBookRatesByBookID(int bookID) {
         return bookRateRepository.findByBook_ID(bookID).stream()
                 .map(bookRateMapper::toBookRateResponse)
                 .toList();
     }
+
+    // Ẩn đánh giá sách
+    public ApiResponse<Void> hideBookRate(int bookRateId) {
+        Optional<BookRate> bookRateOpt = bookRateRepository.findById(bookRateId);
+        if (bookRateOpt.isPresent()) {
+            BookRate bookRate = bookRateOpt.get();
+            if (!bookRate.isHidden()) {
+                bookRate.setHidden(true);
+                bookRateRepository.save(bookRate);
+                return ApiResponse.<Void>builder()
+                        .code(200)
+                        .message("Book rate has been hidden successfully.")
+                        .result(null)
+                        .build();
+            } else {
+                return ApiResponse.<Void>builder()
+                        .code(400)
+                        .message("Book rate is already hidden.")
+                        .result(null)
+                        .build();
+            }
+        } else {
+            return ApiResponse.<Void>builder()
+                    .code(404)
+                    .message("Book rate not found.")
+                    .result(null)
+                    .build();
+        }
+    }
+
 }
