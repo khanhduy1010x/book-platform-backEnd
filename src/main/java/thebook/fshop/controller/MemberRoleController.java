@@ -25,8 +25,8 @@ import thebook.fshop.service.AccountService;
 public class MemberRoleController {
     AccountService accountService;
 
-    @PostMapping("/up")
-    public ApiResponse<AccountResponse> upRole(@RequestBody @Valid MemberRoleUpRequest request) {
+    @PostMapping("/upOrDown")
+    public ApiResponse<AccountResponse> upOrDownRole(@RequestBody @Valid MemberRoleUpRequest request) {
         accountService.upRole(request);
         return ApiResponse.<AccountResponse>builder().build();
     }
