@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import thebook.fshop.helper.BookType;
+import thebook.fshop.helper.EbookType;
 import thebook.fshop.helper.MemberType;
 
 @Entity
@@ -27,10 +29,13 @@ public class Book {
     String author;
     long price;
 
+    EbookType ebookType;
     @Enumerated(EnumType.STRING)
     MemberType memberType;
 
     String url;
     String coverImage;
     String description;
+
+    BookType bookType;
 }

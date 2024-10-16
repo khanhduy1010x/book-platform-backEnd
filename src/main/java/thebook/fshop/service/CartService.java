@@ -14,7 +14,7 @@ import thebook.fshop.DTO.Request.UpdateCartRequest;
 import thebook.fshop.DTO.Response.CartResponse;
 import thebook.fshop.entity.Account;
 import thebook.fshop.entity.Book;
-import thebook.fshop.entity.Cart;
+import thebook.fshop.entity.CartItem;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
 import thebook.fshop.mapper.CartMapper;
@@ -32,57 +32,57 @@ public class CartService {
     SecurityService securityService;
     CartMapper cartMapper;
 
-    public void addToCart(AddtoCartRequest request) {
-        var account = securityService.getAccountByJWT();
-        Book book =
-                bookRepository.findById(request.getBookID()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
-        Cart existingCart = cartRepository.findByAccount_AccIDAndBook_ID(account.getAccID(), book.getID());
-        if (existingCart != null) {
-            existingCart.setQuantity(existingCart.getQuantity() + request.getQuantity());
-            cartRepository.save(existingCart);
-        } else {
-            Cart newCart = Cart.builder()
-                    .account(account)
-                    .book(book)
-                    .quantity(request.getQuantity())
-                    .build();
-            cartRepository.save(newCart);
-        }
-    }
+//    public void addToCart(AddtoCartRequest request) {
+//        var account = securityService.getAccountByJWT();
+//        Book book =
+//                bookRepository.findById(request.getBookID()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+//        CartItem existingCartItem = cartRepository.findByAccount_AccIDAndBook_ID(account.getAccID(), book.getID());
+//        if (existingCartItem != null) {
+//            existingCartItem.setQuantity(existingCartItem.getQuantity() + request.getQuantity());
+//            cartRepository.save(existingCartItem);
+//        } else {
+//            CartItem newCartItem = CartItem.builder()
+//                    .account(account)
+//                    .book(book)
+//                    .quantity(request.getQuantity())
+//                    .build();
+//            cartRepository.save(newCartItem);
+//        }
+//    }
 
-    public List<CartResponse> viewCart() {
-        Account account = securityService.getAccountByJWT();
-        return cartRepository.findByAccount_AccID(account.getAccID()).stream()
-                .map(cartMapper::toCartResponse)
-                .toList();
-    }
+//    public List<CartResponse> viewCart() {
+//        Account account = securityService.getAccountByJWT();
+//        return cartRepository.findByAccount_AccID(account.getAccID()).stream()
+//                .map(cartMapper::toCartResponse)
+//                .toList();
+//    }
 
-    public void updateCart(UpdateCartRequest request) {
-        Account account = securityService.getAccountByJWT();
-        Book book =
-                bookRepository.findById(request.getBookID()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
-        Cart existingCart = cartRepository.findByAccount_AccIDAndBook_ID(account.getAccID(), book.getID());
-        if (existingCart != null) {
-            if (request.getQuantity() > 0) {
-                existingCart.setQuantity(request.getQuantity());
-                cartRepository.save(existingCart);
-            } else {
-                cartRepository.delete(existingCart);
-            }
-        } else {
-            throw new AppException(ErrorCode.NOT_FOUND);
-        }
-    }
+//    public void updateCart(UpdateCartRequest request) {
+//        Account account = securityService.getAccountByJWT();
+//        Book book =
+//                bookRepository.findById(request.getBookID()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+//        CartItem existingCartItem = cartRepository.findByAccount_AccIDAndBook_ID(account.getAccID(), book.getID());
+//        if (existingCartItem != null) {
+//            if (request.getQuantity() > 0) {
+//                existingCartItem.setQuantity(request.getQuantity());
+//                cartRepository.save(existingCartItem);
+//            } else {
+//                cartRepository.delete(existingCartItem);
+//            }
+//        } else {
+//            throw new AppException(ErrorCode.NOT_FOUND);
+//        }
+//    }
 
-    public void deleteFromCart(DeleteCartRequest request) {
-        Account account = securityService.getAccountByJWT();
-        Book book =
-                bookRepository.findById(request.getBookID()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
-        Cart existingCart = cartRepository.findByAccount_AccIDAndBook_ID(account.getAccID(), book.getID());
-        if (existingCart != null) {
-            cartRepository.delete(existingCart);
-        } else {
-            throw new AppException(ErrorCode.NOT_FOUND);
-        }
-    }
+//    public void deleteFromCart(DeleteCartRequest request) {
+//        Account account = securityService.getAccountByJWT();
+//        Book book =
+//                bookRepository.findById(request.getBookID()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+//        CartItem existingCartItem = cartRepository.findByAccount_AccIDAndBook_ID(account.getAccID(), book.getID());
+//        if (existingCartItem != null) {
+//            cartRepository.delete(existingCartItem);
+//        } else {
+//            throw new AppException(ErrorCode.NOT_FOUND);
+//        }
+//    }
 }

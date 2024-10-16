@@ -3,9 +3,9 @@ package thebook.fshop.mapper;
 import org.mapstruct.Mapper;
 
 import thebook.fshop.DTO.Response.CartResponse;
-import thebook.fshop.entity.Cart;
+import thebook.fshop.entity.CartItem;
 
 @Mapper(componentModel = "spring")
 public interface CartMapper {
-    CartResponse toCartResponse(Cart cart);
+    CartResponse toCartResponse(CartItem cartItem);
 }

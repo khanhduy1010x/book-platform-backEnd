@@ -10,19 +10,18 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "Carts")
-public class Cart {
+@Table(name = "Inventory")
+public class Inventory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "cartID")
-    int ID;
+    @Column(name = "inventoryID")
+    int inventoryID;
 
     @ManyToOne
-    @JoinColumn(name = "accID")
-    Account account;
+    @JoinColumn(name = "bookID")
+    Book book;
 
-
-    @ManyToOne
-    @JoinColumn(name = "voucherID")
-    Voucher voucher;
+    @Column(name = "quantity")
+    int quantity;
 }
+

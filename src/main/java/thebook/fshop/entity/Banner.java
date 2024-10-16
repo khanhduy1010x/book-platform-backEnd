@@ -19,4 +19,11 @@ public class Banner {
     int ID;
 
     String imageURL;
+
+    @ManyToOne
+    @JoinColumn(name = "bookID")
+    Book book;
+
+
+
 }

@@ -44,4 +44,6 @@ public class Account {
     boolean skip_password_prompt;
 
     LoginType loginType;
+
+    boolean isBanned;
 }

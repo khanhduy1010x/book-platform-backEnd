@@ -10,19 +10,17 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "Carts")
-public class Cart {
+@Table(name = "AccountsAddress")
+public class AccountAddress {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "cartID")
+    @Column(name = "addressID")
     int ID;
-
     @ManyToOne
     @JoinColumn(name = "accID")
     Account account;
-
-
-    @ManyToOne
-    @JoinColumn(name = "voucherID")
-    Voucher voucher;
+    String province;
+    String city;
+    String district;
+    String detail;
 }

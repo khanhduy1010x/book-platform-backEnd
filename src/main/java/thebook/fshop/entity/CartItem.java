@@ -1,6 +1,7 @@
 package thebook.fshop.entity;
 
 import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -10,19 +11,21 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "Carts")
-public class Cart {
+@Table(name = "CartItems")
+public class CartItem {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "cartID")
+    @Column(name = "cartItemID")
     int ID;
 
     @ManyToOne
-    @JoinColumn(name = "accID")
-    Account account;
-
+    @JoinColumn(name = "cartID")
+    Cart cart;
 
     @ManyToOne
-    @JoinColumn(name = "voucherID")
-    Voucher voucher;
+    @JoinColumn(name = "bookID")
+    Book book;
+
+    int quantity;
 }

@@ -5,11 +5,11 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import thebook.fshop.entity.Cart;
+import thebook.fshop.entity.CartItem;
 
 @Repository
-public interface CartRepository extends JpaRepository<Cart, Integer> {
-    Cart findByAccount_AccIDAndBook_ID(int accID, int bookID);
-
-    List<Cart> findByAccount_AccID(int accID);
+public interface CartRepository extends JpaRepository<CartItem, Integer> {
+//    CartItem findByAccount_AccIDAndBook_ID(int accID, int bookID);
+//
+//    List<CartItem> findByAccount_AccID(int accID);
 }
