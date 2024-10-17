@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.AccessLevel;
 import lombok.extern.slf4j.Slf4j;
 import thebook.fshop.DTO.Request.AddToCartRequest;
+import thebook.fshop.DTO.Request.UpdateCartRequest;
 import thebook.fshop.DTO.Response.ApiResponse;
 import thebook.fshop.DTO.Response.CartResponse;
 import thebook.fshop.service.CartService;
@@ -35,20 +36,13 @@ public class CartController {
                 .result(cartService.viewCart())
                 .build();
     }
-//
-//    @PutMapping("/update")
-//    public ApiResponse<?> updateCart(@RequestBody UpdateCartRequest request) {
-//        cartService.updateCart(request);
-//        return ApiResponse.builder()
-//                .message("Cart updated successfully")
-//                .build();
-//    }
-//
-//    @DeleteMapping("/delete/{bookID}")
-//    public ApiResponse<?> deleteFromCart(@PathVariable int bookID, @RequestParam int userId) {
-//        cartService.deleteFromCart(bookID, userId);
-//        return ApiResponse.builder()
-//                .message("Item removed from cart successfully")
-//                .build();
-//    }
+
+    @PutMapping("/update")
+    public ApiResponse<?> updateCart(@RequestBody UpdateCartRequest request) {
+        cartService.updateCart(request);
+        return ApiResponse.builder()
+                .message("Cart updated successfully")
+                .build();
+    }
+
 }
