@@ -8,7 +8,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AddtoCartRequest {
-    int bookID;
+public class AddToCartRequest {
+    int bookId;
     int quantity;
 }
