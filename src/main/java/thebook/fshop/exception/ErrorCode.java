@@ -66,6 +66,7 @@ public enum ErrorCode {
     SERVER_ERROR(1048, "Error in server", HttpStatus.INTERNAL_SERVER_ERROR),
     INVALID_FILE_SIZE(1049, "Invalid file size", HttpStatus.BAD_REQUEST),
     INVALID_FILE_TYPE(1050, "Invalid file type", HttpStatus.BAD_REQUEST),
+    INVALID_ROLE(1051, "Invalid Role type", HttpStatus.BAD_REQUEST),
     ;
     ;
 
