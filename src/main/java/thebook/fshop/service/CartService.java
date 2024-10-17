@@ -1,88 +1,85 @@
 package thebook.fshop.service;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
-import thebook.fshop.DTO.Request.AddtoCartRequest;
-import thebook.fshop.DTO.Request.DeleteCartRequest;
-import thebook.fshop.DTO.Request.UpdateCartRequest;
-import thebook.fshop.DTO.Response.CartResponse;
-import thebook.fshop.entity.Account;
-import thebook.fshop.entity.Book;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import thebook.fshop.DTO.Request.AddToCartRequest;
+import thebook.fshop.entity.Cart;
 import thebook.fshop.entity.CartItem;
+import thebook.fshop.entity.Book;
+import thebook.fshop.entity.Inventory;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
-import thebook.fshop.mapper.CartMapper;
-import thebook.fshop.repository.BookRepository;
+import thebook.fshop.repository.CartItemRepository;
 import thebook.fshop.repository.CartRepository;
+import thebook.fshop.repository.BookRepository;
+import thebook.fshop.repository.InventoryRepository;
 
-@Service
+import java.util.Optional;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@Slf4j
+@Service
+@Transactional
 public class CartService {
 
     CartRepository cartRepository;
-    BookRepository bookRepository;
+     CartItemRepository cartItemRepository;
+   BookRepository bookRepository;
+ InventoryRepository inventoryRepository;
     SecurityService securityService;
-    CartMapper cartMapper;
+    // Add an item to the cart
+    public void addToCart(AddToCartRequest request){
 
-//    public void addToCart(AddtoCartRequest request) {
-//        var account = securityService.getAccountByJWT();
-//        Book book =
-//                bookRepository.findById(request.getBookID()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
-//        CartItem existingCartItem = cartRepository.findByAccount_AccIDAndBook_ID(account.getAccID(), book.getID());
-//        if (existingCartItem != null) {
-//            existingCartItem.setQuantity(existingCartItem.getQuantity() + request.getQuantity());
-//            cartRepository.save(existingCartItem);
-//        } else {
-//            CartItem newCartItem = CartItem.builder()
-//                    .account(account)
-//                    .book(book)
-//                    .quantity(request.getQuantity())
-//                    .build();
-//            cartRepository.save(newCartItem);
-//        }
-//    }
+    var account =securityService.getAccountByJWT();
+        // Check if the book is in inventory and has enough stock
+        Inventory inventory = inventoryRepository.findByBook_ID(request.getBookId())
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_INVENTORY));
 
-//    public List<CartResponse> viewCart() {
-//        Account account = securityService.getAccountByJWT();
-//        return cartRepository.findByAccount_AccID(account.getAccID()).stream()
-//                .map(cartMapper::toCartResponse)
-//                .toList();
-//    }
+        if (inventory.getQuantity() < request.getQuantity()) {
+            throw new AppException(ErrorCode.OVER_QUANTITY);
+        }
+if(request.getQuantity() <= 0) throw new AppException(ErrorCode.INVALID_QUANTITY);
+        // Find the cart for the user
+        Optional<Cart> optionalCart = cartRepository.findByAccount_AccID(account.getAccID());
+        Cart cart = optionalCart.orElseGet(() -> {
+            // Create a new cart if one doesn't exist
+            Cart newCart = new Cart();
+            newCart.setAccount(account);
+            cartRepository.save(newCart);
+            return newCart;
+        });
 
-//    public void updateCart(UpdateCartRequest request) {
-//        Account account = securityService.getAccountByJWT();
-//        Book book =
-//                bookRepository.findById(request.getBookID()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
-//        CartItem existingCartItem = cartRepository.findByAccount_AccIDAndBook_ID(account.getAccID(), book.getID());
-//        if (existingCartItem != null) {
-//            if (request.getQuantity() > 0) {
-//                existingCartItem.setQuantity(request.getQuantity());
-//                cartRepository.save(existingCartItem);
-//            } else {
-//                cartRepository.delete(existingCartItem);
-//            }
-//        } else {
-//            throw new AppException(ErrorCode.NOT_FOUND);
-//        }
-//    }
+        // Find the book being added
+        Book book = bookRepository.findById(request.getBookId())
+                .orElseThrow(() -> new RuntimeException("Book not found"));
 
-//    public void deleteFromCart(DeleteCartRequest request) {
-//        Account account = securityService.getAccountByJWT();
-//        Book book =
-//                bookRepository.findById(request.getBookID()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
-//        CartItem existingCartItem = cartRepository.findByAccount_AccIDAndBook_ID(account.getAccID(), book.getID());
-//        if (existingCartItem != null) {
-//            cartRepository.delete(existingCartItem);
-//        } else {
-//            throw new AppException(ErrorCode.NOT_FOUND);
-//        }
-//    }
+        // Check if the item already exists in the cart
+        Optional<CartItem> existingItem = cartItemRepository.findByCart_IDAndBook_ID(cart.getID(), book.getID());
+
+        if (existingItem.isPresent()) {
+
+            // If the item exists, update the quantity
+            CartItem item = existingItem.get();
+            int quantity = item.getQuantity() + request.getQuantity();
+            if (quantity > inventory.getQuantity()) throw new AppException(ErrorCode.OVER_QUANTITY);
+
+            item.setQuantity(item.getQuantity() + request.getQuantity());
+            cartItemRepository.save(item);
+        } else {
+            // If not, add a new item to the cart
+            if (inventory.getQuantity() < request.getQuantity()) {
+                throw new AppException(ErrorCode.OVER_QUANTITY);
+            }
+            CartItem newItem = new CartItem();
+            newItem.setCart(cart);
+            newItem.setBook(book);
+            newItem.setQuantity(request.getQuantity());
+            cartItemRepository.save(newItem);
+        }
+
+
+
+    }
 }
