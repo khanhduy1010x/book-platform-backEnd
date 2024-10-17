@@ -131,4 +131,13 @@ public class AccountService {
         log.info("Is: {}", request.isSkip());
         accountsRepository.save(account);
     }
+    @PreAuthorize("hasRole('ADMIN')")
+    public void upRole(MemberRoleUpRequest request) {
+        int accID = request.getAccID();
+        String newRole = request.getRole();
+        Account account = accountsRepository.findById(accID)
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+            account.setRole(Role.valueOf(newRole));
+            accountsRepository.save(account);
+    }
 }

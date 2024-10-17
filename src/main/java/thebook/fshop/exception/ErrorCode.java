@@ -69,8 +69,7 @@ public enum ErrorCode {
     INVALID_INVENTORY(1051, "There is no such book in the inventory", HttpStatus.BAD_REQUEST),
     OVER_QUANTITY(1052, "The amount in the inventory is insufficient", HttpStatus.BAD_REQUEST),
     INVALID_QUANTITY(1053, "The amount must be over 0", HttpStatus.BAD_REQUEST),
-    ;
-    ;
+    INVALID_ROLE(1051, "Invalid Role type", HttpStatus.BAD_REQUEST);
 
     private int code;
     private String message;
