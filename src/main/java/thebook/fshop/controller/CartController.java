@@ -7,7 +7,10 @@ import lombok.AccessLevel;
 import lombok.extern.slf4j.Slf4j;
 import thebook.fshop.DTO.Request.AddToCartRequest;
 import thebook.fshop.DTO.Response.ApiResponse;
+import thebook.fshop.DTO.Response.CartResponse;
 import thebook.fshop.service.CartService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/cart")
@@ -26,12 +29,12 @@ public class CartController {
                 .build();
     }
 
-//    @GetMapping("/view")
-//    public ApiResponse<List<CartResponse>> viewCart(@RequestParam int userId) {
-//        return ApiResponse.<List<CartResponse>>builder()
-//                .result(cartService.viewCart(userId))
-//                .build();
-//    }
+    @GetMapping("/view")
+    public ApiResponse<List<CartResponse>> viewCart(@RequestParam int userId) {
+        return ApiResponse.<List<CartResponse>>builder()
+                .result(cartService.viewCart(userId))
+                .build();
+    }
 //
 //    @PutMapping("/update")
 //    public ApiResponse<?> updateCart(@RequestBody UpdateCartRequest request) {

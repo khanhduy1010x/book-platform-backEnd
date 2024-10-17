@@ -6,18 +6,23 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import thebook.fshop.DTO.Request.AddToCartRequest;
+import thebook.fshop.DTO.Response.CartResponse;
 import thebook.fshop.entity.Cart;
 import thebook.fshop.entity.CartItem;
 import thebook.fshop.entity.Book;
 import thebook.fshop.entity.Inventory;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
+import thebook.fshop.mapper.CartMapper;
 import thebook.fshop.repository.CartItemRepository;
 import thebook.fshop.repository.CartRepository;
 import thebook.fshop.repository.BookRepository;
 import thebook.fshop.repository.InventoryRepository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
@@ -29,6 +34,7 @@ public class CartService {
    BookRepository bookRepository;
  InventoryRepository inventoryRepository;
     SecurityService securityService;
+    CartMapper cartMapper;
     // Add an item to the cart
     public void addToCart(AddToCartRequest request){
 
@@ -78,8 +84,18 @@ if(request.getQuantity() <= 0) throw new AppException(ErrorCode.INVALID_QUANTITY
             newItem.setQuantity(request.getQuantity());
             cartItemRepository.save(newItem);
         }
+            // View the cart
 
+    }
+        // View the cart
+    public List<CartResponse> viewCart(int userId) {
+        // Find the cart for the user
+        Cart cart = cartRepository.findByAccount_AccID(userId)
+                .orElseThrow(() -> new RuntimeException("Cart not found"));
 
-
+        // Return the cart items as CartResponse DTOs
+        return cartItemRepository.findByCart_ID(cart.getID()).stream()
+                .map(cartMapper::toCartResponse)
+                .collect(Collectors.toList());
     }
 }
