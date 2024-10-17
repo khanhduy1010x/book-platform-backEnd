@@ -3,10 +3,10 @@ package thebook.fshop.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import thebook.fshop.entity.Transaction;
 
-public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
+public interface TransactionRepository extends JpaRepository<Transaction, Integer>, JpaSpecificationExecutor<Transaction> {
     // Lấy danh sách giao dịch theo tài khoản
     List<Transaction> findByAccount_AccID(int accID);
 
