@@ -54,11 +54,7 @@ public class AccountService {
         return accountsRepository.findAll();
     }
 
-    // Method to find users by their type
-    @PreAuthorize("hasRole('ADMIN')")
-    public List<Account> findUserByType(String type) {
-        return accountsRepository.findByRole(Role.valueOf(type.toUpperCase()));
-    }
+
 
     public AccountResponse createAccount(AccountCreationRequest request) {
         String otp = (String) template.opsForValue().get(request.getPhone());
@@ -149,7 +145,10 @@ public class AccountService {
         String newRole = request.getRole();
         Account account = accountsRepository.findById(accID)
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
-            account.setRole(Role.valueOf(newRole));
-            accountsRepository.save(account);
+        account.setRole(Role.valueOf(newRole));
+        accountsRepository.save(account);
+    }
+    public List<AccountResponse> findUserByType( TypeRequest request) {
+            return accountsRepository.findByRole(Role.valueOf(request.getRole())).stream().map(accountMapper::toAccountResponse).toList();
     }
 }

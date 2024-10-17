@@ -8,11 +8,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import thebook.fshop.DTO.Request.SetPasswordPromptRequest;
+import thebook.fshop.DTO.Request.TypeRequest;
 import thebook.fshop.DTO.Request.UpdateAccountInformationRequest;
 import thebook.fshop.DTO.Request.UpdateAvatarRequest;
 import thebook.fshop.DTO.Response.AccountResponse;
 import thebook.fshop.DTO.Response.ApiResponse;
 import thebook.fshop.entity.Account;
+import thebook.fshop.helper.Role;
 import thebook.fshop.service.AccountService;
 
 import java.util.List;
@@ -65,8 +67,9 @@ public class AccountManagementController {
 
     // New endpoint to find users by their type
     @GetMapping("/users/by-type")
-    public ApiResponse<List<Account>> findUserByType(@RequestParam String type) {
-        List<Account> users = accountService.findUserByType(type);
-        return ApiResponse.<List<Account>>builder().result(users).build();
+    public ApiResponse<List<AccountResponse>> findUserByType(@RequestBody @Valid TypeRequest request) {
+        log.info(request.toString());
+        List<AccountResponse> users = accountService.findUserByType(request);
+        return ApiResponse.<List<AccountResponse>>builder().result(users).build();
     }
 }
