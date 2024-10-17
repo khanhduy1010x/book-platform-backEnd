@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.extern.slf4j.Slf4j;
 import thebook.fshop.DTO.Request.AddToCartRequest;
 import thebook.fshop.DTO.Request.UpdateCartRequest;
+import thebook.fshop.DTO.Request.DeleteCartRequest; // Import the new DTO
 import thebook.fshop.DTO.Response.ApiResponse;
 import thebook.fshop.DTO.Response.CartResponse;
 import thebook.fshop.service.CartService;
@@ -42,6 +43,14 @@ public class CartController {
         cartService.updateCart(request);
         return ApiResponse.builder()
                 .message("Cart updated successfully")
+                .build();
+    }
+
+    @DeleteMapping("/delete")
+    public ApiResponse<?> deleteFromCart(@RequestBody DeleteCartRequest request) {
+        cartService.deleteFromCart(request);
+        return ApiResponse.builder()
+                .message("Item removed from cart successfully")
                 .build();
     }
 

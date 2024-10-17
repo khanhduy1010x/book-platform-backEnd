@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import thebook.fshop.DTO.Request.AddToCartRequest;
+import thebook.fshop.DTO.Request.DeleteCartRequest;
 import thebook.fshop.DTO.Request.UpdateCartRequest;
 import thebook.fshop.DTO.Response.CartResponse;
 import thebook.fshop.entity.Cart;
@@ -108,6 +109,18 @@ public class CartService {
             item.setQuantity(request.getQuantity());
             cartItemRepository.save(item);
         }
+    }
+    public void deleteFromCart(DeleteCartRequest request) {
+        // First, check if the cart exists
+        Cart cart = cartRepository.findById(request.getCartId())
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+
+        // Check if the book exists in the cart
+        CartItem item = cartItemRepository.findByCart_IDAndBook_ID(request.getCartId(), request.getBookId())
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+
+        // If found, delete the cart item
+        cartItemRepository.delete(item);
     }
 
 
