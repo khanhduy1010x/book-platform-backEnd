@@ -3,6 +3,7 @@ package thebook.fshop.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import thebook.fshop.DTO.Request.AddToCartRequest;
@@ -36,6 +37,7 @@ public class CartService {
     SecurityService securityService;
     CartMapper cartMapper;
     // Add an item to the cart
+
     public void addToCart(AddToCartRequest request){
 
     var account =securityService.getAccountByJWT();
@@ -88,14 +90,22 @@ if(request.getQuantity() <= 0) throw new AppException(ErrorCode.INVALID_QUANTITY
 
     }
         // View the cart
-    public List<CartResponse> viewCart(int userId) {
+    public List<CartResponse> viewCart() {
+        var account =securityService.getAccountByJWT();
         // Find the cart for the user
-        Cart cart = cartRepository.findByAccount_AccID(userId)
-                .orElseThrow(() -> new RuntimeException("Cart not found"));
-
+        Cart cart = cartRepository.findByAccount_AccID(account.getAccID())
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
         // Return the cart items as CartResponse DTOs
-        return cartItemRepository.findByCart_ID(cart.getID()).stream()
-                .map(cartMapper::toCartResponse)
-                .collect(Collectors.toList());
+        var listCart= cartItemRepository.findByCart_ID(cart.getID());
+        for (CartItem i : listCart){
+            if ( inventoryRepository.findByBook_ID(i.getBook().getID()).isPresent()){
+                if(i.getQuantity() >  inventoryRepository.findByBook_ID(i.getBook().getID()).get().getQuantity()) {
+                    i.setOutOfStock(true);
+                    cartItemRepository.save(i);
+                }
+
+         }  }
+        return cartItemRepository.findByCart_ID(cart.getID()).stream().map(cartMapper::toCartResponse).collect(Collectors.toList());
+
     }
 }

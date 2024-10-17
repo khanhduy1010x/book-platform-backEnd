@@ -29,5 +29,5 @@ public class CartItem {
 
     int quantity;
     @Column(nullable = false)
-    boolean isInsufficient;
+    boolean outOfStock = false;
 }

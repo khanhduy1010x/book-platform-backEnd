@@ -30,9 +30,9 @@ public class CartController {
     }
 
     @GetMapping("/view")
-    public ApiResponse<List<CartResponse>> viewCart(@RequestParam int userId) {
+    public ApiResponse<List<CartResponse>> viewCart() {
         return ApiResponse.<List<CartResponse>>builder()
-                .result(cartService.viewCart(userId))
+                .result(cartService.viewCart())
                 .build();
     }
 //
