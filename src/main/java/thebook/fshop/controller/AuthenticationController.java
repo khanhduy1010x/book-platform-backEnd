@@ -2,6 +2,7 @@ package thebook.fshop.controller;
 
 import java.text.ParseException;
 
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.*;
@@ -106,7 +107,8 @@ public class AuthenticationController {
     }
 
     @PostMapping("/forgotPassword")
-    public ApiResponse<?> forgotPassword (@RequestBody ForgotPasswordRequest request) {
-
+    public ApiResponse<?> forgotPassword (@RequestBody ForgotPasswordRequest request) throws MessagingException {
+authenticationService.forgotPassword(request);
+return ApiResponse.builder().build();
     }
 }

@@ -12,8 +12,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -53,6 +55,7 @@ public class AuthenticationService {
     private WebClient webClient = WebClient.create();
     private RedisTemplate<String, Object> template;
     SecurityService securityService;
+    EmailService emailService;
     AccountsRepository accountsRepository;
     InvalidateTokenRepository invalidateRepository;
 
@@ -326,5 +329,45 @@ public class AuthenticationService {
         var account = securityService.getAccountByJWT();
         account.setPassword(passwordEncoder.encode(request.getPassword()));
         accountsRepository.save(account);
+    }
+    public void forgotPassword (ForgotPasswordRequest request) throws MessagingException {
+        Account account = accountsRepository.findByPhone(request.getUsername())
+                .orElseGet(() -> accountsRepository.findByEmail(request.getUsername()).orElse(null));
+        boolean isPhone = account != null && accountsRepository.findByPhone(request.getUsername()).isPresent();
+        if (account == null) throw new AppException(ErrorCode.NOT_EXITS_ACCOUNT);
+        Random rand = new Random();
+        int otp = rand.nextInt(900000) + 100000;
+        if(!isPhone){
+            emailService.sendEmail(account.getFullName(), request.getUsername(), "OTP Đặt lại mật khẩu Book4.0",String.valueOf(otp));
+            template.opsForValue().set(String.valueOf(account.getAccID()), String.valueOf(otp));
+            template.expire(String.valueOf(account.getAccID()), 1200, TimeUnit.SECONDS);
+        }else {
+            SendSMSServer sendSMSServer = SendSMSServer.builder()
+                            .content("Book4.0 - Mã OTP đặt lại mật khẩu của bạn là: " + otp)
+                            .to(request.getUsername())
+                            .sender(DEVICE_KEY)
+                            .build();
+                    webClient
+                            .post()
+                            .uri(uriSendSMS)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .bodyValue(sendSMSServer)
+                            .headers(headers -> headers.setBasicAuth(SMS_KEY, ""))
+                            .retrieve()
+                            .bodyToMono(Map.class)
+                            .subscribe(
+                                    response -> {
+                                        String status = (String) response.get("status");
+                                        if (!"success".equals(status)) {
+                                            throw new AppException(ErrorCode.ERROR_SEND);
+                                        }
+                                        log.info(template.getExpire(request.getUsername(), TimeUnit.SECONDS).toString());
+                                        template.opsForValue().set(request.getUsername(), String.valueOf(otp));
+                                        template.expire(request.getUsername(), 1200, TimeUnit.SECONDS);
+                                    },
+                                    error -> {
+                                        throw new AppException(ErrorCode.ERROR_SEND);
+                                    });
+        }
     }
 }

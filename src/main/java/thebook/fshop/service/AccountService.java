@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
 
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -50,9 +51,6 @@ public class AccountService {
     public AccountResponse createAccount(AccountCreationRequest request) {
         String otp = (String) template.opsForValue().get(request.getPhone());
         if (otp == null) throw new AppException(ErrorCode.EXPIRED_OTP);
-        log.info("IT IS: " + (Objects.equals(otp, request.getOtp())));
-        log.info("Redis OTP  : " + otp);
-        log.info("Request OTP: " + request.getOtp());
         if (!Objects.equals(otp, request.getOtp())) throw new AppException(ErrorCode.INVALID_OTP);
         if (accountsRepository.existsByPhone(request.getPhone())) throw new AppException(ErrorCode.EXITS_USERNAME);
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
