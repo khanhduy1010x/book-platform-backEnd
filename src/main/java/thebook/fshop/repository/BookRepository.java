@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import thebook.fshop.entity.Book;
+import java.util.Optional;
+
 
 @Repository
 public interface BookRepository extends JpaRepository<Book, Integer> {
@@ -16,6 +18,5 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
     @Query(
             "SELECT b FROM Book b WHERE  LOWER(b.bookName) LIKE %:query% OR  LOWER(b.author) LIKE %:query% OR  LOWER(b.category.cateName) LIKE %:query%")
     List<Book> findByBookNameAndAuthorAndMemberType(String query);
-
     Optional<Book> findByID(int bookID);
 }
