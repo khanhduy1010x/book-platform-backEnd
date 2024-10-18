@@ -1,5 +1,5 @@
 package thebook.fshop.service;
-
+import thebook.fshop.DTO.Response.ApiResponse;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -77,7 +77,7 @@ public class AccountService {
     @PreAuthorize("hasRole('ADMIN')")
     public AccountResponse getAccountByUserID(int ID) {
         return accountMapper.toAccountResponse(
-                accountsRepository.findById(ID).orElseThrow(() -> new AppException(ErrorCode.NOT_EXITS_ACCOUNT)));
+                accountsRepository.findById(ID).orElseThrow(() -> new AppException(ErrorCode.NOT_EXIST_ACCOUNT)));
     }
 
     public AccountResponse getMyInfo() {
@@ -139,6 +139,7 @@ public class AccountService {
         log.info("Is: {}", request.isSkip());
         accountsRepository.save(account);
     }
+
     @PreAuthorize("hasRole('ADMIN')")
     public void upRole(MemberRoleUpRequest request) {
         int accID = request.getAccID();
@@ -148,7 +149,65 @@ public class AccountService {
         account.setRole(Role.valueOf(newRole));
         accountsRepository.save(account);
     }
-    public List<AccountResponse> findUserByType( TypeRequest request) {
-            return accountsRepository.findByRole(Role.valueOf(request.getRole())).stream().map(accountMapper::toAccountResponse).toList();
+
+
+    /**
+     * Ban tài khoản
+     * @param accountId ID của tài khoản cần ban
+     * @return ApiResponse
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<Void> banAccount(int accountId) {
+        // Lấy thông tin admin đang đăng nhập
+        var currentAdmin = securityService.getAccountByJWT();
+
+        // Kiểm tra nếu admin đang cố gắng tự khóa tài khoản của mình
+        if (currentAdmin.getAccID() == accountId) {
+            throw new AppException(ErrorCode.CANNOT_BAN_OWN_ACCOUNT);  // Trả về lỗi mới nếu admin tự khóa
+        }
+
+        // Tìm kiếm tài khoản theo ID
+        Account account = accountsRepository.findById(accountId)
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXIST_ACCOUNT));
+
+        // Kiểm tra nếu tài khoản đã bị khóa
+        if (account.isBanned()) {
+            throw new AppException(ErrorCode.ACCOUNT_ALREADY_BANNED);  // Sử dụng mã lỗi 1017 nếu cần
+        }
+
+        // Tiến hành khóa tài khoản
+        account.setBanned(true);
+        accountsRepository.save(account);
+
+        return ApiResponse.<Void>builder()
+                .code(200)
+                .message("Account banned successfully.")
+                .build();
+    }
+
+    /**
+     * Mở khóa tài khoản
+     * @param accountId ID của tài khoản cần mở khóa
+     * @return ApiResponse
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<Void> unlockAccount(int accountId) {
+        Account account = accountsRepository.findById(accountId)
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXIST_ACCOUNT));
+
+        if (!account.isBanned()) {
+            return ApiResponse.<Void>builder()
+                    .code(400)
+                    .message("Account is not banned.")
+                    .build();
+        }
+
+        account.setBanned(false);
+        accountsRepository.save(account);
+
+        return ApiResponse.<Void>builder()
+                .code(200)
+                .message("Account unlocked successfully.")
+                .build();
     }
 }
