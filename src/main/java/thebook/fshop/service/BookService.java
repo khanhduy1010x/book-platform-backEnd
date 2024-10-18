@@ -2,6 +2,7 @@ package thebook.fshop.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -10,12 +11,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import thebook.fshop.DTO.Request.BookDetailRequest;
+import thebook.fshop.DTO.Request.FilterRequest;
 import thebook.fshop.DTO.Request.SearchRequest;
 import thebook.fshop.DTO.Response.ListBookByCateResponse;
 import thebook.fshop.entity.Book;
 import thebook.fshop.entity.Category;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
+import thebook.fshop.helper.BookType;
 import thebook.fshop.mapper.SearchBookMapper;
 import thebook.fshop.repository.BookRepository;
 import thebook.fshop.repository.CategoryRepository;
@@ -57,4 +60,22 @@ public class BookService {
     public Book getBookById(BookDetailRequest request) {
         return bookRepository.findById(request.getId()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
     }
+    public List<Book> searchByFilter(FilterRequest query) {
+        List<Book> books = bookRepository.findAll();
+        if (query.getType() != null) {
+            BookType bookType = BookType.valueOf(query.getType());
+            books = books.stream()
+                    .filter(book -> book.getBookType() == bookType)
+                    .collect(Collectors.toList());
+        }
+        if (query.getAuthor() != null) {
+            String author = query.getAuthor();
+            books = books.stream()
+                    .filter(book -> book.getAuthor().contains(author))
+                    .collect(Collectors.toList());
+        }
+
+        return books;
+    }
+
 }
