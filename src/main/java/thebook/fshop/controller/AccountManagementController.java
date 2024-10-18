@@ -54,16 +54,32 @@ public class AccountManagementController {
         return ApiResponse.builder().build();
     }
 
+
     @GetMapping("/users")
     public ApiResponse<List<Account>> getAllUsers() {
         List<Account> users = accountService.getAllUsers();
         return ApiResponse.<List<Account>>builder().result(users).build();
     }
 
-    @GetMapping("/users/by-type")
-    public ApiResponse<List<AccountResponse>> findUserByType(@RequestBody @Valid TypeRequest request) {
-        log.info(request.toString());
-        List<AccountResponse> users = accountService.findUserByType(request);
-        return ApiResponse.<List<AccountResponse>>builder().result(users).build();
+
+    /**
+     * Ban tài khoản
+     * @param accountId ID của tài khoản cần ban
+     * @return ApiResponse
+     */
+    @PostMapping("/ban/{accountId}")
+    public ApiResponse<Void> banAccount(@PathVariable int accountId) {
+        return accountService.banAccount(accountId);
+    }
+
+    /**
+     * Mở khóa tài khoản
+     * @param accountId ID của tài khoản cần mở khóa
+     * @return ApiResponse
+     */
+    @PostMapping("/unlock/{accountId}")
+    public ApiResponse<Void> unlockAccount(@PathVariable int accountId) {
+        return accountService.unlockAccount(accountId);
+
     }
 }
