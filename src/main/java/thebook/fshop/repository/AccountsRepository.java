@@ -1,11 +1,12 @@
 package thebook.fshop.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
 import thebook.fshop.entity.Account;
+import thebook.fshop.helper.Role;
 
 @Repository
 public interface AccountsRepository extends JpaRepository<Account, Integer> {
@@ -14,4 +15,7 @@ public interface AccountsRepository extends JpaRepository<Account, Integer> {
     Optional<Account> findByPhone(String phone);
 
     Optional<Account> findByEmail(String email);
+
+    // Method to find users by their type
+    List<Account> findByRole(Role role);
 }

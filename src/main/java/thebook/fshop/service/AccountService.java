@@ -2,6 +2,7 @@ package thebook.fshop.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -47,6 +48,14 @@ public class AccountService {
     @Value("${path.avatar}")
     String PATH_AVATAR;
 
+    // Method to get all users
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<Account> getAllUsers() {
+        return accountsRepository.findAll();
+    }
+
+
+
     public AccountResponse createAccount(AccountCreationRequest request) {
         String otp = (String) template.opsForValue().get(request.getPhone());
         if (otp == null) throw new AppException(ErrorCode.EXPIRED_OTP);
@@ -75,14 +84,13 @@ public class AccountService {
         var account = securityService.getAccountByJWT();
         AccountResponse accountResponse = accountMapper.toAccountResponse(account);
         accountResponse.setHasPassword(true);
-        if(account.getPassword()==null) {
+        if(account.getPassword() == null) {
             accountResponse.setHasPassword(false);
         }
         return accountResponse;
     }
 
     public void updateAvatar(UpdateAvatarRequest request) {
-        // Retrieve the account associated with the currently authenticated user
         var account = securityService.getAccountByJWT();
         MultipartFile fileAvatar = request.getFile();
         if (fileAvatar != null && !fileAvatar.isEmpty()) {
@@ -130,5 +138,17 @@ public class AccountService {
         account.setSkip_password_prompt(request.isSkip());
         log.info("Is: {}", request.isSkip());
         accountsRepository.save(account);
+    }
+    @PreAuthorize("hasRole('ADMIN')")
+    public void upRole(MemberRoleUpRequest request) {
+        int accID = request.getAccID();
+        String newRole = request.getRole();
+        Account account = accountsRepository.findById(accID)
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+        account.setRole(Role.valueOf(newRole));
+        accountsRepository.save(account);
+    }
+    public List<AccountResponse> findUserByType( TypeRequest request) {
+            return accountsRepository.findByRole(Role.valueOf(request.getRole())).stream().map(accountMapper::toAccountResponse).toList();
     }
 }
