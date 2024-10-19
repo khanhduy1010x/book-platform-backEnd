@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import thebook.fshop.DTO.Response.ApiResponse;
+import thebook.fshop.DTO.Response.BannerResponse;
 import thebook.fshop.entity.Banner;
 import thebook.fshop.service.BannerService;
 
@@ -23,11 +24,12 @@ import thebook.fshop.service.BannerService;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class BannerController {
+
     BannerService bannerService;
 
     @GetMapping("/view-banner")
-    ApiResponse<List<Banner>> viewBanner() {
-        return ApiResponse.<List<Banner>>builder()
+    ApiResponse<List<BannerResponse>> viewBanner() {
+        return ApiResponse.<List<BannerResponse>>builder()
                 .result(bannerService.viewBanner())
                 .build();
     }
@@ -51,4 +53,9 @@ public class BannerController {
         bannerService.createBanner(banner);
         return ApiResponse.<Banner>builder().build();
     }
+    @DeleteMapping( value = "/delete-banner")
+    public ApiResponse<Banner> deleteBanner(@RequestParam(value = "id", required = false) int id) {
+        bannerService.deleteBanner(id);
+        return ApiResponse.<Banner>builder().build();}
+
 }

@@ -71,7 +71,10 @@ public enum ErrorCode {
     INVALID_QUANTITY(1053, "The amount must be over 0", HttpStatus.BAD_REQUEST),
     INVALID_ROLE(1051, "Invalid Role type", HttpStatus.BAD_REQUEST),
     CANNOT_BAN_OWN_ACCOUNT(1051, "Admin cannot ban their own account", HttpStatus.BAD_REQUEST),
-    ACCOUNT_ALREADY_BANNED(1052, "Account is already banned", HttpStatus.BAD_REQUEST),;
+    ACCOUNT_ALREADY_BANNED(1052, "Account is already banned", HttpStatus.BAD_REQUEST),
+    INVALID_FILE_EXTENSION(1053,"Invalid file extension" , HttpStatus.BAD_REQUEST ),
+    INVALID_FILE_NULL_TYPE(1054, "Invalid file type1111111 " , HttpStatus.BAD_REQUEST ),
+    NEW_PASSWORD_SAME_AS_CURRENT(1055,"New password not same as current password" , HttpStatus.BAD_REQUEST ),;
 
 
     private int code;

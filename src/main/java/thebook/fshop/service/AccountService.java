@@ -90,48 +90,53 @@ public class AccountService {
         return accountResponse;
     }
 
-    public void updateAvatar(UpdateAvatarRequest request) {
+    public void updateAvatar(MultipartFile avatarFile) {
+        // Retrieve the current account using JWT
         var account = securityService.getAccountByJWT();
-        MultipartFile fileAvatar = request.getFile();
-        if (fileAvatar != null && !fileAvatar.isEmpty()) {
-            String uniqueID = UUID.randomUUID().toString();
-            String fileName = fileAvatar.getOriginalFilename() + uniqueID;
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            String fileName = avatarFile.getOriginalFilename();
+            String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+            if (!fileExtension.equals("jpg") && !fileExtension.equals("png") && !fileExtension.equals("webp")) {
+                throw new AppException(ErrorCode.INVALID_FILE_EXTENSION); // Invalid file extension
+            }
+            String uuid = UUID.randomUUID().toString();
+            String uniqueFileName = uuid + "_" + fileName;
             File uploadDir = new File(UPLOAD_PATH);
             if (!uploadDir.exists()) {
                 uploadDir.mkdirs();
             }
-            String filePart = UPLOAD_PATH + File.separator;
-            log.info(filePart);
+            //String filePath = UPLOAD_PATH + File.separator + uniqueFileName; // Construct the full file path
+
             try {
-                fileAvatar.transferTo(new File(filePart, fileName));
-                account.setAvatar(PATH_AVATAR + fileName);
+                avatarFile.transferTo(new File(uniqueFileName));
+                account.setAvatar(PATH_AVATAR + uniqueFileName);
             } catch (IOException e) {
-                log.error(e.getMessage());
-                throw new AppException(ErrorCode.INVALID_FILE_NULL);
+                log.error("Error saving file: " + e.getMessage());
+                throw new AppException(ErrorCode.INVALID_FILE_NULL_TYPE);
             }
+            accountsRepository.save(account);
+        } else {
+            throw new AppException(ErrorCode.INVALID_FILE_NULL);
         }
-        accountsRepository.save(account);
     }
+
 
     public void updateInformation(UpdateAccountInformationRequest request) {
         var account = securityService.getAccountByJWT();
+        if (request.getName() != null && !request.getName().trim().isEmpty()) {
+            if (!request.getName().matches("^[A-Za-zÀ-ỹ\\s]+$")) {
+                throw new AppException(ErrorCode.INVALID_NAME); // Invalid name format
+            }
+            account.setFullName(request.getName());
+        }
+        if (request.getBirth() != null && !request.getBirth().toString().trim().isEmpty()) {
+            account.setBirth(request.getBirth());
+        }
 
-        if (request.getName() == null || request.getName().trim().isEmpty()) {
-            throw new AppException(ErrorCode.INVALID_NAME_NULL);
-        }
-        if (!request.getName().matches("^[A-Za-zÀ-ỹ\\s]+$")) {
-            throw new AppException(ErrorCode.INVALID_NAME);
-        }
-
-        if (request.getBirth() == null || request.getBirth().toString().trim().isEmpty()) {
-            throw new AppException(ErrorCode.INVALID_BIRTH);
-        }
-        account.setFullName(request.getName());
-        account.setBirth(request.getBirth());
-        log.info(request.getName());
-        log.info(request.getBirth().toString());
+        // Save changes if either name or birth has been updated
         accountsRepository.save(account);
     }
+
 
     public void setPasswordPrompt (SetPasswordPromptRequest request) {
         var account = securityService.getAccountByJWT();

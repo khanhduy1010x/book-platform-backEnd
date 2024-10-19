@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.multipart.MultipartFile;
 import thebook.fshop.DTO.Request.SetPasswordPromptRequest;
 import thebook.fshop.DTO.Request.TypeRequest;
 import thebook.fshop.DTO.Request.UpdateAccountInformationRequest;
@@ -37,7 +38,7 @@ public class AccountManagementController {
             value = "/edit-avatar",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiResponse<AccountResponse> editAvatar(@ModelAttribute @Valid UpdateAvatarRequest request) {
+    public ApiResponse<AccountResponse> editAvatar(@RequestParam(value = "avatar", required = false) MultipartFile request) {
         accountService.updateAvatar(request);
         return ApiResponse.<AccountResponse>builder().build();
     }

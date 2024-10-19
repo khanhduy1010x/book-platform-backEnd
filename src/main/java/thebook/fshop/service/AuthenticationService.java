@@ -250,6 +250,9 @@ public class AuthenticationService {
         if (!request.getNewPassword().equals(request.getConfirmationNewPassword())) {
             throw new AppException(ErrorCode.INVALID_NEW_PASSWORD);
         }
+        if (request.getNewPassword().equals(request.getCurrentPassword())) {
+            throw new AppException(ErrorCode.NEW_PASSWORD_SAME_AS_CURRENT); // Create this error code
+        }
         if (passwordEncoder.matches(request.getCurrentPassword(), account.getPassword())) {
             account.setPassword(passwordEncoder.encode(request.getConfirmationNewPassword()));
             accountsRepository.save(account);
