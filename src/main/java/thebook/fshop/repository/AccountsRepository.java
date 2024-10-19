@@ -12,10 +12,12 @@ import thebook.fshop.helper.Role;
 public interface AccountsRepository extends JpaRepository<Account, Integer> {
     boolean existsByPhone(String phone);
 
+    boolean existsByUsername(String username);
     Optional<Account> findByPhone(String phone);
 
     Optional<Account> findByEmail(String email);
 
+    Optional<Account> findByUsername(String username);
     // Method to find users by their type
     List<Account> findByRole(Role role);
 }

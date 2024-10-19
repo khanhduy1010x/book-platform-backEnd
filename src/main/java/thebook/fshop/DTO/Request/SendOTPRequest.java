@@ -16,4 +16,7 @@ public class SendOTPRequest {
     @NotBlank(message = "NULL_PHONE_NUMBER")
     @NumberPhoneValidation
     String phone;
+
+    @NotBlank
+    String username;
 }
