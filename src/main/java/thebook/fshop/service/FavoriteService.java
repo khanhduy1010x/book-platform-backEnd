@@ -7,11 +7,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import thebook.fshop.DTO.Request.AddToFavoriteRequest;
+import thebook.fshop.DTO.Response.FavoriteResponse;
+import thebook.fshop.DTO.Response.OrderResponse;
+import thebook.fshop.entity.Order;
 import thebook.fshop.entity.WishList;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
 import thebook.fshop.repository.BookRepository;
 import thebook.fshop.repository.WishListRepository;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -51,4 +57,35 @@ public class FavoriteService {
             throw new AppException(ErrorCode.NOT_FOUND);
         }
     }
+
+    public List<FavoriteResponse> viewFavorite() {
+        // Get the currently authenticated account from the security service
+        var account = securityService.getAccountByJWT();
+
+        // Fetch the wishlist items for the account
+        List<WishList> wishLists = wishListRepository.findAllByAccount_AccID(account.getAccID());
+
+        // If no wishlist items are found, throw an exception
+        if (wishLists.isEmpty()) {
+            throw new AppException(ErrorCode.NOT_FOUND);
+        }
+
+        // Convert list of wishlist items to response format
+        List<FavoriteResponse> favoriteResponses = new ArrayList<>();
+        for (WishList wishList : wishLists) {
+            FavoriteResponse favoriteResponse = FavoriteResponse.builder()
+                    .wishListID(wishList.getID())
+                    .accountID(wishList.getAccount().getAccID())
+                    .bookID(wishList.getBook().getID())
+                    .build();
+
+            favoriteResponses.add(favoriteResponse);
+        }
+
+        return favoriteResponses;
+    }
+
+
+
+
 }
