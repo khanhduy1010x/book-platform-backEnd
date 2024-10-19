@@ -9,6 +9,7 @@ import thebook.fshop.entity.Account;
 
 @Mapper(componentModel = "spring")
 public interface AccountMapper {
+    @Mapping(target = "username", source = "username")
     Account toAccount(AccountCreationRequest request);
 
     @Mapping(target = "skip_password_prompt", source = "skip_password_prompt")

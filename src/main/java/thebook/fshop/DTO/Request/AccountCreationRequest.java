@@ -27,4 +27,7 @@ public class AccountCreationRequest {
 
     @NotBlank(message = "NULL_OTP")
     String otp;
+
+    @NotBlank(message = "NULL_USERNAME")
+    String username;
 }

@@ -20,20 +20,11 @@ import thebook.fshop.repository.AccountsRepository;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class SecurityService {
-    @Autowired
     AccountsRepository accountsRepository;
 
     public Account getAccountByJWT() {
         var context = SecurityContextHolder.getContext();
-        var phone = context.getAuthentication().getName();
-        if(phone !=null) return accountsRepository.findByPhone(phone).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
-        Authentication authentication = context.getAuthentication();
-        if (authentication == null) throw new AppException(ErrorCode.UNAUTHORIZED);
-        var principal = authentication.getPrincipal();
-        if( principal instanceof Jwt jwt ) {
-            String email = jwt.getClaim("email");
-            return accountsRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
-        }
-        throw new AppException(ErrorCode.NOT_FOUND);
+        var username = context.getAuthentication().getName();
+        return accountsRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
     }
 }

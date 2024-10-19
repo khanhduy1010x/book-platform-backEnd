@@ -99,9 +99,9 @@ public class AuthenticationService {
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         Optional<Account> accounts = accountsRepository
-                .findByPhone(request.getPhoneOrMail());
+                .findByUsername(request.getUsername());
         if(accounts.isEmpty()){
-            accounts = accountsRepository.findByEmail(request.getPhoneOrMail());
+            accounts = accountsRepository.findByUsername(request.getUsername());
             if(accounts.isEmpty())throw new AppException(ErrorCode.INVALID_USERNAME);
         }
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
@@ -178,13 +178,12 @@ public class AuthenticationService {
         Date reFreshTime = new Date(
                 Instant.now().plus(REFRESHABLE_REFRESH, ChronoUnit.SECONDS).toEpochMilli());
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(account.getPhone())
+                .subject(account.getUsername())
                 .issuer("KhanhDuy")
                 .jwtID(UUID.randomUUID().toString())
                 .issueTime(new Date())
                 .expirationTime(expiryTime)
                 .claim("scope", buildScope(account))
-                .claim("email", account.getEmail())
                 .build();
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
         JWSObject jwsObject = new JWSObject(jwsHeader, payload);
@@ -210,6 +209,7 @@ public class AuthenticationService {
     public void sendOTPSMS(SendOTPRequest request) {
         String phone = request.getPhone();
         if (accountsRepository.existsByPhone(phone)) throw new AppException(ErrorCode.EXITS_PHONE);
+        if (accountsRepository.existsByUsername(request.getUsername())) throw new AppException(ErrorCode.EXITS_USERNAME);
         if (template.getExpire(phone, TimeUnit.SECONDS) > 0) throw new AppException(ErrorCode.WAITING_TIME);
         Random rand = new Random();
         int otp = rand.nextInt(900000) + 100000;
