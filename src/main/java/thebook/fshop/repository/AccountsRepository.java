@@ -20,4 +20,5 @@ public interface AccountsRepository extends JpaRepository<Account, Integer> {
     Optional<Account> findByUsername(String username);
     // Method to find users by their type
     List<Account> findByRole(Role role);
+
 }

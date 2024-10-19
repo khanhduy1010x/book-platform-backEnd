@@ -21,6 +21,7 @@ import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import thebook.fshop.DTO.Request.*;
 import thebook.fshop.DTO.Response.AccountResponse;
+import thebook.fshop.DTO.Response.ForgotPasswordResponse;
 import thebook.fshop.entity.Account;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
@@ -209,5 +210,9 @@ public class AccountService {
                 .code(200)
                 .message("Account unlocked successfully.")
                 .build();
+    }
+
+    public ForgotPasswordResponse getEmailPhoneByUserName(ForgotPasswordRequest request) {
+        return accountMapper.toForgotPasswordResponse(accountsRepository.findByUsername(request.getUsername()).orElseThrow(() ->new AppException(ErrorCode.NOT_EXIST_ACCOUNT)));
     }
 }

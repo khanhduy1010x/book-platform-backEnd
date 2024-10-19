@@ -32,6 +32,8 @@ public class ApplicationConfig {
                         .phone("9999")
                         .birth(new Date("10/10/2002"))
                         .avatar("No avatar")
+                        .username("admin")
+                        .email("admin@gmail.com")
                         .amount(9999999L)
                         .fullName("ADMIN")
                         .memberType(MemberType.PREMIUM)

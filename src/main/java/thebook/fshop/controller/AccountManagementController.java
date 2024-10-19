@@ -7,12 +7,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import thebook.fshop.DTO.Request.SetPasswordPromptRequest;
-import thebook.fshop.DTO.Request.TypeRequest;
-import thebook.fshop.DTO.Request.UpdateAccountInformationRequest;
-import thebook.fshop.DTO.Request.UpdateAvatarRequest;
+import thebook.fshop.DTO.Request.*;
 import thebook.fshop.DTO.Response.AccountResponse;
 import thebook.fshop.DTO.Response.ApiResponse;
+import thebook.fshop.DTO.Response.ForgotPasswordResponse;
 import thebook.fshop.entity.Account;
 import thebook.fshop.helper.Role;
 import thebook.fshop.service.AccountService;
@@ -62,24 +60,22 @@ public class AccountManagementController {
     }
 
 
-    /**
-     * Ban tài khoản
-     * @param accountId ID của tài khoản cần ban
-     * @return ApiResponse
-     */
+
     @PostMapping("/ban/{accountId}")
     public ApiResponse<Void> banAccount(@PathVariable int accountId) {
         return accountService.banAccount(accountId);
     }
 
-    /**
-     * Mở khóa tài khoản
-     * @param accountId ID của tài khoản cần mở khóa
-     * @return ApiResponse
-     */
+
     @PostMapping("/unlock/{accountId}")
     public ApiResponse<Void> unlockAccount(@PathVariable int accountId) {
         return accountService.unlockAccount(accountId);
+    }
 
+    @PostMapping("get-info-reset-password")
+    public ApiResponse<ForgotPasswordResponse> getInfoResetPassword(@RequestBody ForgotPasswordRequest request) {
+        return ApiResponse.<ForgotPasswordResponse>builder()
+                .result(accountService.getEmailPhoneByUserName(request))
+                .build();
     }
 }
