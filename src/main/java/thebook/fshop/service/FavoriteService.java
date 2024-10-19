@@ -31,6 +31,7 @@ public class FavoriteService {
         if (wishBook != null) {
             throw new AppException(ErrorCode.DUPLICATE_BOOK);
         }
+        log.info("Added to favorites: {}", request.getBookID());
         var wishList = WishList.builder()
                 .account(account)
                 .book(bookRepository
