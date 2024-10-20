@@ -30,25 +30,21 @@ public class BannerService {
     BannerRepository bannerRepository;
     BannerMapper bannerMapper;
     @NonFinal
-    @Value("${upload.path}")
+    @Value("${upload_banner.path_banner}")
     String UPLOAD_PATH;
 
     @NonFinal
-    @Value("${path.avatar}")
+    @Value("${path_banner.banner}")
     String PATH_AVATAR;
     public List<BannerResponse> viewBanner() {
         return bannerRepository.findAll().stream().map(bannerMapper::toResponse).toList();
     }
     @PreAuthorize("hasRole('ADMIN')")
     public void updateBanner(int id, MultipartFile bannerFile) {
-        // Retrieve the banner associated with the request
-        Banner banner = bannerRepository.findById(id).get();
+        Banner banner = bannerRepository.findById(id).orElse(null);
         if (banner != null) {
-            // Check if the file is not null and not empty
             if (bannerFile != null && !bannerFile.isEmpty()) {
                 String fileName = bannerFile.getOriginalFilename();
-                log.info(fileName);
-                // Validate the file extension
                 String fileExtension =
                         fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
                 if (!fileExtension.equals("jpg") && !fileExtension.equals("png") && !fileExtension.equals("webp")) {
@@ -60,21 +56,20 @@ public class BannerService {
                 if (!uploadDir.exists()) {
                     uploadDir.mkdirs();
                 }
+                String filePath = UPLOAD_PATH + File.separator + uniqueFileName;
                 try {
-                    // Save the file
-                    bannerFile.transferTo(new File(uniqueFileName));
-                    // Set the URL of the banner image
+                    bannerFile.transferTo(new File(filePath));
                     banner.setImageURL(PATH_AVATAR + uniqueFileName);
                 } catch (IOException e) {
                     log.error(e.getMessage());
                     throw new AppException(ErrorCode.INVALID_BANNER_NULL);
                 }
-
-                // Save the updated banner
                 bannerRepository.save(banner);
             } else {
                 throw new AppException(ErrorCode.NULL_BANNER); // No file provided
             }
+        }else{
+            throw new AppException(ErrorCode.NULL_BANNER);
         }
     }
 @PreAuthorize("hasRole('ADMIN')")
@@ -83,25 +78,22 @@ public class BannerService {
         if (bannerFile != null && !bannerFile.isEmpty()) {
             String originalFileName = bannerFile.getOriginalFilename();
             log.info(originalFileName);
-            // Validate the file extension
             String fileExtension = originalFileName
                     .substring(originalFileName.lastIndexOf(".") + 1)
                     .toLowerCase();
             if (!fileExtension.equals("jpg") && !fileExtension.equals("png") && !fileExtension.equals("webp")) {
                 throw new AppException(ErrorCode.INVALID_BANNER); // Invalid file extension
             }
-            // Generate a unique file name using UUID
             String uuid = UUID.randomUUID().toString();
             String uniqueFileName = uuid + "_" + originalFileName;
+            String filePath = UPLOAD_PATH + File.separator + uniqueFileName;
             File uploadDir = new File(UPLOAD_PATH);
             if (!uploadDir.exists()) {
                 uploadDir.mkdirs();
             }
 
             try {
-                // Save the file
-                bannerFile.transferTo(new File(uniqueFileName));
-                // Set the URL of the banner image
+                bannerFile.transferTo(new File(filePath));
                 banner.setImageURL(PATH_AVATAR + uniqueFileName);
             } catch (IOException e) {
                 log.error(e.getMessage());
@@ -109,19 +101,14 @@ public class BannerService {
             }
             bannerRepository.save(banner);
         } else {
-            throw new AppException(ErrorCode.NULL_BANNER); // No file provided
+            throw new AppException(ErrorCode.NULL_BANNER);
         }
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteBanner(int id) {
-        Banner banner = bannerRepository.findById(id).get();
-        if (banner==null){
-            throw new AppException(ErrorCode.NULL_BANNER);
-        }else {
-            bannerRepository.delete(banner);
-        }
-
+        Banner banner = bannerRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NULL_BANNER));
+        bannerRepository.delete(banner);
     }
 
 

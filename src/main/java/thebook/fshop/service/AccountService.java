@@ -97,7 +97,7 @@ public class AccountService {
             String fileName = avatarFile.getOriginalFilename();
             String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
             if (!fileExtension.equals("jpg") && !fileExtension.equals("png") && !fileExtension.equals("webp")) {
-                throw new AppException(ErrorCode.INVALID_FILE_EXTENSION); // Invalid file extension
+                throw new AppException(ErrorCode.INVALID_FILE_EXTENSION);
             }
             String uuid = UUID.randomUUID().toString();
             String uniqueFileName = uuid + "_" + fileName;
@@ -105,10 +105,9 @@ public class AccountService {
             if (!uploadDir.exists()) {
                 uploadDir.mkdirs();
             }
-            //String filePath = UPLOAD_PATH + File.separator + uniqueFileName; // Construct the full file path
-
+            String filePath = UPLOAD_PATH + File.separator + uniqueFileName;
             try {
-                avatarFile.transferTo(new File(uniqueFileName));
+                avatarFile.transferTo(new File(filePath));
                 account.setAvatar(PATH_AVATAR + uniqueFileName);
             } catch (IOException e) {
                 log.error("Error saving file: " + e.getMessage());
@@ -132,8 +131,6 @@ public class AccountService {
         if (request.getBirth() != null && !request.getBirth().toString().trim().isEmpty()) {
             account.setBirth(request.getBirth());
         }
-
-        // Save changes if either name or birth has been updated
         accountsRepository.save(account);
     }
 

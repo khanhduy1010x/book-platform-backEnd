@@ -39,8 +39,8 @@ public class BannerController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiResponse<Banner> editBanner(
-            @RequestParam(value = "id", required = false) int id,
-            @RequestParam(value = "banner", required = false) MultipartFile banner) {
+            @RequestParam(value = "id", required = true) int id,
+            @RequestParam(value = "banner", required = true) MultipartFile banner) {
         bannerService.updateBanner(id, banner);
         return ApiResponse.<Banner>builder().build();
     }
