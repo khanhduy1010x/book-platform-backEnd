@@ -5,6 +5,7 @@ import java.text.ParseException;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import com.nimbusds.jose.JOSEException;
@@ -15,10 +16,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import thebook.fshop.DTO.Request.*;
-import thebook.fshop.DTO.Response.AccountResponse;
-import thebook.fshop.DTO.Response.ApiResponse;
-import thebook.fshop.DTO.Response.AuthenticationResponse;
-import thebook.fshop.DTO.Response.IntrorespectResponse;
+import thebook.fshop.DTO.Response.*;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
 import thebook.fshop.service.AccountService;
@@ -109,6 +107,17 @@ public class AuthenticationController {
     @PostMapping("/forgotPassword")
     public ApiResponse<?> forgotPassword(@RequestBody ForgotPasswordRequest request) throws MessagingException {
         authenticationService.forgotPassword(request);
+        return ApiResponse.builder().build();
+    }
+    @PostMapping("/validate-otp-forgot-password")
+    public ApiResponse<TempTokenResponse> validateOtpForgotPassword(@RequestBody ValidateOtpRequest request){
+        return ApiResponse.<TempTokenResponse>builder()
+                .result(authenticationService.validateOtpForgotPassword(request))
+                .build();
+    }
+    @PostMapping("/reset-password-forgot-password")
+    public ApiResponse<?> resetPasswordForForgotPassword(@RequestBody ResetPasswordForgotPasswordRequest request){
+        authenticationService.resetPasswordByTempToken(request);
         return ApiResponse.builder().build();
     }
 }

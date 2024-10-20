@@ -27,7 +27,7 @@ public class ApplicationConfig {
     @Bean
     ApplicationRunner applicationRunner(AccountsRepository accountsRepository) {
         return args -> {
-            if (accountsRepository.findByPhone("9999").isEmpty()) {
+            if (accountsRepository.findByUsername("admin").isEmpty()) {
                 Account account = Account.builder()
                         .phone("9999")
                         .birth(new Date("10/10/2002"))

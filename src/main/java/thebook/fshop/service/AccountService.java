@@ -152,63 +152,35 @@ public class AccountService {
     }
 
 
-    /**
-     * Ban tài khoản
-     * @param accountId ID của tài khoản cần ban
-     * @return ApiResponse
-     */
+
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> banAccount(int accountId) {
-        // Lấy thông tin admin đang đăng nhập
         var currentAdmin = securityService.getAccountByJWT();
-
-        // Kiểm tra nếu admin đang cố gắng tự khóa tài khoản của mình
         if (currentAdmin.getAccID() == accountId) {
-            throw new AppException(ErrorCode.CANNOT_BAN_OWN_ACCOUNT);  // Trả về lỗi mới nếu admin tự khóa
+            throw new AppException(ErrorCode.CANNOT_BAN_OWN_ACCOUNT);
         }
-
-        // Tìm kiếm tài khoản theo ID
         Account account = accountsRepository.findById(accountId)
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_EXIST_ACCOUNT));
-
-        // Kiểm tra nếu tài khoản đã bị khóa
         if (account.isBanned()) {
-            throw new AppException(ErrorCode.ACCOUNT_ALREADY_BANNED);  // Sử dụng mã lỗi 1017 nếu cần
+            throw new AppException(ErrorCode.ACCOUNT_ALREADY_BANNED);
         }
-
-        // Tiến hành khóa tài khoản
         account.setBanned(true);
         accountsRepository.save(account);
-
         return ApiResponse.<Void>builder()
-                .code(200)
-                .message("Account banned successfully.")
                 .build();
     }
 
-    /**
-     * Mở khóa tài khoản
-     * @param accountId ID của tài khoản cần mở khóa
-     * @return ApiResponse
-     */
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> unlockAccount(int accountId) {
         Account account = accountsRepository.findById(accountId)
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_EXIST_ACCOUNT));
-
         if (!account.isBanned()) {
             return ApiResponse.<Void>builder()
-                    .code(400)
-                    .message("Account is not banned.")
                     .build();
         }
-
         account.setBanned(false);
         accountsRepository.save(account);
-
         return ApiResponse.<Void>builder()
-                .code(200)
-                .message("Account unlocked successfully.")
                 .build();
     }
 
