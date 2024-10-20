@@ -5,6 +5,7 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -18,7 +19,6 @@ import org.thymeleaf.context.Context;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EmailService {
-
     JavaMailSender mailSender;
     SpringTemplateEngine templateEngine;
 

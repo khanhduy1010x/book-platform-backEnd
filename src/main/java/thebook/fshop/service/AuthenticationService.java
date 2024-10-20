@@ -12,8 +12,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -53,6 +55,7 @@ public class AuthenticationService {
     private WebClient webClient = WebClient.create();
     private RedisTemplate<String, Object> template;
     SecurityService securityService;
+    EmailService emailService;
     AccountsRepository accountsRepository;
     InvalidateTokenRepository invalidateRepository;
 
@@ -328,10 +331,8 @@ public class AuthenticationService {
         accountsRepository.save(account);
     }
     public void forgotPassword (ForgotPasswordRequest request) throws MessagingException {
-        Account account = accountsRepository.findByPhone(request.getUsername())
-                .orElseGet(() -> accountsRepository.findByEmail(request.getUsername()).orElse(null));
-        boolean isPhone = account != null && accountsRepository.findByPhone(request.getUsername()).isPresent();
-        if (account == null) throw new AppException(ErrorCode.NOT_EXITS_ACCOUNT);
+        Account account = accountsRepository.findByUsername(request.getUsername()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+        boolean isPhone = request.isPhone();
         Random rand = new Random();
         int otp = rand.nextInt(900000) + 100000;
         if(!isPhone){
