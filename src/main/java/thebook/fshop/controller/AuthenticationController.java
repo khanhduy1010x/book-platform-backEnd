@@ -104,4 +104,8 @@ public class AuthenticationController {
         authenticationService.createPassword(request);
         return ApiResponse.builder().build();
     }
+    @PostMapping("/forgotPassword")
+    public ApiResponse<?> forgotPassword (@RequestBody ForgotPasswordRequest request) throws MessagingException {
+        authenticationService.forgotPassword(request);
+        return ApiResponse.builder().build();
 }
