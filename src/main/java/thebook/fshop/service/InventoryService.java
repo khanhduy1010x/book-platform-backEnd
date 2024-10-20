@@ -7,11 +7,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import thebook.fshop.DTO.Request.AddInventoryRequest;
+import thebook.fshop.DTO.Request.SearchInventoryRequest;
+import thebook.fshop.DTO.Request.UpdateInventoryRequest;
 import thebook.fshop.entity.Inventory;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
 import thebook.fshop.repository.BookRepository;
 import thebook.fshop.repository.InventoryRepository;
+
+import java.util.List;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -21,9 +26,10 @@ public class InventoryService {
 
     InventoryRepository inventoryRepository;
     BookRepository bookRepository;
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     // Thêm sản phẩm vào kho
     public void addProductToInventory(AddInventoryRequest request) {
+        if(request.getQuantity()<=0) throw new AppException(ErrorCode.INVALID_QUANTITY);
         var book = bookRepository.findById(request.getBookID())
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
 
@@ -52,26 +58,30 @@ public class InventoryService {
 
 
     // Cập nhật số lượng sản phẩm trong kho
-    public void updateInventory(Integer inventoryID, int newQuantity) {
-        var inventory = inventoryRepository.findById(inventoryID)
+    public void updateInventory(UpdateInventoryRequest request) {
+        if(request.getNewQuantity()<=0) throw new AppException(ErrorCode.INVALID_QUANTITY);
+
+        var inventory = inventoryRepository.findByBook_ID(request.getBookID())
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
 
-        inventory.setQuantity(newQuantity);
+        inventory.setQuantity(request.getNewQuantity());
         inventoryRepository.save(inventory);
         log.info("Updated inventory quantity: {}", inventory);
     }
 
     // Tìm kiếm sản phẩm trong kho dựa trên bookID
-    public Inventory searchInventory(Integer bookID) {
-        var book = bookRepository.findById(bookID)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
-
-        var inventory = inventoryRepository.findByBook(book);
-        if (inventory == null) {
+    public List<Inventory> searchInventory(SearchInventoryRequest request) {
+        var  inventory = inventoryRepository.findByBookNameAndAuthorAndMemberType(request.getQuery().toLowerCase());
+        if (inventory.isEmpty()) {
             throw new AppException(ErrorCode.NOT_FOUND);
         }
-
         log.info("Found inventory: {}", inventory);
         return inventory;
     }
+    public List<Inventory> getAllInventory() {
+        return inventoryRepository.findAll(); // Trả về danh sách Inventory trực tiếp từ repository
+    }
+
+
+
 }

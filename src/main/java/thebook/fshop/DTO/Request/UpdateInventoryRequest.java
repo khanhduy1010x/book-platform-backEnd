@@ -9,6 +9,6 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateInventoryRequest {
-    Integer inventoryID;  // ID của bản ghi Inventory cần cập nhật
+    Integer bookID;  // ID của bản ghi bookID cần cập nhật
     int newQuantity;      // Số lượng mới
 }
