@@ -30,4 +30,6 @@ public class BookRate {
     Account account;
 
     String comment;
+
+    boolean isHidden;
 }

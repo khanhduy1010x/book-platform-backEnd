@@ -24,7 +24,5 @@ public interface InventoryRepository extends JpaRepository<Inventory, Integer> {
             "SELECT i FROM Inventory i WHERE  LOWER(i.book.bookName) LIKE %:query% OR  LOWER(i.book.author) LIKE %:query% OR  LOWER(i.book.category.cateName) LIKE '%:query%'")
     List<Inventory> findByBookNameAndAuthorAndMemberType(String query);
 
-
 }
-
 

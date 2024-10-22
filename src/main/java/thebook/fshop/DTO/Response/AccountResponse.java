@@ -22,6 +22,8 @@ public class AccountResponse {
     String address;
     String avatar;
     Date birth;
+    String username;
+
     boolean hasPassword;
     boolean skip_password_prompt;
 }

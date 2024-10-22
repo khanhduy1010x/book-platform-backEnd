@@ -12,8 +12,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,8 +35,7 @@ import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import thebook.fshop.DTO.Request.*;
-import thebook.fshop.DTO.Response.AuthenticationResponse;
-import thebook.fshop.DTO.Response.IntrorespectResponse;
+import thebook.fshop.DTO.Response.*;
 import thebook.fshop.entity.Account;
 import thebook.fshop.entity.InvalidToken;
 import thebook.fshop.exception.AppException;
@@ -53,6 +55,7 @@ public class AuthenticationService {
     private WebClient webClient = WebClient.create();
     private RedisTemplate<String, Object> template;
     SecurityService securityService;
+    EmailService emailService;
     AccountsRepository accountsRepository;
     InvalidateTokenRepository invalidateRepository;
 
@@ -99,15 +102,15 @@ public class AuthenticationService {
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         Optional<Account> accounts = accountsRepository
-                .findByPhone(request.getPhoneOrMail());
+                .findByUsername(request.getUsername());
         if(accounts.isEmpty()){
-            accounts = accountsRepository.findByEmail(request.getPhoneOrMail());
+            accounts = accountsRepository.findByUsername(request.getUsername());
             if(accounts.isEmpty())throw new AppException(ErrorCode.INVALID_USERNAME);
         }
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean authenticated = passwordEncoder.matches(request.getPassword(), accounts.get().getPassword());
         if (!authenticated) throw new AppException(ErrorCode.UNAUTHENTICATED);
-        var tokenData = generate(accounts.get());
+        var tokenData = generate(accounts.get(),false);
         return AuthenticationResponse.builder()
                 .token(tokenData.getToken())
                 .expiryTime(tokenData.getExpiryTime())
@@ -143,7 +146,7 @@ public class AuthenticationService {
         var phone = signToken.getJWTClaimsSet().getSubject();
         var account = accountsRepository.findByPhone(phone).orElseThrow(() -> new AppException(ErrorCode.UNAUTHORIZED));
 
-        var tokenData = generate(account);
+        var tokenData = generate(account,false );
 
         return AuthenticationResponse.builder()
                 .token(tokenData.getToken())
@@ -171,20 +174,21 @@ public class AuthenticationService {
         return signedJWT;
     }
 
-    private AuthenticationResponse generate(Account account) {
+    private AuthenticationResponse generate(Account account, boolean isTemp) {
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
-        Date expiryTime =
-                new Date(Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli());
-        Date reFreshTime = new Date(
-                Instant.now().plus(REFRESHABLE_REFRESH, ChronoUnit.SECONDS).toEpochMilli());
+        Date expiryTime = isTemp
+                ? new Date(Instant.now().plus(5, ChronoUnit.MINUTES).toEpochMilli())
+                : new Date(Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli());
+        Date reFreshTime = isTemp
+                ? null
+                : new Date(Instant.now().plus(REFRESHABLE_REFRESH, ChronoUnit.SECONDS).toEpochMilli());
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(account.getPhone())
+                .subject(account.getUsername())
                 .issuer("KhanhDuy")
                 .jwtID(UUID.randomUUID().toString())
                 .issueTime(new Date())
                 .expirationTime(expiryTime)
                 .claim("scope", buildScope(account))
-                .claim("email", account.getEmail())
                 .build();
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
         JWSObject jwsObject = new JWSObject(jwsHeader, payload);
@@ -210,6 +214,7 @@ public class AuthenticationService {
     public void sendOTPSMS(SendOTPRequest request) {
         String phone = request.getPhone();
         if (accountsRepository.existsByPhone(phone)) throw new AppException(ErrorCode.EXITS_PHONE);
+        if (accountsRepository.existsByUsername(request.getUsername())) throw new AppException(ErrorCode.EXITS_USERNAME);
         if (template.getExpire(phone, TimeUnit.SECONDS) > 0) throw new AppException(ErrorCode.WAITING_TIME);
         Random rand = new Random();
         int otp = rand.nextInt(900000) + 100000;
@@ -299,7 +304,7 @@ public class AuthenticationService {
                                 .loginType(LoginType.GOOGLE)
                                 .build();
                         accountsRepository.save(account);
-                        var tokenData = generate(account);
+                        var tokenData = generate(account,false);
                         return Mono.just(AuthenticationResponse.builder()
                                 .token(tokenData.getToken())
                                 .expiryTime(tokenData.getExpiryTime())
@@ -307,7 +312,7 @@ public class AuthenticationService {
                                 .authenticated(true)
                                 .build());
                     } else {
-                        var tokenData = generate(accountExits.get());
+                        var tokenData = generate(accountExits.get(),false);
                         return Mono.just(AuthenticationResponse.builder()
                                 .token(tokenData.getToken())
                                 .expiryTime(tokenData.getExpiryTime())
@@ -324,6 +329,62 @@ public class AuthenticationService {
     public void createPassword(CreatePasswordRequest request) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         var account = securityService.getAccountByJWT();
+        account.setPassword(passwordEncoder.encode(request.getPassword()));
+        accountsRepository.save(account);
+    }
+    public void forgotPassword (ForgotPasswordRequest request) throws MessagingException {
+        Account account = accountsRepository.findByUsername(request.getUsername()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+        boolean isPhone = request.isPhone();
+        Random rand = new Random();
+        int otp = rand.nextInt(900000) + 100000;
+        if(!isPhone){
+            emailService.sendEmail(account.getFullName(), account.getEmail(), "OTP Đặt lại mật khẩu Book4.0",String.valueOf(otp));
+            template.opsForValue().set(String.valueOf(account.getUsername()), String.valueOf(otp));
+            template.expire(String.valueOf(account.getAccID()), 1200, TimeUnit.SECONDS);
+        }else {
+            SendSMSServer sendSMSServer = SendSMSServer.builder()
+                    .content("Book4.0 - Mã OTP đặt lại mật khẩu của bạn là: " + otp)
+                    .to(account.getPhone())
+                    .sender(DEVICE_KEY)
+                    .build();
+            webClient
+                    .post()
+                    .uri(uriSendSMS)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(sendSMSServer)
+                    .headers(headers -> headers.setBasicAuth(SMS_KEY, ""))
+                    .retrieve()
+                    .bodyToMono(Map.class)
+                    .subscribe(
+                            response -> {
+                                String status = (String) response.get("status");
+                                if (!"success".equals(status)) {
+                                    throw new AppException(ErrorCode.ERROR_SEND);
+                                }
+                                template.opsForValue().set(account.getUsername(), String.valueOf(otp));
+                                template.expire(account.getUsername(), 1200, TimeUnit.SECONDS);
+                            },
+                            error -> {
+                                throw new AppException(ErrorCode.ERROR_SEND);
+                            });
+        }
+    }
+    public TempTokenResponse validateOtpForgotPassword(ValidateOtpRequest request) {
+        log.info(request.getUsername());
+        String otp = (String) template.opsForValue().get(request.getUsername());
+        if (otp == null) throw new AppException(ErrorCode.EXPIRED_OTP);
+        if (!Objects.equals(otp, request.getOtp())) throw new AppException(ErrorCode.INVALID_OTP);
+var tempToken = generate(accountsRepository.findByUsername(request.getUsername()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND)),false);
+        return TempTokenResponse.builder()
+                .tempToken(tempToken.getToken())
+                .build();
+    }
+
+    public void resetPasswordByTempToken(ResetPasswordForgotPasswordRequest request) {
+        var context = SecurityContextHolder.getContext();
+        var username = context.getAuthentication().getName();
+        var account = accountsRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         account.setPassword(passwordEncoder.encode(request.getPassword()));
         accountsRepository.save(account);
     }

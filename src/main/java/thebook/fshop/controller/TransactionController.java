@@ -2,6 +2,8 @@ package thebook.fshop.controller;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.AccessLevel;
@@ -24,6 +26,19 @@ public class TransactionController {
     public ApiResponse<List<TransactionResponse>> getTransactionHistory() {
         return ApiResponse.<List<TransactionResponse>>builder()
                 .result(transactionService.getTransactionHistoryByAccount())
+                .build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/history/detail")
+    public ApiResponse<List<TransactionResponse>> getTransactionHistory(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String filter,
+            @RequestParam(required = false) String transactionType
+    ) {
+        List<TransactionResponse> response = transactionService.viewPaymentHistory(search, filter, transactionType);
+        return ApiResponse.<List<TransactionResponse>>builder()
+                .result(response)
                 .build();
     }
 }

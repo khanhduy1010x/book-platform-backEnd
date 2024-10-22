@@ -31,8 +31,8 @@ public enum ErrorCode {
     INVALID_PHONE_NUMBER(1007, "Invalid phone number", HttpStatus.BAD_REQUEST),
     NULL_PHONE_NUMBER(1008, "Phone number must not be null", HttpStatus.BAD_REQUEST),
     EXITS_USERNAME(1009, "Exits the username", HttpStatus.BAD_REQUEST),
-    NOT_EXITS_ACCOUNT(1010, "Not exits the account", HttpStatus.NOT_FOUND),
-    NOT_EXITS_USERNAME(1011, "Not exits the username", HttpStatus.NOT_FOUND),
+    NOT_EXIST_ACCOUNT(1010, "Account does not exist.", HttpStatus.NOT_FOUND),
+    NOT_EXIST_USERNAME(1011, "Not exist the username", HttpStatus.NOT_FOUND),
     UNAUTHENTICATED(1012, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     ERROR_GENERATE_TOKEN(1013, "Error Generate token", HttpStatus.INTERNAL_SERVER_ERROR),
     ERROR_PARSE_TOKEN(1014, "Error Parse token", HttpStatus.UNAUTHORIZED),
@@ -67,9 +67,13 @@ public enum ErrorCode {
     INVALID_FILE_SIZE(1049, "Invalid file size", HttpStatus.BAD_REQUEST),
     INVALID_FILE_TYPE(1050, "Invalid file type", HttpStatus.BAD_REQUEST),
     INVALID_QUANTITY(1051, "Invalid quantity", HttpStatus.BAD_REQUEST),
+    INVALID_INVENTORY(1051, "There is no such book in the inventory", HttpStatus.BAD_REQUEST),
+    OVER_QUANTITY(1052, "The amount in the inventory is insufficient", HttpStatus.BAD_REQUEST),
+    INVALID_QUANTITY(1053, "The amount must be over 0", HttpStatus.BAD_REQUEST),
+    INVALID_ROLE(1051, "Invalid Role type", HttpStatus.BAD_REQUEST),
+    CANNOT_BAN_OWN_ACCOUNT(1051, "Admin cannot ban their own account", HttpStatus.BAD_REQUEST),
+    ACCOUNT_ALREADY_BANNED(1052, "Account is already banned", HttpStatus.BAD_REQUEST),;
 
-    ;
-    ;
 
     private int code;
     private String message;

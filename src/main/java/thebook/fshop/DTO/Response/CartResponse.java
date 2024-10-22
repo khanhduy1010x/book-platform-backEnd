@@ -14,4 +14,6 @@ public class CartResponse {
     int accountID;
     Book book;
     int quantity;
+    boolean outOfStock;
+
 }

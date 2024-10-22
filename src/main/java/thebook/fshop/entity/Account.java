@@ -46,4 +46,6 @@ public class Account {
     LoginType loginType;
 
     boolean isBanned;
+
+    String username;
 }
