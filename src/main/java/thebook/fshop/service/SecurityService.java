@@ -36,4 +36,11 @@ public class SecurityService {
         }
         throw new AppException(ErrorCode.NOT_FOUND);
     }
+
+    public boolean hasRole(String role) {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(role));
+    }
+
 }

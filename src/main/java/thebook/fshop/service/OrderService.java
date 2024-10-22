@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import thebook.fshop.DTO.Request.OrderRequest;
@@ -79,15 +80,24 @@ public class OrderService {
     }
 
 
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public List<OrderResponse> viewOrder() {
         var account = securityService.getAccountByJWT();
-        List<Order> orders = orderRepository.findByAccount_AccID(account.getAccID());
+
+        List<Order> orders;
+        // Nếu người dùng có quyền ADMIN thì lấy tất cả các đơn hàng
+        if (securityService.hasRole("ROLE_ADMIN")) {
+            orders = orderRepository.findAll(); // Lấy tất cả các đơn hàng
+        } else {
+            // Ngược lại thì chỉ lấy đơn hàng của tài khoản hiện tại
+            orders = orderRepository.findByAccount_AccID(account.getAccID());
+        }
 
         if (orders.isEmpty()) {
             throw new AppException(ErrorCode.NOT_FOUND);
         }
 
-        // Convert list of orders to response format
+        // Convert danh sách orders sang OrderResponse
         List<OrderResponse> orderResponses = new ArrayList<>();
         for (Order order : orders) {
             OrderResponse orderResponse = OrderResponse.builder()
@@ -105,6 +115,7 @@ public class OrderService {
 
         return orderResponses;
     }
+
 
     public OrderResponse viewOrderDetail(int orderID) {
         Order order = orderRepository.findById(orderID)

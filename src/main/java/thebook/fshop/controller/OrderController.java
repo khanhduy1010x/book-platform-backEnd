@@ -2,6 +2,7 @@ package thebook.fshop.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import thebook.fshop.DTO.Request.OrderRequest;
 import thebook.fshop.DTO.Response.ApiResponse;
@@ -26,15 +27,14 @@ public class OrderController {
         return ApiResponse.builder().build();
     }
 
-    // API to create order details
-
-    // API to view all orders
     @GetMapping("/view")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ApiResponse<List<OrderResponse>> viewOrder() {
         return ApiResponse.<List<OrderResponse>>builder()
                 .result(orderService.viewOrder())
                 .build();
     }
+
 
     // API to view order details
     @GetMapping("/view/{orderID}")
