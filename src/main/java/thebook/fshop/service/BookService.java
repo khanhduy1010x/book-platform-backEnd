@@ -1,5 +1,6 @@
 package thebook.fshop.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,14 +15,18 @@ import thebook.fshop.DTO.Request.BookDetailRequest;
 import thebook.fshop.DTO.Request.FilterRequest;
 import thebook.fshop.DTO.Request.SearchRequest;
 import thebook.fshop.DTO.Response.ListBookByCateResponse;
+import thebook.fshop.DTO.Response.ListBookMostStatistic;
 import thebook.fshop.entity.Book;
 import thebook.fshop.entity.Category;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
 import thebook.fshop.helper.BookType;
+import thebook.fshop.helper.EbookType;
+import thebook.fshop.helper.MemberType;
 import thebook.fshop.mapper.SearchBookMapper;
 import thebook.fshop.repository.BookRepository;
 import thebook.fshop.repository.CategoryRepository;
+import thebook.fshop.repository.OrderDetailRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +36,7 @@ public class BookService {
     BookRepository bookRepository;
     CategoryRepository categoryRepository;
     SearchBookMapper searchBookMapper;
+    OrderDetailRepository orderDetailRepository;
 
     public List<Book> searchBook(SearchRequest query) {
         // Fetching books from the repository
@@ -78,4 +84,23 @@ public class BookService {
         return books;
     }
 
-}
+    public List<ListBookMostStatistic> getStatisticsOnMostPurchasedBooks() {
+            // Fetch top 10 most purchased books using the repository method
+            List<Book> topBooks = bookRepository.findTop10MostPurchasedBooks();
+            // Map the books to ListBookMostStatistic objects
+            return topBooks.stream()
+                    .map(book -> {
+                        // Fetch total quantity directly within this method
+                        int totalQuantity = orderDetailRepository.findTotalQuantityByBookId(book.getID());
+                        return ListBookMostStatistic.builder()
+                                .book(book)
+                                .total_quantity(totalQuantity)
+                                .build();
+                    })
+                    .collect(Collectors.toList());
+        }
+    }
+
+
+
+
