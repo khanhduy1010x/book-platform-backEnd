@@ -28,7 +28,7 @@ public class Book {
     String bookName;
     String author;
     long price;
-
+    @Enumerated(EnumType.STRING)
     EbookType ebookType;
     @Enumerated(EnumType.STRING)
     MemberType memberType;
@@ -36,6 +36,6 @@ public class Book {
     String url;
     String coverImage;
     String description;
-
+    @Enumerated(EnumType.STRING)
     BookType bookType;
 }
