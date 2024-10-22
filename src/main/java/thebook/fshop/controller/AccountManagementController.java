@@ -11,11 +11,15 @@ import thebook.fshop.DTO.Request.*;
 import thebook.fshop.DTO.Response.AccountResponse;
 import thebook.fshop.DTO.Response.ApiResponse;
 import thebook.fshop.DTO.Response.ForgotPasswordResponse;
+import thebook.fshop.DTO.Response.ListAccountResponse;
 import thebook.fshop.entity.Account;
+import thebook.fshop.helper.MemberType;
 import thebook.fshop.helper.Role;
+import thebook.fshop.mapper.AccountMapper;
 import thebook.fshop.service.AccountService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/account")
@@ -24,7 +28,7 @@ import java.util.List;
 @Slf4j
 public class AccountManagementController {
     AccountService accountService;
-
+AccountMapper accountMapper;
     @GetMapping("/view-profile")
     ApiResponse<AccountResponse> viewProfile() {
         AccountResponse response = accountService.getMyInfo();
@@ -54,10 +58,18 @@ public class AccountManagementController {
 
 
     @GetMapping("/users")
-    public ApiResponse<List<Account>> getAllUsers() {
-        List<Account> users = accountService.getAllUsers();
-        return ApiResponse.<List<Account>>builder().result(users).build();
+    public ApiResponse<List<ListAccountResponse>> getAllUsers() {
+        // Use the AccountService to get the ListAccountResponse
+        List<ListAccountResponse> users = accountService.getAllUsers();
+        return ApiResponse.<List<ListAccountResponse>>builder().result(users).build();
     }
+    @GetMapping("/users-by-type/{memberType}")
+    public ApiResponse<List<ListAccountResponse>> getUsersByType(@PathVariable MemberType memberType) {
+        List<ListAccountResponse> users = accountService.getUserByType(memberType);
+        return ApiResponse.<List<ListAccountResponse>>builder().result(users).build();
+    }
+
+
 
 
 

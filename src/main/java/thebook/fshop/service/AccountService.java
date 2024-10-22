@@ -1,10 +1,12 @@
 package thebook.fshop.service;
+
 import thebook.fshop.DTO.Response.ApiResponse;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import thebook.fshop.DTO.Request.*;
 import thebook.fshop.DTO.Response.AccountResponse;
 import thebook.fshop.DTO.Response.ForgotPasswordResponse;
+import thebook.fshop.DTO.Response.ListAccountResponse;
 import thebook.fshop.entity.Account;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
@@ -36,6 +39,7 @@ import thebook.fshop.repository.AccountsRepository;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class AccountService {
+
     AccountsRepository accountsRepository;
     AccountMapper accountMapper;
     SecurityService securityService;
@@ -49,60 +53,66 @@ public class AccountService {
     @Value("${path.avatar}")
     String PATH_AVATAR;
 
-    // Method to get all users
+    // Fetch all users with ADMIN access
     @PreAuthorize("hasRole('ADMIN')")
-    public List<Account> getAllUsers() {
-        return accountsRepository.findAll();
+    public List<ListAccountResponse> getAllUsers() {
+        List<Account> accounts = accountsRepository.findAll();
+        return accounts.stream()
+                .map(accountMapper::toListAccountResponse)
+                .collect(Collectors.toList());
     }
 
-
-
+    // Create a new account
     public AccountResponse createAccount(AccountCreationRequest request) {
         String otp = (String) template.opsForValue().get(request.getPhone());
         if (otp == null) throw new AppException(ErrorCode.EXPIRED_OTP);
-        log.info("IT IS: " + (Objects.equals(otp, request.getOtp())));
-        log.info("Redis OTP  : " + otp);
-        log.info("Request OTP: " + request.getOtp());
+
         if (!Objects.equals(otp, request.getOtp())) throw new AppException(ErrorCode.INVALID_OTP);
         if (accountsRepository.existsByPhone(request.getPhone())) throw new AppException(ErrorCode.EXITS_USERNAME);
+
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         request.setPassword(passwordEncoder.encode(request.getPassword()));
+
         Account account = accountMapper.toAccount(request);
         account.setRole(Role.USER);
         account.setMemberType(MemberType.NONE);
         account.setAmount(0L);
         account.setLoginType(LoginType.NORMAL);
+
         return accountMapper.toAccountResponse(accountsRepository.save(account));
     }
 
+    // Fetch a specific account by its ID with ADMIN access
     @PreAuthorize("hasRole('ADMIN')")
     public AccountResponse getAccountByUserID(int ID) {
         return accountMapper.toAccountResponse(
-                accountsRepository.findById(ID).orElseThrow(() -> new AppException(ErrorCode.NOT_EXIST_ACCOUNT)));
+                accountsRepository.findById(ID)
+                        .orElseThrow(() -> new AppException(ErrorCode.NOT_EXIST_ACCOUNT)));
     }
 
+    // Fetch the account info of the current authenticated user
     public AccountResponse getMyInfo() {
         var account = securityService.getAccountByJWT();
         AccountResponse accountResponse = accountMapper.toAccountResponse(account);
-        accountResponse.setHasPassword(true);
-        if(account.getPassword() == null) {
-            accountResponse.setHasPassword(false);
-        }
+        accountResponse.setHasPassword(account.getPassword() != null);
         return accountResponse;
     }
 
+    // Update the user's avatar
     public void updateAvatar(UpdateAvatarRequest request) {
         var account = securityService.getAccountByJWT();
         MultipartFile fileAvatar = request.getFile();
+
         if (fileAvatar != null && !fileAvatar.isEmpty()) {
             String uniqueID = UUID.randomUUID().toString();
             String fileName = fileAvatar.getOriginalFilename() + uniqueID;
             File uploadDir = new File(UPLOAD_PATH);
-            if (!uploadDir.exists()) {
-                uploadDir.mkdirs();
+
+            if (!uploadDir.exists() && !uploadDir.mkdirs()) {
+                throw new AppException(ErrorCode.INVALID_FILE_NULL);
             }
+
             String filePart = UPLOAD_PATH + File.separator;
-            log.info(filePart);
             try {
                 fileAvatar.transferTo(new File(filePart, fileName));
                 account.setAvatar(PATH_AVATAR + fileName);
@@ -114,6 +124,7 @@ public class AccountService {
         accountsRepository.save(account);
     }
 
+    // Update account information
     public void updateInformation(UpdateAccountInformationRequest request) {
         var account = securityService.getAccountByJWT();
 
@@ -123,36 +134,33 @@ public class AccountService {
         if (!request.getName().matches("^[A-Za-zÀ-ỹ\\s]+$")) {
             throw new AppException(ErrorCode.INVALID_NAME);
         }
-
         if (request.getBirth() == null || request.getBirth().toString().trim().isEmpty()) {
             throw new AppException(ErrorCode.INVALID_BIRTH);
         }
+
         account.setFullName(request.getName());
         account.setBirth(request.getBirth());
-        log.info(request.getName());
-        log.info(request.getBirth().toString());
+
         accountsRepository.save(account);
     }
 
-    public void setPasswordPrompt (SetPasswordPromptRequest request) {
+    // Set or skip password prompt
+    public void setPasswordPrompt(SetPasswordPromptRequest request) {
         var account = securityService.getAccountByJWT();
         account.setSkip_password_prompt(request.isSkip());
-        log.info("Is: {}", request.isSkip());
         accountsRepository.save(account);
     }
 
+    // Promote or change a user's role (ADMIN access)
     @PreAuthorize("hasRole('ADMIN')")
     public void upRole(MemberRoleUpRequest request) {
-        int accID = request.getAccID();
-        String newRole = request.getRole();
-        Account account = accountsRepository.findById(accID)
+        Account account = accountsRepository.findById(request.getAccID())
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
-        account.setRole(Role.valueOf(newRole));
+        account.setRole(Role.valueOf(request.getRole()));
         accountsRepository.save(account);
     }
 
-
-
+    // Ban an account (ADMIN access)
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> banAccount(int accountId) {
         var currentAdmin = securityService.getAccountByJWT();
@@ -166,25 +174,41 @@ public class AccountService {
         }
         account.setBanned(true);
         accountsRepository.save(account);
-        return ApiResponse.<Void>builder()
-                .build();
+        return ApiResponse.<Void>builder().build();
     }
 
+    // Unlock a banned account (ADMIN access)
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> unlockAccount(int accountId) {
         Account account = accountsRepository.findById(accountId)
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_EXIST_ACCOUNT));
         if (!account.isBanned()) {
-            return ApiResponse.<Void>builder()
-                    .build();
+            return ApiResponse.<Void>builder().build();
         }
         account.setBanned(false);
         accountsRepository.save(account);
-        return ApiResponse.<Void>builder()
-                .build();
+        return ApiResponse.<Void>builder().build();
     }
 
+    // Get email or phone by username for password recovery
     public ForgotPasswordResponse getEmailPhoneByUserName(ForgotPasswordRequest request) {
-        return accountMapper.toForgotPasswordResponse(accountsRepository.findByUsername(request.getUsername()).orElseThrow(() ->new AppException(ErrorCode.NOT_EXIST_ACCOUNT)));
+        return accountMapper.toForgotPasswordResponse(
+                accountsRepository.findByUsername(request.getUsername())
+                        .orElseThrow(() -> new AppException(ErrorCode.NOT_EXIST_ACCOUNT)));
     }
+    public List<ListAccountResponse> getUserByType(MemberType memberType) {
+        // Fetch all accounts from the repository
+        List<Account> accounts = accountsRepository.findAll();
+
+        // Filter the accounts by MemberType
+        List<Account> filteredAccounts = accounts.stream()
+                .filter(account -> account.getMemberType() == memberType)
+                .collect(Collectors.toList());
+
+        // Map the filtered accounts to ListAccountResponse
+        return filteredAccounts.stream()
+                .map(accountMapper::toListAccountResponse)
+                .collect(Collectors.toList());
+    }
+
 }
