@@ -71,7 +71,9 @@ public enum ErrorCode {
     INVALID_QUANTITY(1053, "The amount must be over 0", HttpStatus.BAD_REQUEST),
     INVALID_ROLE(1051, "Invalid Role type", HttpStatus.BAD_REQUEST),
     CANNOT_BAN_OWN_ACCOUNT(1051, "Admin cannot ban their own account", HttpStatus.BAD_REQUEST),
-    ACCOUNT_ALREADY_BANNED(1052, "Account is already banned", HttpStatus.BAD_REQUEST),;
+    ACCOUNT_ALREADY_BANNED(1052, "Account is already banned", HttpStatus.BAD_REQUEST),
+    ACCOUNT_NOT_BANNED(1053,"Account is not banned",HttpStatus.BAD_REQUEST ),
+    MESS_BAN(1054, "Required mesage to ban!" , HttpStatus.BAD_REQUEST );
 
 
     private int code;

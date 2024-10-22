@@ -12,7 +12,9 @@ import thebook.fshop.DTO.Response.AccountResponse;
 import thebook.fshop.DTO.Response.ApiResponse;
 import thebook.fshop.DTO.Response.ForgotPasswordResponse;
 import thebook.fshop.entity.Account;
+import thebook.fshop.entity.AccountBanned;
 import thebook.fshop.helper.Role;
+
 import thebook.fshop.service.AccountService;
 
 import java.util.List;
@@ -24,6 +26,7 @@ import java.util.List;
 @Slf4j
 public class AccountManagementController {
     AccountService accountService;
+
 
     @GetMapping("/view-profile")
     ApiResponse<AccountResponse> viewProfile() {
@@ -61,15 +64,22 @@ public class AccountManagementController {
 
 
 
-    @PostMapping("/ban/{accountId}")
-    public ApiResponse<Void> banAccount(@PathVariable int accountId) {
-        return accountService.banAccount(accountId);
+    @PostMapping("/ban")
+    public ApiResponse<Void> banAccount(@RequestBody BanAccountRequest request) {
+        accountService.banAccount(request.getAccountId(), request.getMessage());
+        return ApiResponse.<Void>builder().build();
     }
 
 
     @PostMapping("/unlock/{accountId}")
     public ApiResponse<Void> unlockAccount(@PathVariable int accountId) {
         return accountService.unlockAccount(accountId);
+    }
+
+    @GetMapping("/banned-accounts")
+    public ApiResponse<List<AccountBanned>> getBannedAccounts() {
+        List<AccountBanned> bannedAccounts = accountService.getBannedAccounts();
+        return ApiResponse.<List<AccountBanned>>builder().result(bannedAccounts).build();
     }
 
     @PostMapping("get-info-reset-password")

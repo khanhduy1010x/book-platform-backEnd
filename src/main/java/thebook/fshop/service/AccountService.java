@@ -23,12 +23,14 @@ import thebook.fshop.DTO.Request.*;
 import thebook.fshop.DTO.Response.AccountResponse;
 import thebook.fshop.DTO.Response.ForgotPasswordResponse;
 import thebook.fshop.entity.Account;
+import thebook.fshop.entity.AccountBanned;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
 import thebook.fshop.helper.LoginType;
 import thebook.fshop.helper.MemberType;
 import thebook.fshop.helper.Role;
 import thebook.fshop.mapper.AccountMapper;
+import thebook.fshop.repository.AccountBannedRepository;
 import thebook.fshop.repository.AccountsRepository;
 
 @Service
@@ -37,6 +39,7 @@ import thebook.fshop.repository.AccountsRepository;
 @Slf4j
 public class AccountService {
     AccountsRepository accountsRepository;
+    AccountBannedRepository accountBannedRepository;
     AccountMapper accountMapper;
     SecurityService securityService;
     RedisTemplate<String, Object> template;
@@ -153,7 +156,7 @@ public class AccountService {
 
 
 
-    @PreAuthorize("hasRole('ADMIN')")
+    /*@PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> banAccount(int accountId) {
         var currentAdmin = securityService.getAccountByJWT();
         if (currentAdmin.getAccID() == accountId) {
@@ -182,6 +185,49 @@ public class AccountService {
         accountsRepository.save(account);
         return ApiResponse.<Void>builder()
                 .build();
+    }*/
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public void banAccount(int accountId, String message) {
+        Account currentAdmin = securityService.getAccountByJWT();
+        if (currentAdmin.getAccID() == accountId) {
+            throw new AppException(ErrorCode.CANNOT_BAN_OWN_ACCOUNT);
+        }
+
+        Account accountToBan = accountsRepository.findById(accountId)
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXIST_ACCOUNT));
+
+        if (accountToBan.isBanned()) {
+            throw new AppException(ErrorCode.ACCOUNT_ALREADY_BANNED);
+        }
+if(message.trim().isEmpty()){throw new AppException(ErrorCode.MESS_BAN);}
+        accountToBan.setBanned(true);
+        accountsRepository.save(accountToBan);
+
+        AccountBanned accountBanned = AccountBanned.builder()
+                .account(accountToBan)
+                .message(message)
+                .build();
+
+        accountBannedRepository.save(accountBanned);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<AccountBanned> getBannedAccounts() {
+        return accountBannedRepository.findAll();
+    }
+
+    public ApiResponse<Void> unlockAccount(int accountId) {
+        Account account = accountsRepository.findById(accountId)
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXIST_ACCOUNT));
+
+        if (!account.isBanned()) {
+            throw new AppException(ErrorCode.ACCOUNT_NOT_BANNED);
+        }
+
+        account.setBanned(false);
+        accountsRepository.save(account);
+        return ApiResponse.<Void>builder().build();
     }
 
     public ForgotPasswordResponse getEmailPhoneByUserName(ForgotPasswordRequest request) {
