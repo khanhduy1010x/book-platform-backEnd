@@ -16,6 +16,7 @@ import thebook.fshop.DTO.Request.FilterRequest;
 import thebook.fshop.DTO.Request.SearchRequest;
 import thebook.fshop.DTO.Response.ListBookByCateResponse;
 import thebook.fshop.DTO.Response.ListBookMostStatistic;
+import thebook.fshop.DTO.Response.ListReadBookStatisticResponse;
 import thebook.fshop.entity.Book;
 import thebook.fshop.entity.Category;
 import thebook.fshop.exception.AppException;
@@ -24,6 +25,7 @@ import thebook.fshop.helper.BookType;
 import thebook.fshop.helper.EbookType;
 import thebook.fshop.helper.MemberType;
 import thebook.fshop.mapper.SearchBookMapper;
+import thebook.fshop.repository.BooKReadHistoryRepository;
 import thebook.fshop.repository.BookRepository;
 import thebook.fshop.repository.CategoryRepository;
 import thebook.fshop.repository.OrderDetailRepository;
@@ -37,6 +39,8 @@ public class BookService {
     CategoryRepository categoryRepository;
     SearchBookMapper searchBookMapper;
     OrderDetailRepository orderDetailRepository;
+    BooKReadHistoryRepository booKReadHistoryRepository;
+
 
     public List<Book> searchBook(SearchRequest query) {
         // Fetching books from the repository
@@ -99,7 +103,26 @@ public class BookService {
                     })
                     .collect(Collectors.toList());
         }
+
+
+    public List<ListReadBookStatisticResponse> getStatisticsOnMostReadBooks() {
+        // Fetch top 10 most read books using the repository method
+        List<Book> topBooks = booKReadHistoryRepository.findMostReadBooks();
+
+        // Map the ListReadBookStatisticResponse objects with total read user count
+        return topBooks.stream()
+                .map(bookProj -> {
+                    int totalQuantity = booKReadHistoryRepository.findTotalQuantityByBookId(bookProj.getID());
+                   return ListReadBookStatisticResponse.builder()
+                        .book(bookProj)
+                           .total_read_user(totalQuantity)
+                        .build();
+
+                })
+                .collect(Collectors.toList());
     }
+
+}
 
 
 

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import thebook.fshop.DTO.Response.AccountResponse;
 import thebook.fshop.DTO.Response.ApiResponse;
 import thebook.fshop.DTO.Response.ListBookMostStatistic;
+import thebook.fshop.DTO.Response.ListReadBookStatisticResponse;
 import thebook.fshop.entity.Book;
 import thebook.fshop.service.BookService;
 
@@ -26,5 +27,9 @@ public class StatisticController {
     @GetMapping("/most-purchased-books")
     ApiResponse<List<ListBookMostStatistic>> viewStaticBookTop() {
         return ApiResponse.<List<ListBookMostStatistic>>builder().result(bookService.getStatisticsOnMostPurchasedBooks()).build();
+    }
+    @GetMapping("/most-read-books")
+    ApiResponse<List<ListReadBookStatisticResponse>> viewStaticReadBook() {
+        return ApiResponse.<List<ListReadBookStatisticResponse>>builder().result(bookService.getStatisticsOnMostReadBooks()).build();
     }
 }
