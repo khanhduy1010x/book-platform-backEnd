@@ -21,7 +21,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/thebook1
     username: postgres
-    password: caotai1132003
+    password: caotai1132003 #Thay đổi ở máy mỗi người
     driver-class-name: org.postgresql.Driver
 
   servlet:
