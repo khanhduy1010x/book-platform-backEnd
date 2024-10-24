@@ -73,7 +73,7 @@ public class BookService {
             books = books.stream()
                     .filter(book -> book.getAuthor().contains(author))
                     .collect(Collectors.toList());
-        }
+    }
 
         return books;
     }

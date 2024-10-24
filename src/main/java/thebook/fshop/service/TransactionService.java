@@ -31,17 +31,13 @@ public class TransactionService {
                 .toList();
     }
 
-    public List<TransactionResponse> viewPaymentHistory(String search, String filter, String transactionType) {
-        // Tạo specification cho việc tìm kiếm và lọc
+    public List<TransactionResponse> viewPaymentHistory(String content, String amountFilter, String transactionType, String time) {
         Specification<Transaction> spec = Specification.where(null);
 
-        // Tìm kiếm theo account ID hoặc content
-        if (search != null && !search.isEmpty()) {
+        // Tìm kiếm theo content nếu có
+        if (content != null && !content.isEmpty()) {
             spec = spec.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.or(
-                            criteriaBuilder.like(root.get("account").get("accID").as(String.class), "%" + search + "%"),
-                            criteriaBuilder.like(root.get("content"), "%" + search + "%")
-                    )
+                    criteriaBuilder.like(root.get("content"), "%" + content + "%")
             );
         }
 
@@ -52,16 +48,23 @@ public class TransactionService {
             );
         }
 
-        // Lọc theo filter: ví dụ lọc theo số tiền lớn hơn một mức nào đó
-        if (filter != null && !filter.isEmpty()) {
+        // Lọc theo amount nếu có
+        if (amountFilter != null && !amountFilter.isEmpty()) {
             try {
-                long amountFilter = Long.parseLong(filter);
+                long amount = Long.parseLong(amountFilter);
                 spec = spec.and((root, query, criteriaBuilder) ->
-                        criteriaBuilder.greaterThanOrEqualTo(root.get("amount"), amountFilter)
+                        criteriaBuilder.greaterThanOrEqualTo(root.get("amount"), amount)
                 );
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("Filter must be a valid number");
             }
+        }
+
+        // Lọc theo time nếu có
+        if (time != null && !time.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("time"), time)
+            );
         }
 
         // Lấy danh sách transaction theo spec
@@ -79,4 +82,5 @@ public class TransactionService {
                         .build()
         ).collect(Collectors.toList());
     }
+
 }

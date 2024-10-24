@@ -22,6 +22,12 @@ import thebook.fshop.service.TransactionService;
 public class TransactionController {
     TransactionService transactionService;
 
+    /*@GetMapping("/history")
+    public ApiResponse<List<TransactionResponse>> getTransactionHistory() {
+        return ApiResponse.<List<TransactionResponse>>builder()
+                .result(transactionService.getTransactionHistoryByAccount())
+                .build();
+    }*/
     @GetMapping("/history")
     public ApiResponse<List<TransactionResponse>> getTransactionHistory() {
         return ApiResponse.<List<TransactionResponse>>builder()
@@ -32,11 +38,12 @@ public class TransactionController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/history/detail")
     public ApiResponse<List<TransactionResponse>> getTransactionHistory(
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false) String filter,
-            @RequestParam(required = false) String transactionType
+            @RequestParam(required = false) String content,
+            @RequestParam(required = false) String amount,
+            @RequestParam(required = false) String transactionType,
+            @RequestParam(required = false) String time
     ) {
-        List<TransactionResponse> response = transactionService.viewPaymentHistory(search, filter, transactionType);
+        List<TransactionResponse> response = transactionService.viewPaymentHistory(content, amount, transactionType, time);
         return ApiResponse.<List<TransactionResponse>>builder()
                 .result(response)
                 .build();
