@@ -29,6 +29,7 @@ import thebook.fshop.exception.ErrorCode;
 import thebook.fshop.helper.BookType;
 import thebook.fshop.helper.EbookType;
 import thebook.fshop.helper.MemberType;
+import thebook.fshop.mapper.AccountMapper;
 import thebook.fshop.mapper.SearchBookMapper;
 import thebook.fshop.repository.BooKReadHistoryRepository;
 import thebook.fshop.repository.BookRepository;
@@ -45,7 +46,7 @@ public class BookService {
     SearchBookMapper searchBookMapper;
     OrderDetailRepository orderDetailRepository;
     BooKReadHistoryRepository booKReadHistoryRepository;
-
+AccountMapper accountMapper;
 
     public List<Book> searchBook(SearchRequest query) {
         // Fetching books from the repository
@@ -133,7 +134,7 @@ public class BookService {
                     .map(reader -> {
                         int total_read = booKReadHistoryRepository.findTotalBookByReader(reader.getId());
                         return ListReaderStatisticResponse.builder()
-                                .acc(reader.getAccount())
+                                .acc(accountMapper.toAccountResponse(reader.getAccount()))
                                 .total_read(total_read)
                                 .build();
 

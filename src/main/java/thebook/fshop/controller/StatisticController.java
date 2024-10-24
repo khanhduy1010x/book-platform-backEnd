@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import thebook.fshop.DTO.Response.*;
 import thebook.fshop.entity.Book;
 import thebook.fshop.service.BookService;
+import thebook.fshop.service.TransactionService;
 
 
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.List;
 @Slf4j
 public class StatisticController {
     BookService bookService;
+    TransactionService transactionService;
     @GetMapping("/most-purchased-books")
     ApiResponse<List<ListBookMostStatistic>> viewStaticBookTop() {
         return ApiResponse.<List<ListBookMostStatistic>>builder().result(bookService.getStatisticsOnMostPurchasedBooks()).build();
@@ -32,6 +34,10 @@ public class StatisticController {
     @GetMapping("/most-reader")
     ApiResponse<List<ListReaderStatisticResponse>> viewStaticReader() {
         return ApiResponse.<List<ListReaderStatisticResponse>>builder().result(bookService.getStatisticsOnMostReader()).build();
+    }
+    @GetMapping("/pay_most-user")
+    ApiResponse<List<ListStatisticPayMostResponse>> viewStaticPayMost() {
+        return ApiResponse.<List<ListStatisticPayMostResponse>>builder().result(transactionService.getStatisticsPayMostReader()).build();
     }
 
 }

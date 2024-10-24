@@ -8,7 +8,13 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import thebook.fshop.DTO.Response.AccountResponse;
+import thebook.fshop.DTO.Response.ListReaderStatisticResponse;
+import thebook.fshop.DTO.Response.ListStatisticPayMostResponse;
 import thebook.fshop.DTO.Response.TransactionResponse;
+import thebook.fshop.entity.Account;
+import thebook.fshop.entity.BookReadHistory;
+import thebook.fshop.mapper.AccountMapper;
 import thebook.fshop.mapper.TransactionMapper;
 import thebook.fshop.repository.TransactionRepository;
 import thebook.fshop.entity.Transaction;
@@ -23,6 +29,7 @@ public class TransactionService {
     TransactionMapper transactionMapper;
     TransactionRepository transactionRepository;
     SecurityService securityService;
+    AccountMapper accountMapper;
 
     public List<TransactionResponse> getTransactionHistoryByAccount() {
         var account = securityService.getAccountByJWT();
@@ -78,5 +85,18 @@ public class TransactionService {
                         .transactionType(transaction.getTransactionType())
                         .build()
         ).collect(Collectors.toList());
+    }
+
+    public List<ListStatisticPayMostResponse> getStatisticsPayMostReader() {
+        List<AccountResponse> topUsers = transactionRepository.findTop10User().stream().map(accountMapper::toAccountResponse).toList();
+        return topUsers.stream()
+                .map(user -> {
+                    int total_price = transactionRepository.findTotalPriceIncreaseByUser(user.getAccID());
+                    return ListStatisticPayMostResponse.builder()
+                            .account(user)
+                            .total_price(total_price)
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 }
