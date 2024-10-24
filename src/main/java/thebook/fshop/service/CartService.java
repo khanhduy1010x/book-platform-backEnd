@@ -3,12 +3,16 @@ package thebook.fshop.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import thebook.fshop.DTO.Request.AddToCartRequest;
 import thebook.fshop.DTO.Request.DeleteCartRequest;
 import thebook.fshop.DTO.Request.UpdateCartRequest;
 import thebook.fshop.DTO.Response.CartResponse;
+import thebook.fshop.DTO.Response.CustomPageResponse;
 import thebook.fshop.entity.Cart;
 import thebook.fshop.entity.CartItem;
 import thebook.fshop.entity.Book;
@@ -21,7 +25,6 @@ import thebook.fshop.repository.CartRepository;
 import thebook.fshop.repository.BookRepository;
 import thebook.fshop.repository.InventoryRepository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -38,6 +41,7 @@ public class CartService {
     SecurityService securityService;
     CartMapper cartMapper;
 
+    // Thêm sản phẩm vào giỏ hàng
     public void addToCart(AddToCartRequest request) {
         var account = securityService.getAccountByJWT();
         Inventory inventory = inventoryRepository.findByBook_ID(request.getBookId())
@@ -75,53 +79,49 @@ public class CartService {
         }
     }
 
-    public List<CartResponse> viewCart() {
+    // Xem giỏ hàng (đã chỉnh sửa)
+    public CustomPageResponse<CartResponse> viewCart(int page) {
         var account = securityService.getAccountByJWT();
         Cart cart = cartRepository.findByAccount_AccID(account.getAccID())
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
 
-        var listCart = cartItemRepository.findByCart_ID(cart.getID());
-        for (CartItem i : listCart) {
-            Inventory inventory = inventoryRepository.findByBook_ID(i.getBook().getID()).orElse(null);
-            if (inventory != null && i.getQuantity() > inventory.getQuantity()) {
-                i.setOutOfStock(true);
-                cartItemRepository.save(i);
-            }
-        }
+        Pageable pageable = PageRequest.of(page, 5);
+        Page<CartItem> cartItemsPage = cartItemRepository.findByCart_ID(cart.getID(), pageable);
 
-        return cartItemRepository.findByCart_ID(cart.getID()).stream().map(cartMapper::toCartResponse).collect(Collectors.toList());
+        return CustomPageResponse.<CartResponse>builder()
+                .pageNumber(cartItemsPage.getNumber())
+                .totalPages(cartItemsPage.getTotalPages())
+                .totalElements(cartItemsPage.getTotalElements())
+                .content(cartItemsPage.getContent().stream()
+                        .map(cartMapper::toCartResponse)
+                        .collect(Collectors.toList()))
+                .build();
     }
 
+    // Cập nhật giỏ hàng
     public void updateCart(UpdateCartRequest request) {
-        // First, check if the cart exists
         cartRepository.findById(request.getCartId())
-                .orElseThrow(() ->  new AppException(ErrorCode.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
 
-        // Check if the cart contains the book with the given bookId
         CartItem item = cartItemRepository.findByCart_IDAndBook_ID(request.getCartId(), request.getBookId())
-                .orElseThrow(() ->  new AppException(ErrorCode.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
 
         if (request.getQuantity() == 0) {
-            // If the quantity is 0, remove the item from the cart
             cartItemRepository.delete(item);
         } else {
-            // Otherwise, update the quantity
             item.setQuantity(request.getQuantity());
             cartItemRepository.save(item);
         }
     }
+
+    // Xóa sản phẩm khỏi giỏ hàng
     public void deleteFromCart(DeleteCartRequest request) {
-        // First, check if the cart exists
         Cart cart = cartRepository.findById(request.getCartId())
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
 
-        // Check if the book exists in the cart
         CartItem item = cartItemRepository.findByCart_IDAndBook_ID(request.getCartId(), request.getBookId())
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
 
-        // If found, delete the cart item
         cartItemRepository.delete(item);
     }
-
-
 }

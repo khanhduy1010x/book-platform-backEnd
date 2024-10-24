@@ -6,5 +6,5 @@ import thebook.fshop.entity.Cart;
 import java.util.Optional;
 
 public interface CartRepository extends JpaRepository<Cart, Integer> {
-    Optional<Cart> findByAccount_AccID(int userId);
+    Optional<Cart> findByAccount_AccID(int userId); // Tìm giỏ hàng theo ID tài khoản
 }

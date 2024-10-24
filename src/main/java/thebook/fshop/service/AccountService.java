@@ -210,5 +210,4 @@ public class AccountService {
                 .map(accountMapper::toListAccountResponse)
                 .collect(Collectors.toList());
     }
-
 }

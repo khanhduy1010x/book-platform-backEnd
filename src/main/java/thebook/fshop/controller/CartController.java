@@ -1,6 +1,5 @@
 package thebook.fshop.controller;
 
-
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -10,19 +9,11 @@ import org.springframework.web.bind.annotation.*;
 import thebook.fshop.DTO.Request.UpdateCartRequest;
 import thebook.fshop.DTO.Request.DeleteCartRequest;
 import thebook.fshop.DTO.Response.ApiResponse;
+import thebook.fshop.DTO.Response.CustomPageResponse;
 import thebook.fshop.entity.Cart;
-import thebook.fshop.entity.Account;
 import thebook.fshop.service.CartService;
-
-
 import thebook.fshop.DTO.Request.AddToCartRequest;
-import thebook.fshop.DTO.Request.UpdateCartRequest;
-import thebook.fshop.DTO.Request.DeleteCartRequest;
-import thebook.fshop.DTO.Response.ApiResponse;
 import thebook.fshop.DTO.Response.CartResponse;
-import thebook.fshop.service.CartService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/cart")
@@ -42,9 +33,9 @@ public class CartController {
     }
 
     @GetMapping("/view")
-    public ApiResponse<List<CartResponse>> viewCart() {
-        return ApiResponse.<List<CartResponse>>builder()
-                .result(cartService.viewCart())
+    public ApiResponse<CustomPageResponse<CartResponse>> viewCart(@RequestParam(defaultValue = "0") int page) {
+        return ApiResponse.<CustomPageResponse<CartResponse>>builder()
+                .result(cartService.viewCart(page))
                 .build();
     }
 
@@ -63,7 +54,4 @@ public class CartController {
                 .message("Item removed from cart successfully")
                 .build();
     }
-
 }
-
-
