@@ -35,9 +35,13 @@ public class StatisticController {
     ApiResponse<List<ListReaderStatisticResponse>> viewStaticReader() {
         return ApiResponse.<List<ListReaderStatisticResponse>>builder().result(bookService.getStatisticsOnMostReader()).build();
     }
-    @GetMapping("/pay_most-user")
+    @GetMapping("/pay-most-user")
     ApiResponse<List<ListStatisticPayMostResponse>> viewStaticPayMost() {
         return ApiResponse.<List<ListStatisticPayMostResponse>>builder().result(transactionService.getStatisticsPayMostReader()).build();
+    }
+    @GetMapping("/user-top-content")
+    ApiResponse<List<ListStatisticTopContentResponse>> viewStaticTopContent() {
+        return ApiResponse.<List<ListStatisticTopContentResponse>>builder().result(bookService.getStatisticsTopContent()).build();
     }
 
 }

@@ -16,10 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import thebook.fshop.DTO.Request.BookDetailRequest;
 import thebook.fshop.DTO.Request.FilterRequest;
 import thebook.fshop.DTO.Request.SearchRequest;
-import thebook.fshop.DTO.Response.ListBookByCateResponse;
-import thebook.fshop.DTO.Response.ListBookMostStatistic;
-import thebook.fshop.DTO.Response.ListReadBookStatisticResponse;
-import thebook.fshop.DTO.Response.ListReaderStatisticResponse;
+import thebook.fshop.DTO.Response.*;
 import thebook.fshop.entity.Account;
 import thebook.fshop.entity.Book;
 import thebook.fshop.entity.BookReadHistory;
@@ -46,7 +43,7 @@ public class BookService {
     SearchBookMapper searchBookMapper;
     OrderDetailRepository orderDetailRepository;
     BooKReadHistoryRepository booKReadHistoryRepository;
-AccountMapper accountMapper;
+    AccountMapper accountMapper;
 
     public List<Book> searchBook(SearchRequest query) {
         // Fetching books from the repository
@@ -141,6 +138,20 @@ AccountMapper accountMapper;
                     })
                     .collect(Collectors.toList());
         }
+
+    public List<ListStatisticTopContentResponse> getStatisticsTopContent() {
+        List<AccountResponse> topBooks = bookRepository.findTop10Content().stream().map(accountMapper::toAccountResponse).toList();
+        return topBooks.stream()
+                .map(reader -> {
+                    int total_content = bookRepository.findTotalContentByAccount(reader.getAccID());
+                    return ListStatisticTopContentResponse.builder()
+                            .account(reader)
+                            .total_content(total_content)
+                            .build();
+
+                })
+                .collect(Collectors.toList());
+    }
 }
 
 
