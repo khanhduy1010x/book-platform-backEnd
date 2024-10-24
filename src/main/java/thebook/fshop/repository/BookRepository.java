@@ -1,5 +1,6 @@
 package thebook.fshop.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import thebook.fshop.DTO.Response.AccountResponse;
+import thebook.fshop.DTO.Response.ListStatisticRevenueByBookResponse;
 import thebook.fshop.entity.Account;
 import thebook.fshop.entity.Book;
 import java.util.Optional;
@@ -38,4 +40,54 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
     // Repository method to find total contributions by account
     @Query("SELECT COUNT(br.id) FROM BookRate br WHERE br.account.accID = :accountId GROUP BY br.account.accID")
     int findTotalContentByAccount(@Param("accountId") int accountId);
+
+    @Query(value = "SELECT DATE(o.date) AS order_date, " +
+            "b.bookid AS id, " + // Ensure this returns an integer
+            "b.book_name AS book_name, " +
+            "b.author AS author, " +
+            "b.url AS url, " +
+            "b.cover_image AS cover_image, " +
+            "SUM(od.quantity * b.price) AS total_revenue " +
+            "FROM public.order_details od " +
+            "JOIN public.books b ON od.bookid = b.bookid " +
+            "JOIN public.orders o ON od.orderid = o.orderid " +
+            "WHERE o.payment_status = 'COMPLETED' " +
+            "AND DATE(o.date) BETWEEN :stDate AND :edDate " +
+            "GROUP BY DATE(o.date), b.bookid, b.book_name, b.author, b.url, b.cover_image " +
+            "ORDER BY order_date ASC, total_revenue DESC", nativeQuery = true)
+    List<Object[]> findRevenueByDateRange(@Param("stDate") Date stDate, @Param("edDate") Date edDate);
+    @Query(value = "SELECT DATE(o.date) AS order_date, " +
+            "b.bookid AS id, " +
+            "b.book_name AS book_name, " +
+            "b.author AS author, " +
+            "b.url AS url, " +
+            "b.cover_image AS cover_image, " +
+            "SUM(od.quantity * b.price) AS total_revenue " +
+            "FROM public.order_details od " +
+            "JOIN public.books b ON od.bookid = b.bookid " +
+            "JOIN public.orders o ON od.orderid = o.orderid " +
+            "WHERE o.payment_status = 'COMPLETED' " +
+            "AND EXTRACT(MONTH FROM o.date) = :month " +
+            "AND EXTRACT(YEAR FROM o.date) = :year " +
+            "GROUP BY DATE(o.date), b.bookid, b.book_name, b.author, b.url, b.cover_image " +
+            "ORDER BY total_revenue DESC", nativeQuery = true)
+    List<Object[]> findRevenueByMonth(@Param("month") int month, @Param("year") int year);
+    @Query(value = "SELECT EXTRACT(YEAR FROM o.date) AS order_year, " +
+            "b.bookid AS id, " +
+            "b.book_name AS book_name, " +
+            "b.author AS author, " +
+            "b.url AS url, " +
+            "b.cover_image AS cover_image, " +
+            "SUM(od.quantity * b.price) AS total_revenue " +
+            "FROM public.order_details od " +
+            "JOIN public.books b ON od.bookid = b.bookid " +
+            "JOIN public.orders o ON od.orderid = o.orderid " +
+            "WHERE o.payment_status = 'COMPLETED' " +
+            "AND EXTRACT(YEAR FROM o.date) = :year " +
+            "GROUP BY EXTRACT(YEAR FROM o.date), b.bookid, b.book_name, b.author, b.url, b.cover_image " +
+            "ORDER BY total_revenue DESC", nativeQuery = true)
+    List<Object[]> findRevenueByYear(@Param("year") int year);
+
+
+
 }

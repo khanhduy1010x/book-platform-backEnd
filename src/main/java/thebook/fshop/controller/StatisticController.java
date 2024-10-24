@@ -5,8 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import thebook.fshop.DTO.Request.ListStatisticRevenueByBookRequest;
 import thebook.fshop.DTO.Response.*;
 import thebook.fshop.entity.Book;
 import thebook.fshop.service.BookService;
@@ -43,5 +45,10 @@ public class StatisticController {
     ApiResponse<List<ListStatisticTopContentResponse>> viewStaticTopContent() {
         return ApiResponse.<List<ListStatisticTopContentResponse>>builder().result(bookService.getStatisticsTopContent()).build();
     }
+    @GetMapping("/revenue-by-book")
+    ApiResponse<List<ListStatisticRevenueByBookResponse>> viewStaticRevenueByBook(@RequestBody ListStatisticRevenueByBookRequest request) {
+        return ApiResponse.<List<ListStatisticRevenueByBookResponse>>builder().result(bookService.getStatisticsRevenueByBook(request)).build();
+    }
+
 
 }

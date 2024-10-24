@@ -15,6 +15,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import thebook.fshop.DTO.Request.BookDetailRequest;
 import thebook.fshop.DTO.Request.FilterRequest;
+import thebook.fshop.DTO.Request.ListStatisticRevenueByBookRequest;
 import thebook.fshop.DTO.Request.SearchRequest;
 import thebook.fshop.DTO.Response.*;
 import thebook.fshop.entity.Account;
@@ -152,6 +153,57 @@ public class BookService {
                 })
                 .collect(Collectors.toList());
     }
+
+    public List<ListStatisticRevenueByBookResponse> getStatisticsRevenueByBook(ListStatisticRevenueByBookRequest request) {
+        List<ListStatisticRevenueByBookResponse> result = new ArrayList<>();
+        switch (request.getStatisticType()) {
+            case DAYS:
+                List<Object[]> dailyRevenueData = bookRepository.findRevenueByDateRange(request.getStDate(), request.getEdDate());
+                for (Object[] row : dailyRevenueData) {
+                    Book book = new Book();
+                    book.setID(((Number) row[1]).intValue());
+                    book.setBookName((String) row[2]);
+                    book.setAuthor((String) row[3]);
+                    book.setUrl((String) row[4]);
+                    book.setCoverImage((String) row[5]);
+                    int revenue = ((Number) row[6]).intValue();
+                    result.add(new ListStatisticRevenueByBookResponse(book, revenue));
+                }
+                break;
+
+            case MONTH:
+                List<Object[]> monthlyRevenueData = bookRepository.findRevenueByMonth(request.getMonth(), request.getYear());
+                for (Object[] row : monthlyRevenueData) {
+                    Book book = new Book();
+                    book.setID(((Number) row[1]).intValue());
+                    book.setBookName((String) row[2]);
+                    book.setAuthor((String) row[3]);
+                    book.setUrl((String) row[4]);
+                    book.setCoverImage((String) row[5]);
+                    int revenue = ((Number) row[6]).intValue();
+                    result.add(new ListStatisticRevenueByBookResponse(book, revenue));
+                }
+                break;
+
+            case YEAR:
+                List<Object[]> yearlyRevenueData = bookRepository.findRevenueByYear(request.getYear());
+                for (Object[] row : yearlyRevenueData) {
+                    Book book = new Book();
+                    book.setID(((Number) row[1]).intValue());
+                    book.setBookName((String) row[2]);
+                    book.setAuthor((String) row[3]);
+                    book.setUrl((String) row[4]);
+                    book.setCoverImage((String) row[5]);
+
+                    int revenue = ((Number) row[6]).intValue();
+
+                    result.add(new ListStatisticRevenueByBookResponse(book, revenue));
+                }
+                break;
+        }
+        return result;
+    }
+
 }
 
 
