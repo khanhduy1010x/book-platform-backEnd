@@ -22,12 +22,6 @@ import thebook.fshop.service.TransactionService;
 public class TransactionController {
     TransactionService transactionService;
 
-    /*@GetMapping("/history")
-    public ApiResponse<List<TransactionResponse>> getTransactionHistory() {
-        return ApiResponse.<List<TransactionResponse>>builder()
-                .result(transactionService.getTransactionHistoryByAccount())
-                .build();
-    }*/
     @GetMapping("/history")
     public ApiResponse<List<TransactionResponse>> getTransactionHistory() {
         return ApiResponse.<List<TransactionResponse>>builder()
