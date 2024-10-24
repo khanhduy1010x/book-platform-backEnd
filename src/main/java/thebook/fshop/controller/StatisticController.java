@@ -7,10 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import thebook.fshop.DTO.Response.AccountResponse;
-import thebook.fshop.DTO.Response.ApiResponse;
-import thebook.fshop.DTO.Response.ListBookMostStatistic;
-import thebook.fshop.DTO.Response.ListReadBookStatisticResponse;
+import thebook.fshop.DTO.Response.*;
 import thebook.fshop.entity.Book;
 import thebook.fshop.service.BookService;
 
@@ -32,4 +29,9 @@ public class StatisticController {
     ApiResponse<List<ListReadBookStatisticResponse>> viewStaticReadBook() {
         return ApiResponse.<List<ListReadBookStatisticResponse>>builder().result(bookService.getStatisticsOnMostReadBooks()).build();
     }
+    @GetMapping("/most-reader")
+    ApiResponse<List<ListReaderStatisticResponse>> viewStaticReader() {
+        return ApiResponse.<List<ListReaderStatisticResponse>>builder().result(bookService.getStatisticsOnMostReader()).build();
+    }
+
 }

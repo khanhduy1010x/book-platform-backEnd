@@ -1,10 +1,12 @@
 package thebook.fshop.service;
 
+import java.awt.print.Pageable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import lombok.AccessLevel;
@@ -17,7 +19,10 @@ import thebook.fshop.DTO.Request.SearchRequest;
 import thebook.fshop.DTO.Response.ListBookByCateResponse;
 import thebook.fshop.DTO.Response.ListBookMostStatistic;
 import thebook.fshop.DTO.Response.ListReadBookStatisticResponse;
+import thebook.fshop.DTO.Response.ListReaderStatisticResponse;
+import thebook.fshop.entity.Account;
 import thebook.fshop.entity.Book;
+import thebook.fshop.entity.BookReadHistory;
 import thebook.fshop.entity.Category;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
@@ -122,6 +127,19 @@ public class BookService {
                 .collect(Collectors.toList());
     }
 
+        public List<ListReaderStatisticResponse> getStatisticsOnMostReader() {
+            List<BookReadHistory> topBooks = booKReadHistoryRepository.findTop10Readers();
+            return topBooks.stream()
+                    .map(reader -> {
+                        int total_read = booKReadHistoryRepository.findTotalBookByReader(reader.getId());
+                        return ListReaderStatisticResponse.builder()
+                                .acc(reader.getAccount())
+                                .total_read(total_read)
+                                .build();
+
+                    })
+                    .collect(Collectors.toList());
+        }
 }
 
 
