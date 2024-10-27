@@ -1,5 +1,6 @@
 package thebook.fshop.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -8,12 +9,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import thebook.fshop.DTO.Response.AccountResponse;
-import thebook.fshop.DTO.Response.ListReaderStatisticResponse;
-import thebook.fshop.DTO.Response.ListStatisticPayMostResponse;
-import thebook.fshop.DTO.Response.TransactionResponse;
+import thebook.fshop.DTO.Request.MemberTypeRequest;
+import thebook.fshop.DTO.Response.*;
 import thebook.fshop.entity.Account;
 import thebook.fshop.entity.BookReadHistory;
+import thebook.fshop.helper.MemberType;
 import thebook.fshop.mapper.AccountMapper;
 import thebook.fshop.mapper.TransactionMapper;
 import thebook.fshop.repository.TransactionRepository;
@@ -99,4 +99,21 @@ public class TransactionService {
                 })
                 .collect(Collectors.toList());
     }
+
+    public List<ListStatisticsByMembershipPackageResponse> getStatisticsMembershipPackage(MemberTypeRequest request) {
+        // Fetch the result from the repository
+        List<Object[]> results = transactionRepository.findTotalRevenueByPackageNames(String.valueOf(request.getMemberType()));
+        // Map the results to ListStatisticsByMembershipPackageResponse objects
+        return results.stream()
+                .map(result -> {
+                    int accId = (int) result[0];                 // Assuming accId is of type Long
+                    String packageName = (String) result[1];        // Package name from the result
+                    BigDecimal totalRevenue = (BigDecimal) result[2]; // Total revenue from the result
+
+                    // Create a new response object and populate it with the result
+                    return new ListStatisticsByMembershipPackageResponse(accId, packageName, totalRevenue);
+                })
+                .collect(Collectors.toList());
+    }
 }
+

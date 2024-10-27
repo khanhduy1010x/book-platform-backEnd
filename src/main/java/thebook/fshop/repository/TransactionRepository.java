@@ -31,4 +31,16 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
         WHERE t.accid = :accountId AND t.transaction_type = 'INCREASE'
     """, nativeQuery = true)
     int findTotalPriceIncreaseByUser(@Param("accountId") int accountId);
+
+
+    @Query(value = "SELECT a.accid, mp.package_name, " +
+            "COALESCE(SUM(t.amount), 0) AS total_revenue " +
+            "FROM public.membership_packages mp " +
+            "LEFT JOIN public.user_member_ships ums ON mp.mp_id = ums.mp_id " +
+            "LEFT JOIN public.accounts a ON ums.accid = a.accid " +
+            "LEFT JOIN public.transactions t ON t.accid = a.accid AND t.transaction_type = 'PACKAGES' " +
+            "WHERE mp.package_name IN (:packageNames) " +
+            "GROUP BY a.accid, mp.package_name " +
+            "ORDER BY total_revenue DESC", nativeQuery = true)
+    List<Object[]> findTotalRevenueByPackageNames(@Param("packageNames") String packageNames);
 }

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import thebook.fshop.DTO.Request.ListStatisticRevenueByBookRequest;
+import thebook.fshop.DTO.Request.MemberTypeRequest;
 import thebook.fshop.DTO.Response.*;
 import thebook.fshop.entity.Book;
 import thebook.fshop.service.BookService;
@@ -48,6 +49,10 @@ public class StatisticController {
     @GetMapping("/revenue-by-book")
     ApiResponse<List<ListStatisticRevenueByBookResponse>> viewStaticRevenueByBook(@RequestBody ListStatisticRevenueByBookRequest request) {
         return ApiResponse.<List<ListStatisticRevenueByBookResponse>>builder().result(bookService.getStatisticsRevenueByBook(request)).build();
+    }
+    @GetMapping("/statistics-by-membership-package")
+    ApiResponse<List<ListStatisticsByMembershipPackageResponse>> viewStaticMembershipPackage(@RequestBody MemberTypeRequest request) {
+        return ApiResponse.<List<ListStatisticsByMembershipPackageResponse>>builder().result(transactionService.getStatisticsMembershipPackage(request)).build();
     }
 
 
