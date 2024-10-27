@@ -14,7 +14,6 @@ import thebook.fshop.DTO.Response.ForgotPasswordResponse;
 import thebook.fshop.DTO.Response.ListAccountResponse;
 import thebook.fshop.entity.Account;
 import thebook.fshop.helper.MemberType;
-import thebook.fshop.helper.Role;
 import thebook.fshop.mapper.AccountMapper;
 import thebook.fshop.service.AccountService;
 
@@ -28,7 +27,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AccountManagementController {
     AccountService accountService;
-AccountMapper accountMapper;
+    AccountMapper accountMapper;
+
     @GetMapping("/view-profile")
     ApiResponse<AccountResponse> viewProfile() {
         AccountResponse response = accountService.getMyInfo();
@@ -56,28 +56,25 @@ AccountMapper accountMapper;
         return ApiResponse.builder().build();
     }
 
-
     @GetMapping("/users")
-    public ApiResponse<List<ListAccountResponse>> getAllUsers() {
-        // Use the AccountService to get the ListAccountResponse
-        List<ListAccountResponse> users = accountService.getAllUsers();
+    public ApiResponse<List<ListAccountResponse>> getAllUsers(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size) {
+
+        List<ListAccountResponse> users = accountService.getAllUsers(page, size);
         return ApiResponse.<List<ListAccountResponse>>builder().result(users).build();
     }
+
     @GetMapping("/users-by-type/{memberType}")
     public ApiResponse<List<ListAccountResponse>> getUsersByType(@PathVariable MemberType memberType) {
         List<ListAccountResponse> users = accountService.getUserByType(memberType);
         return ApiResponse.<List<ListAccountResponse>>builder().result(users).build();
     }
 
-
-
-
-
     @PostMapping("/ban/{accountId}")
     public ApiResponse<Void> banAccount(@PathVariable int accountId) {
         return accountService.banAccount(accountId);
     }
-
 
     @PostMapping("/unlock/{accountId}")
     public ApiResponse<Void> unlockAccount(@PathVariable int accountId) {

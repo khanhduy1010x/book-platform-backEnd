@@ -1,21 +1,15 @@
 package thebook.fshop.service;
 
-import thebook.fshop.DTO.Response.ApiResponse;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -25,6 +19,7 @@ import thebook.fshop.DTO.Request.*;
 import thebook.fshop.DTO.Response.AccountResponse;
 import thebook.fshop.DTO.Response.ForgotPasswordResponse;
 import thebook.fshop.DTO.Response.ListAccountResponse;
+import thebook.fshop.DTO.Response.ApiResponse;
 import thebook.fshop.entity.Account;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
@@ -33,6 +28,13 @@ import thebook.fshop.helper.MemberType;
 import thebook.fshop.helper.Role;
 import thebook.fshop.mapper.AccountMapper;
 import thebook.fshop.repository.AccountsRepository;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -55,9 +57,10 @@ public class AccountService {
 
     // Fetch all users with ADMIN access
     @PreAuthorize("hasRole('ADMIN')")
-    public List<ListAccountResponse> getAllUsers() {
-        List<Account> accounts = accountsRepository.findAll();
-        return accounts.stream()
+    public List<ListAccountResponse> getAllUsers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Account> accountsPage = accountsRepository.findAll(pageable);
+        return accountsPage.getContent().stream()
                 .map(accountMapper::toListAccountResponse)
                 .collect(Collectors.toList());
     }
@@ -66,7 +69,6 @@ public class AccountService {
     public AccountResponse createAccount(AccountCreationRequest request) {
         String otp = (String) template.opsForValue().get(request.getPhone());
         if (otp == null) throw new AppException(ErrorCode.EXPIRED_OTP);
-
         if (!Objects.equals(otp, request.getOtp())) throw new AppException(ErrorCode.INVALID_OTP);
         if (accountsRepository.existsByPhone(request.getPhone())) throw new AppException(ErrorCode.EXITS_USERNAME);
 
@@ -196,6 +198,8 @@ public class AccountService {
                 accountsRepository.findByUsername(request.getUsername())
                         .orElseThrow(() -> new AppException(ErrorCode.NOT_EXIST_ACCOUNT)));
     }
+
+    // Fetch users by MemberType
     public List<ListAccountResponse> getUserByType(MemberType memberType) {
         // Fetch all accounts from the repository
         List<Account> accounts = accountsRepository.findAll();

@@ -1,6 +1,7 @@
 package thebook.fshop.DTO.Response;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -13,6 +14,11 @@ import thebook.fshop.helper.Role;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AccountResponse {
+    long totalElements;      // Total number of elements
+    int totalPages;         // Total number of pages
+    int number;             // Current page number
+
+    // Existing account fields
     int accID;
     Role role;
     String phone;
