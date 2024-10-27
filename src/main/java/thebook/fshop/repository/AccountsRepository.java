@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import thebook.fshop.entity.Account;
+import thebook.fshop.helper.MemberType;
 import thebook.fshop.helper.Role;
 
 @Repository
@@ -20,6 +21,9 @@ public interface AccountsRepository extends JpaRepository<Account, Integer> {
     // Method to find users by their type
     List<Account> findByRole(Role role);
 
-    // Add method to support pagination
+    // Add method to support pagination for accounts by MemberType
+    Page<Account> findByMemberType(MemberType memberType, Pageable pageable);
+
+    // Existing method to support pagination
     Page<Account> findAll(Pageable pageable);
 }

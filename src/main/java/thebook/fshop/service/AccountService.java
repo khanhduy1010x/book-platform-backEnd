@@ -31,7 +31,6 @@ import thebook.fshop.repository.AccountsRepository;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -57,12 +56,10 @@ public class AccountService {
 
     // Fetch all users with ADMIN access
     @PreAuthorize("hasRole('ADMIN')")
-    public List<ListAccountResponse> getAllUsers(int page, int size) {
+    public Page<ListAccountResponse> getAllUsers(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Account> accountsPage = accountsRepository.findAll(pageable);
-        return accountsPage.getContent().stream()
-                .map(accountMapper::toListAccountResponse)
-                .collect(Collectors.toList());
+        return accountsPage.map(accountMapper::toListAccountResponse);
     }
 
     // Create a new account
@@ -199,19 +196,15 @@ public class AccountService {
                         .orElseThrow(() -> new AppException(ErrorCode.NOT_EXIST_ACCOUNT)));
     }
 
-    // Fetch users by MemberType
-    public List<ListAccountResponse> getUserByType(MemberType memberType) {
-        // Fetch all accounts from the repository
-        List<Account> accounts = accountsRepository.findAll();
+    public Page<ListAccountResponse> getUserByType(MemberType memberType, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Account> accountsPage = accountsRepository.findByMemberType(memberType, pageable);
 
-        // Filter the accounts by MemberType
-        List<Account> filteredAccounts = accounts.stream()
-                .filter(account -> account.getMemberType() == memberType)
-                .collect(Collectors.toList());
+        // Log the page info to ensure correct pagination
+        log.info("Total pages: " + accountsPage.getTotalPages());
+        log.info("Total elements: " + accountsPage.getTotalElements());
+        log.info("Current page number: " + accountsPage.getNumber());
 
-        // Map the filtered accounts to ListAccountResponse
-        return filteredAccounts.stream()
-                .map(accountMapper::toListAccountResponse)
-                .collect(Collectors.toList());
+        return accountsPage.map(accountMapper::toListAccountResponse);
     }
 }
