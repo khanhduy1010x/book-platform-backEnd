@@ -2,6 +2,9 @@ package thebook.fshop.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -31,14 +34,17 @@ public class TransactionController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/history/detail")
-    public ApiResponse<List<TransactionResponse>> getTransactionHistory(
+    public ApiResponse<Page<TransactionResponse>> getTransactionHistory(
             @RequestParam(required = false) String content,
             @RequestParam(required = false) String amount,
             @RequestParam(required = false) String transactionType,
-            @RequestParam(required = false) String time
+            @RequestParam(required = false) String time,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        List<TransactionResponse> response = transactionService.viewPaymentHistory(content, amount, transactionType, time);
-        return ApiResponse.<List<TransactionResponse>>builder()
+        Pageable pageable = PageRequest.of(page, size);
+        Page<TransactionResponse> response = transactionService.viewPaymentHistory(content, amount, transactionType, time, pageable);
+        return ApiResponse.<Page<TransactionResponse>>builder()
                 .result(response)
                 .build();
     }

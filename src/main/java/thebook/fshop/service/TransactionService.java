@@ -2,6 +2,8 @@ package thebook.fshop.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.data.jpa.domain.Specification;
 import lombok.AccessLevel;
@@ -31,7 +33,7 @@ public class TransactionService {
                 .toList();
     }
 
-    public List<TransactionResponse> viewPaymentHistory(String content, String amountFilter, String transactionType, String time) {
+    public Page<TransactionResponse> viewPaymentHistory(String content, String amountFilter, String transactionType, String time, Pageable pageable) {
         Specification<Transaction> spec = Specification.where(null);
 
         // Tìm kiếm theo content nếu có
@@ -68,19 +70,19 @@ public class TransactionService {
         }
 
         // Lấy danh sách transaction theo spec
-        List<Transaction> transactions = transactionRepository.findAll(spec);
+        Page<Transaction> transactions = transactionRepository.findAll(spec, pageable);
 
         // Chuyển từ entity Transaction sang DTO TransactionResponse
-        return transactions.stream().map(transaction ->
+        return transactions.map(transaction ->
                 TransactionResponse.builder()
                         .ID(transaction.getID())
-                        .accID(String.valueOf(transaction.getAccount().getAccID()))  // Lấy ID của account
+                        .accID(String.valueOf(transaction.getAccount().getAccID()))
                         .time(transaction.getTime())
                         .amount(transaction.getAmount())
                         .content(transaction.getContent())
                         .transactionType(transaction.getTransactionType())
                         .build()
-        ).collect(Collectors.toList());
+        );
     }
 
 }
