@@ -2,6 +2,8 @@ package thebook.fshop.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import lombok.AccessLevel;
@@ -21,10 +23,9 @@ public class BookReadHistoryService {
     BooKReadHistoryRepository booKReadHistoryRepository;
     SecurityService securityService;
 
-    public List<BookReadHistoryResponse> getBookReadHistoryByAccount() {
+    public Page<BookReadHistoryResponse> getBookReadHistoryByAccount(Pageable pageable) {
         var account = securityService.getAccountByJWT();
-        return booKReadHistoryRepository.findByAccount_AccID(account.getAccID()).stream()
-                .map(bookReadHistoryMapper::toBookReadHistoryResponse)
-                .toList();
+        return booKReadHistoryRepository.findByAccount_AccID(account.getAccID(), pageable)
+                .map(bookReadHistoryMapper::toBookReadHistoryResponse);
     }
 }

@@ -2,6 +2,9 @@ package thebook.fshop.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.AccessLevel;
@@ -20,9 +23,14 @@ public class BookReadHistoryController {
     BookReadHistoryService bookReadHistoryService;
 
     @GetMapping("/history")
-    public ApiResponse<List<BookReadHistoryResponse>> getBookReadHistory() {
-        return ApiResponse.<List<BookReadHistoryResponse>>builder()
-                .result(bookReadHistoryService.getBookReadHistoryByAccount())
+    public ApiResponse<Page<BookReadHistoryResponse>> getBookReadHistory(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<BookReadHistoryResponse> response = bookReadHistoryService.getBookReadHistoryByAccount(pageable);
+        return ApiResponse.<Page<BookReadHistoryResponse>>builder()
+                .result(response)
                 .build();
     }
 }
