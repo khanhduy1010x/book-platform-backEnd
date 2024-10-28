@@ -2,6 +2,9 @@ package thebook.fshop.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
@@ -26,9 +29,15 @@ public class BookRateController {
 
     // Lấy danh sách đánh giá sách theo bookID
     @GetMapping("/book/{bookID}")
-    public ApiResponse<List<BookRateResponse>> getBookRatesByBookID(@PathVariable int bookID) {
-        return ApiResponse.<List<BookRateResponse>>builder()
-                .result(bookRateService.getBookRatesByBookID(bookID))
+    public ApiResponse<Page<BookRateResponse>> getBookRatesByBookID(
+            @PathVariable int bookID,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<BookRateResponse> response = bookRateService.getBookRatesByBookID(bookID, pageable);
+        return ApiResponse.<Page<BookRateResponse>>builder()
+                .result(response)
                 .build();
     }
 

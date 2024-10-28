@@ -3,6 +3,8 @@ package thebook.fshop.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import lombok.AccessLevel;
@@ -43,10 +45,9 @@ public class BookRateService {
     }
 
     // Lấy danh sách đánh giá sách theo bookID
-    public List<BookRateResponse> getBookRatesByBookID(int bookID) {
-        return bookRateRepository.findByBook_ID(bookID).stream()
-                .map(bookRateMapper::toBookRateResponse)
-                .toList();
+    public Page<BookRateResponse> getBookRatesByBookID(int bookID, Pageable pageable) {
+        return bookRateRepository.findByBook_ID(bookID, pageable)
+                .map(bookRateMapper::toBookRateResponse);
     }
 
     // Ẩn đánh giá sách
