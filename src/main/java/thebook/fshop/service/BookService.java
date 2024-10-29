@@ -3,6 +3,7 @@ package thebook.fshop.service;
 import java.awt.print.Pageable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,7 +54,14 @@ public class BookService {
         if (books.isEmpty()) {
             throw new AppException(ErrorCode.NOT_FOUND);
         }
-        return books;
+        int start = query.getPage() * query.getSize();
+        int end = Math.min(start + query.getSize(), books.size());
+
+        if (start > end) {
+            return Collections.emptyList();
+        }
+
+        return books.subList(start, end);
     }
 
     public List<ListBookByCateResponse> getListBook() {
@@ -76,6 +84,7 @@ public class BookService {
     }
     public List<Book> searchByFilter(FilterRequest query) {
         List<Book> books = bookRepository.findAll();
+
         if (query.getType() != null) {
             BookType bookType = BookType.valueOf(query.getType());
             books = books.stream()
@@ -88,8 +97,21 @@ public class BookService {
                     .filter(book -> book.getAuthor().contains(author))
                     .collect(Collectors.toList());
         }
+        if (query.getPrice() > 0) {
+            books = books.stream()
+                    .filter(book -> book.getPrice() <= query.getPrice())
+                    .collect(Collectors.toList());
+        }
 
-        return books;
+
+        int start = query.getPage() * query.getSize();
+        int end = Math.min(start + query.getSize(), books.size());
+
+        if (start > end) {
+            return Collections.emptyList();
+        }
+
+        return books.subList(start, end);
     }
 
     public List<ListBookMostStatistic> getStatisticsOnMostPurchasedBooks() {

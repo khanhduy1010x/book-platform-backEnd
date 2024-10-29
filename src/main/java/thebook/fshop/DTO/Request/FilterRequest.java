@@ -11,8 +11,11 @@ import thebook.fshop.validation.EnumValue;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class FilterRequest {
-    @EnumValue(name = "type",enumClass = BookType.class)
-    String type;
-    String author;
-    int price;
+    @EnumValue(name = "type", enumClass = BookType.class)
+    private String type;
+    private String author;
+    private int price;
+    private int page ; // default page number
+    private int size = 10; // default page size
 }
+

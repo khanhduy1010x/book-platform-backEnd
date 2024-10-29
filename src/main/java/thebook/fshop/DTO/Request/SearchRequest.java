@@ -10,4 +10,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SearchRequest {
     String query;
+     int page ;  // Default to first page
+     int size = 10;
 }
