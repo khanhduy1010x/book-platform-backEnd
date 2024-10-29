@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import thebook.fshop.DTO.Request.OrderRequest;
+import thebook.fshop.DTO.Request.OrderFilterRequest;
 import thebook.fshop.DTO.Response.OrderResponse;
 import thebook.fshop.entity.Order;
 import thebook.fshop.entity.Cart;
@@ -23,6 +24,7 @@ import thebook.fshop.repository.OrderRepository;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -151,4 +153,29 @@ public class OrderService {
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND, "Order not found with ID: " + orderID));
     }
 
+
+
+    public List<OrderResponse> searchOrders(OrderFilterRequest searchRequest) {
+        List<Order> orders = orderRepository.searchOrders(
+                searchRequest.getOrderID(),
+                searchRequest.getAccountID(),
+                searchRequest.getPaymentStatus(),
+                searchRequest.getPaymentMethod(),
+                searchRequest.getShipStatus(),
+                searchRequest.getTotalAmount(),
+                searchRequest.getFromDate(),
+                searchRequest.getToDate()
+        );
+
+        return orders.stream().map(order -> OrderResponse.builder()
+                .orderID(order.getID())
+                .accountID(order.getAccount().getAccID())
+                .date(order.getDate())
+                .paymentMethod(order.getPaymentMethod())
+                .paymentStatus(order.getPaymentStatus())
+                .shipStatus(order.getShipStatus())
+                .totalAmount(order.getTotalAmount())
+                .build()
+        ).collect(Collectors.toList());
+    }
 }

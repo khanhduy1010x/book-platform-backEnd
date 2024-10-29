@@ -1,14 +1,16 @@
 package thebook.fshop.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import thebook.fshop.DTO.Request.OrderRequest;
+import thebook.fshop.DTO.Request.OrderFilterRequest;
 import thebook.fshop.DTO.Response.ApiResponse;
 import thebook.fshop.DTO.Response.OrderResponse;
-import thebook.fshop.entity.CartItem;
 import thebook.fshop.entity.Order;
+import thebook.fshop.helper.PaymentMethod;
+import thebook.fshop.helper.PaymentStatus;
+import thebook.fshop.helper.ShipStatus;
 import thebook.fshop.service.OrderService;
 
 import java.util.List;
@@ -47,4 +49,27 @@ public class OrderController {
     }
 
 
+    @GetMapping("/search")
+    public ApiResponse<List<OrderResponse>> searchOrders(
+            @RequestParam(required = false) Integer orderID,
+            @RequestParam(required = false) Integer accountID,
+            @RequestParam(required = false) PaymentStatus paymentStatus,
+            @RequestParam(required = false) PaymentMethod paymentMethod,
+            @RequestParam(required = false) ShipStatus shipStatus,
+            @RequestParam(required = false) Long totalAmount){
+
+        var searchRequest = OrderFilterRequest.builder()
+                .orderID(orderID)
+                .accountID(accountID)
+                .paymentStatus(paymentStatus)
+                .paymentMethod(paymentMethod)
+                .shipStatus(shipStatus)
+                .totalAmount(totalAmount)
+                .build();
+
+        List<OrderResponse> result = orderService.searchOrders(searchRequest);
+        return ApiResponse.<List<OrderResponse>>builder()
+                .result(result)
+                .build();
+    }
 }

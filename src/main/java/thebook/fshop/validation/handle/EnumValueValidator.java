@@ -26,4 +26,6 @@ public class EnumValueValidator implements ConstraintValidator<EnumValue, CharSe
 
         return acceptedValues.contains(value.toString().toUpperCase());
     }
+
+
 }
