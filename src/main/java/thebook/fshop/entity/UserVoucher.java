@@ -21,11 +21,11 @@ public class UserVoucher {
 
     @ManyToOne
     @JoinColumn(name = "accID")
-    Account Account;
+    Account account;
 
     @ManyToOne
     @JoinColumn(name = "voucherID")
-    Voucher Voucher;
+    Voucher voucher;
 
     Date expiration_date;
 

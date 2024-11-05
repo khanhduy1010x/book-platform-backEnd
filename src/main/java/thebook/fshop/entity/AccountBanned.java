@@ -1,6 +1,7 @@
 package thebook.fshop.entity;
 
 import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -18,7 +19,7 @@ public class AccountBanned {
     int ID;
 
     @ManyToOne
-    @JoinColumn(name= "accID")
+    @JoinColumn(name = "accID")
     Account account;
 
     String message;

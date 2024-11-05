@@ -1,5 +1,5 @@
 package thebook.fshop.service;
-import thebook.fshop.DTO.Response.ApiResponse;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -21,6 +21,7 @@ import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import thebook.fshop.DTO.Request.*;
 import thebook.fshop.DTO.Response.AccountResponse;
+import thebook.fshop.DTO.Response.ApiResponse;
 import thebook.fshop.DTO.Response.ForgotPasswordResponse;
 import thebook.fshop.entity.Account;
 import thebook.fshop.exception.AppException;
@@ -55,8 +56,6 @@ public class AccountService {
         return accountsRepository.findAll();
     }
 
-
-
     public AccountResponse createAccount(AccountCreationRequest request) {
         String otp = (String) template.opsForValue().get(request.getPhone());
         if (otp == null) throw new AppException(ErrorCode.EXPIRED_OTP);
@@ -85,7 +84,7 @@ public class AccountService {
         var account = securityService.getAccountByJWT();
         AccountResponse accountResponse = accountMapper.toAccountResponse(account);
         accountResponse.setHasPassword(true);
-        if(account.getPassword() == null) {
+        if (account.getPassword() == null) {
             accountResponse.setHasPassword(false);
         }
         return accountResponse;
@@ -134,7 +133,7 @@ public class AccountService {
         accountsRepository.save(account);
     }
 
-    public void setPasswordPrompt (SetPasswordPromptRequest request) {
+    public void setPasswordPrompt(SetPasswordPromptRequest request) {
         var account = securityService.getAccountByJWT();
         account.setSkip_password_prompt(request.isSkip());
         log.info("Is: {}", request.isSkip());
@@ -145,13 +144,10 @@ public class AccountService {
     public void upRole(MemberRoleUpRequest request) {
         int accID = request.getAccID();
         String newRole = request.getRole();
-        Account account = accountsRepository.findById(accID)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+        Account account = accountsRepository.findById(accID).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
         account.setRole(Role.valueOf(newRole));
         accountsRepository.save(account);
     }
-
-
 
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> banAccount(int accountId) {
@@ -159,32 +155,31 @@ public class AccountService {
         if (currentAdmin.getAccID() == accountId) {
             throw new AppException(ErrorCode.CANNOT_BAN_OWN_ACCOUNT);
         }
-        Account account = accountsRepository.findById(accountId)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXIST_ACCOUNT));
+        Account account =
+                accountsRepository.findById(accountId).orElseThrow(() -> new AppException(ErrorCode.NOT_EXIST_ACCOUNT));
         if (account.isBanned()) {
             throw new AppException(ErrorCode.ACCOUNT_ALREADY_BANNED);
         }
         account.setBanned(true);
         accountsRepository.save(account);
-        return ApiResponse.<Void>builder()
-                .build();
+        return ApiResponse.<Void>builder().build();
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> unlockAccount(int accountId) {
-        Account account = accountsRepository.findById(accountId)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXIST_ACCOUNT));
+        Account account =
+                accountsRepository.findById(accountId).orElseThrow(() -> new AppException(ErrorCode.NOT_EXIST_ACCOUNT));
         if (!account.isBanned()) {
-            return ApiResponse.<Void>builder()
-                    .build();
+            return ApiResponse.<Void>builder().build();
         }
         account.setBanned(false);
         accountsRepository.save(account);
-        return ApiResponse.<Void>builder()
-                .build();
+        return ApiResponse.<Void>builder().build();
     }
 
     public ForgotPasswordResponse getEmailPhoneByUserName(ForgotPasswordRequest request) {
-        return accountMapper.toForgotPasswordResponse(accountsRepository.findByUsername(request.getUsername()).orElseThrow(() ->new AppException(ErrorCode.NOT_EXIST_ACCOUNT)));
+        return accountMapper.toForgotPasswordResponse(accountsRepository
+                .findByUsername(request.getUsername())
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXIST_ACCOUNT)));
     }
 }

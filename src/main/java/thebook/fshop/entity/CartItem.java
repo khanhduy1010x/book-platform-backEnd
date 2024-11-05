@@ -28,6 +28,7 @@ public class CartItem {
     Book book;
 
     int quantity;
+
     @Column(nullable = false)
     boolean outOfStock = false;
 }

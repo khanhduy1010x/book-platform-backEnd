@@ -1,6 +1,7 @@
 package thebook.fshop.entity;
 
 import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -24,4 +25,3 @@ public class Inventory {
     @Column(name = "quantity")
     int quantity;
 }
-

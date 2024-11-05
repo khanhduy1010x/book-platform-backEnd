@@ -2,6 +2,7 @@ package thebook.fshop.DTO.Response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import thebook.fshop.entity.Author;
 import thebook.fshop.entity.Category;
 import thebook.fshop.helper.MemberType;
 
@@ -14,7 +15,7 @@ public class BookResponse {
     int ID;
     Category category;
     String bookName;
-    String author;
+    Author author;
     long price;
     MemberType memberType;
     String url;

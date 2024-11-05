@@ -37,5 +37,4 @@ public class BookRateController {
     public ApiResponse<?> hideBookRate(@PathVariable int bookRateId) {
         return bookRateService.hideBookRate(bookRateId);
     }
-
 }

@@ -9,6 +9,5 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DeleteCartRequest {
-    private int bookId;
-    private int cartId;
+   int cartItemID;
 }

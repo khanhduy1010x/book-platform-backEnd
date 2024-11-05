@@ -1,9 +1,7 @@
 package thebook.fshop.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import lombok.AccessLevel;
@@ -22,6 +20,7 @@ import thebook.fshop.repository.AccountsRepository;
 public class SecurityService {
     AccountsRepository accountsRepository;
 
+    @PreAuthorize("isAuthenticated()")
     public Account getAccountByJWT() {
         var context = SecurityContextHolder.getContext();
         var username = context.getAuthentication().getName();

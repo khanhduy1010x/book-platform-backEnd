@@ -26,10 +26,16 @@ public class Book {
     Category category;
 
     String bookName;
-    String author;
+
+    @ManyToOne
+            @JoinColumn(name ="authorID")
+    Author author;
+
     long price;
 
+    @Enumerated(EnumType.STRING)
     EbookType ebookType;
+
     @Enumerated(EnumType.STRING)
     MemberType memberType;
 
@@ -37,5 +43,6 @@ public class Book {
     String coverImage;
     String description;
 
+    @Enumerated(EnumType.STRING)
     BookType bookType;
 }

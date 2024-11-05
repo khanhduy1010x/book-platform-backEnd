@@ -43,6 +43,7 @@ public class Account {
     @Column(name = "skip_password_prompt", nullable = false)
     boolean skip_password_prompt;
 
+    @Enumerated(EnumType.STRING)
     LoginType loginType;
 
     boolean isBanned;

@@ -1,6 +1,9 @@
 package thebook.fshop.entity;
 
+import java.util.Set;
+
 import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -21,8 +24,14 @@ public class Cart {
     @JoinColumn(name = "accID")
     Account account;
 
-
     @ManyToOne
     @JoinColumn(name = "voucherID")
     Voucher voucher;
+
+    @ManyToMany
+    @JoinTable(
+            name = "CartVouchers",
+            joinColumns = @JoinColumn(name = "cartID"),
+            inverseJoinColumns = @JoinColumn(name = "voucherID"))
+    Set<Voucher> vouchers;
 }

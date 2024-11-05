@@ -23,7 +23,4 @@ public class Banner {
     @ManyToOne
     @JoinColumn(name = "bookID")
     Book book;
-
-
-
 }

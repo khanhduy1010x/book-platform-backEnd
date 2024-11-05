@@ -71,8 +71,12 @@ public enum ErrorCode {
     INVALID_QUANTITY(1053, "The amount must be over 0", HttpStatus.BAD_REQUEST),
     INVALID_ROLE(1051, "Invalid Role type", HttpStatus.BAD_REQUEST),
     CANNOT_BAN_OWN_ACCOUNT(1051, "Admin cannot ban their own account", HttpStatus.BAD_REQUEST),
-    ACCOUNT_ALREADY_BANNED(1052, "Account is already banned", HttpStatus.BAD_REQUEST),;
-
+    ACCOUNT_ALREADY_BANNED(1052, "Account is already banned", HttpStatus.BAD_REQUEST),
+    VOUCHER_MEMBER_TYPE_INVALID(1053, "Invalid voucher type", HttpStatus.BAD_REQUEST),
+    NOT_ENOUGH_TOTAL_PRICE(1054, "Not enough total price", HttpStatus.BAD_REQUEST),
+    INVALID_COMBINABLE_VOUCHER(1055, "Invalid combination voucher", HttpStatus.BAD_REQUEST),
+    MAX_VOUCHER_LIMIT_REACHED(1056, "Maximum voucher limit reached", HttpStatus.BAD_REQUEST),
+    ;
 
     private int code;
     private String message;

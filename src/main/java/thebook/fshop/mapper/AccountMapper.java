@@ -1,8 +1,8 @@
 package thebook.fshop.mapper;
 
 import org.mapstruct.Mapper;
-
 import org.mapstruct.Mapping;
+
 import thebook.fshop.DTO.Request.AccountCreationRequest;
 import thebook.fshop.DTO.Response.AccountResponse;
 import thebook.fshop.DTO.Response.ForgotPasswordResponse;

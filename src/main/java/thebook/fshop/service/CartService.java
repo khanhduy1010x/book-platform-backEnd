@@ -1,29 +1,30 @@
 package thebook.fshop.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import thebook.fshop.DTO.Request.AddToCartRequest;
 import thebook.fshop.DTO.Request.DeleteCartRequest;
 import thebook.fshop.DTO.Request.UpdateCartRequest;
 import thebook.fshop.DTO.Response.CartResponse;
-import thebook.fshop.entity.Cart;
-import thebook.fshop.entity.CartItem;
-import thebook.fshop.entity.Book;
-import thebook.fshop.entity.Inventory;
+import thebook.fshop.entity.*;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
+import thebook.fshop.helper.DiscountType;
+import thebook.fshop.mapper.CartItemMapper;
 import thebook.fshop.mapper.CartMapper;
+import thebook.fshop.repository.BookRepository;
 import thebook.fshop.repository.CartItemRepository;
 import thebook.fshop.repository.CartRepository;
-import thebook.fshop.repository.BookRepository;
 import thebook.fshop.repository.InventoryRepository;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -37,10 +38,12 @@ public class CartService {
     InventoryRepository inventoryRepository;
     SecurityService securityService;
     CartMapper cartMapper;
+    CartItemMapper cartItemMapper;
 
     public void addToCart(AddToCartRequest request) {
         var account = securityService.getAccountByJWT();
-        Inventory inventory = inventoryRepository.findByBook_ID(request.getBookId())
+        Inventory inventory = inventoryRepository
+                .findByBook_ID(request.getBookId())
                 .orElseThrow(() -> new AppException(ErrorCode.INVALID_INVENTORY));
 
         if (inventory.getQuantity() < request.getQuantity()) {
@@ -55,8 +58,8 @@ public class CartService {
             return newCart;
         });
 
-        Book book = bookRepository.findById(request.getBookId())
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+        Book book =
+                bookRepository.findById(request.getBookId()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
 
         Optional<CartItem> existingItem = cartItemRepository.findByCart_IDAndBook_ID(cart.getID(), book.getID());
 
@@ -75,53 +78,88 @@ public class CartService {
         }
     }
 
-    public List<CartResponse> viewCart() {
+    public CartResponse viewCart() {
         var account = securityService.getAccountByJWT();
-        Cart cart = cartRepository.findByAccount_AccID(account.getAccID())
+        Cart cart = cartRepository
+                .findByAccount_AccID(account.getAccID())
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
 
-        var listCart = cartItemRepository.findByCart_ID(cart.getID());
+        var listCart = cartItemRepository.findByCart_IDOrderByIDAsc(cart.getID());
         for (CartItem i : listCart) {
-            Inventory inventory = inventoryRepository.findByBook_ID(i.getBook().getID()).orElse(null);
+            Inventory inventory =
+                    inventoryRepository.findByBook_ID(i.getBook().getID()).orElse(null);
             if (inventory != null && i.getQuantity() > inventory.getQuantity()) {
                 i.setOutOfStock(true);
                 cartItemRepository.save(i);
             }
         }
 
-        return cartItemRepository.findByCart_ID(cart.getID()).stream().map(cartMapper::toCartResponse).collect(Collectors.toList());
+        var listCartItem =  cartItemRepository.findByCart_IDOrderByIDAsc(cart.getID()).stream().map(cartItemMapper::toResponse).toList();
+        var totalPrice =calculateTotalInCart(cart.getID());
+        var listVoucher = cart.getVouchers();
+        long totalSale = 0;
+
+        if (!listVoucher.isEmpty()) {
+            for (Voucher v : listVoucher) {
+                if (v.getDiscountType() == DiscountType.PERCENTAGE) {
+                    totalSale += (v.getDiscountValue()/100) * totalPrice; // Add the discount from each voucher
+                }else {
+                    totalSale += v.getDiscountValue();
+                }
+            }
+        }
+        return CartResponse.builder()
+                .cartItems(listCartItem)
+                .cartID(cart.getID())
+                .appliedVoucher(cart.getVouchers().stream().toList())
+                .totalPriceAfterSale(totalPrice-totalSale)
+                .totalSale(totalSale)
+                .build();
     }
 
     public void updateCart(UpdateCartRequest request) {
-        // First, check if the cart exists
-        cartRepository.findById(request.getCartId())
-                .orElseThrow(() ->  new AppException(ErrorCode.NOT_FOUND));
-
-        // Check if the cart contains the book with the given bookId
-        CartItem item = cartItemRepository.findByCart_IDAndBook_ID(request.getCartId(), request.getBookId())
-                .orElseThrow(() ->  new AppException(ErrorCode.NOT_FOUND));
+        CartItem item = cartItemRepository
+                .findById(request.getCartId())
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
 
         if (request.getQuantity() == 0) {
-            // If the quantity is 0, remove the item from the cart
-            cartItemRepository.delete(item);
+            deleteFromCart(DeleteCartRequest.builder()
+                    .cartItemID(item.getID())
+                    .build());
         } else {
-            // Otherwise, update the quantity
             item.setQuantity(request.getQuantity());
             cartItemRepository.save(item);
+            var cart = item.getCart();
+            updateCartTotalAndVouchers(cart);
         }
     }
+
     public void deleteFromCart(DeleteCartRequest request) {
-        // First, check if the cart exists
-        Cart cart = cartRepository.findById(request.getCartId())
+        var cartItem = cartItemRepository.findById(request.getCartItemID())
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+        cartItemRepository.delete(cartItem);
 
-        // Check if the book exists in the cart
-        CartItem item = cartItemRepository.findByCart_IDAndBook_ID(request.getCartId(), request.getBookId())
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
-
-        // If found, delete the cart item
-        cartItemRepository.delete(item);
+        var cart = cartItem.getCart();
+        updateCartTotalAndVouchers(cart);
     }
 
+    private void updateCartTotalAndVouchers(Cart cart) {
+        var totalInCart = calculateTotalInCart(cart.getID());
+        var listVoucher = cart.getVouchers();
+
+        List<Voucher> vouchersToRemove = listVoucher.stream()
+                .filter(v -> v.getMinCartValue() > totalInCart)
+                .collect(Collectors.toList());
+
+        listVoucher.removeAll(vouchersToRemove);
+        cart.setVouchers(listVoucher);
+        cartRepository.save(cart);
+    }
+
+    private long calculateTotalInCart(int cartId) {
+        return cartItemRepository.findByCart_IDOrderByIDAsc(cartId).stream()
+                .mapToLong(item -> item.getQuantity() * item.getBook().getPrice())
+                .sum();
+    }
 
 }

@@ -1,6 +1,7 @@
 package thebook.fshop.entity;
 
 import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -16,9 +17,11 @@ public class AccountAddress {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "addressID")
     int ID;
+
     @ManyToOne
     @JoinColumn(name = "accID")
     Account account;
+
     String province;
     String city;
     String district;

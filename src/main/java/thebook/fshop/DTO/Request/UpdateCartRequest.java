@@ -1,12 +1,14 @@
 package thebook.fshop.DTO.Request;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateCartRequest {
-    private int cartId;
-    private int bookId;
-    private int quantity;
+     int cartId;
+     int quantity;
 }

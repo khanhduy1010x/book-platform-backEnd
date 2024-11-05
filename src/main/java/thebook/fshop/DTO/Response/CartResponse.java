@@ -3,6 +3,10 @@ package thebook.fshop.DTO.Response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import thebook.fshop.entity.Book;
+import thebook.fshop.entity.CartItem;
+import thebook.fshop.entity.Voucher;
+
+import java.util.List;
 
 @Data
 @Builder
@@ -11,9 +15,8 @@ import thebook.fshop.entity.Book;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CartResponse {
     int cartID;
-    int accountID;
-    Book book;
-    int quantity;
-    boolean outOfStock;
-
+    List<CartItemResponse> cartItems;
+    List<Voucher> appliedVoucher;
+    long totalPriceAfterSale;
+    long totalSale;
 }
