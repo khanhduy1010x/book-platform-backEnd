@@ -36,10 +36,4 @@ public class Voucher {
     double discountValue;
     String voucherDescription;
 
-    @ManyToMany
-    @JoinTable(
-            name = "VoucherCombinations",
-            joinColumns = @JoinColumn(name = "voucherID_1"),
-            inverseJoinColumns = @JoinColumn(name = "voucherID_2"))
-    Set<Voucher> combinableVouchers;
 }

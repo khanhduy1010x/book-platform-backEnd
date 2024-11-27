@@ -13,4 +13,5 @@ public class BookReadHistoryResponse {
     int id;
     Book book;
     int accID;
+    double percent;
 }

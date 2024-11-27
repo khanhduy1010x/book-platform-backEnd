@@ -20,7 +20,6 @@ import thebook.fshop.repository.AccountsRepository;
 public class SecurityService {
     AccountsRepository accountsRepository;
 
-    @PreAuthorize("isAuthenticated()")
     public Account getAccountByJWT() {
         var context = SecurityContextHolder.getContext();
         var username = context.getAuthentication().getName();

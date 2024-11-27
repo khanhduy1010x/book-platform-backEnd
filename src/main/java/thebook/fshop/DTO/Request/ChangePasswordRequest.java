@@ -12,9 +12,7 @@ import thebook.fshop.validation.PasswordValidation;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ChangePasswordRequest {
-    @NotBlank(message = "NULL_PASSWORD")
-    @PasswordValidation
-    String currentPassword;
+
 
     @NotBlank(message = "NULL_PASSWORD")
     @PasswordValidation

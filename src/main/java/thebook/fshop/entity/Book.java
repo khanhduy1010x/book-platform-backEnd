@@ -41,6 +41,8 @@ public class Book {
 
     String url;
     String coverImage;
+
+    @Column(columnDefinition = "TEXT")
     String description;
 
     @Enumerated(EnumType.STRING)

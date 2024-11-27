@@ -13,6 +13,8 @@ import thebook.fshop.exception.ErrorCode;
 import thebook.fshop.repository.BookRepository;
 import thebook.fshop.repository.WishListRepository;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -29,7 +31,7 @@ public class FavoriteService {
         var wishBook = wishListRepository.findByBook_IDAndAccount_AccID(request.getBookID(), account.getAccID());
         log.info("Added to favorites: {}", wishBook);
         if (wishBook != null) {
-            throw new AppException(ErrorCode.DUPLICATE_BOOK);
+          return;
         }
         var wishList = WishList.builder()
                 .account(account)
@@ -49,5 +51,8 @@ public class FavoriteService {
         } else {
             throw new AppException(ErrorCode.NOT_FOUND);
         }
+    }
+    public List<WishList> getAllWishList () {
+        return wishListRepository.findByAccount_AccID(securityService.getAccountByJWT().getAccID());
     }
 }

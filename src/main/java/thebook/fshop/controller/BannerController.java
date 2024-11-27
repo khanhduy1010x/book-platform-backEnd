@@ -51,4 +51,9 @@ public class BannerController {
         bannerService.createBanner(banner);
         return ApiResponse.<Banner>builder().build();
     }
+    @PostMapping("/delete-banner/{id}")
+    public ApiResponse<?> createBanner(@PathVariable int id) {
+        bannerService.deleteBanner(id);
+        return ApiResponse.builder().build();
+    }
 }

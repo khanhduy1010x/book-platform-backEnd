@@ -5,7 +5,10 @@ import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import thebook.fshop.DTO.Request.AddToFavoriteRequest;
 import thebook.fshop.DTO.Response.ApiResponse;
+import thebook.fshop.entity.WishList;
 import thebook.fshop.service.FavoriteService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/favorite")
@@ -27,5 +30,11 @@ public class FavoriteController {
         favoriteService.deleteFavorite(id);
         return ApiResponse.builder().build();
         // Call the deleteFavorite method from the service
+    }
+    @GetMapping("get-all")
+    public ApiResponse<List<WishList>> getAllFavorite() {
+        return ApiResponse.<List<WishList>>builder()
+                .result(favoriteService.getAllWishList())
+                .build();
     }
 }

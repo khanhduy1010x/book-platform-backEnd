@@ -11,9 +11,7 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuthenticationRequest {
-    @NotBlank(message = "NULL_PHONE")
     String username;
 
-    @NotBlank(message = "NULL_PASSWORD")
     String password;
 }

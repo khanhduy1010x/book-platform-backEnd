@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+import lombok.experimental.NonFinal;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,13 +26,19 @@ import thebook.fshop.repository.BannerRepository;
 public class BannerService {
     BannerRepository bannerRepository;
 
+    @NonFinal
+    @Value("${upload.path_banner}")
+    String UPLOAD_PATH;
+
+    @NonFinal
+    @Value("${path.banner}")
+    String PATH_AVATAR;
+
     public List<Banner> viewBanner() {
         return bannerRepository.findAll();
     }
 
     public void updateBanner(int id, MultipartFile bannerFile) {
-        String UPLOAD_PATH = "D:\\OJT\\Book4.0\\book4_0\\src\\main\\resources\\static\\banner";
-        String PATH_AVATAR = "http://localhost:9999/banner/";
         // Retrieve the banner associated with the request
         Banner banner = bannerRepository.findById(id).get();
         if (banner != null) {
@@ -70,10 +78,11 @@ public class BannerService {
             }
         }
     }
-
+    public void deleteBanner(int id) {
+        bannerRepository.deleteById(id);
+    }
     public void createBanner(MultipartFile bannerFile) {
-        String UPLOAD_PATH = "D:\\OJT\\Book4.0\\book4_0\\src\\main\\resources\\static\\banner";
-        String PATH_AVATAR = "http://localhost:9999/banner/";
+
         Banner banner = new Banner();
         if (bannerFile != null && !bannerFile.isEmpty()) {
             String originalFileName = bannerFile.getOriginalFilename();

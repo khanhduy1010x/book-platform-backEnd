@@ -23,7 +23,7 @@ public class AccountResponse {
     String avatar;
     Date birth;
     String username;
-
+    String email;
     boolean hasPassword;
     boolean skip_password_prompt;
 }

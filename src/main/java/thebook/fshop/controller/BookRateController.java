@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
 import thebook.fshop.DTO.Request.BookRateRequest;
+import thebook.fshop.DTO.Request.BookRateUpdateRequest;
 import thebook.fshop.DTO.Response.ApiResponse;
 import thebook.fshop.DTO.Response.BookRateResponse;
 import thebook.fshop.service.BookRateService;
@@ -21,6 +22,11 @@ public class BookRateController {
     @PostMapping("/add")
     public ApiResponse<?> addBookRate(@RequestBody BookRateRequest request) {
         bookRateService.addBookRate(request);
+        return ApiResponse.builder().build();
+    }
+    @PostMapping("/update")
+    public ApiResponse<?> updateBookRate(@RequestBody BookRateUpdateRequest request) {
+        bookRateService.updateBookRate(request);
         return ApiResponse.builder().build();
     }
 

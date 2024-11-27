@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,7 @@ import thebook.fshop.repository.InventoryRepository;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
 @Transactional
+@Slf4j
 public class CartService {
 
     CartRepository cartRepository;
@@ -98,6 +100,7 @@ public class CartService {
         var totalPrice =calculateTotalInCart(cart.getID());
         var listVoucher = cart.getVouchers();
         long totalSale = 0;
+        long shipFee = 15000;
 
         if (!listVoucher.isEmpty()) {
             for (Voucher v : listVoucher) {
@@ -108,11 +111,14 @@ public class CartService {
                 }
             }
         }
+        log.info("Account: {}", account);
+        var afterPrice = totalPrice-totalSale + shipFee;
         return CartResponse.builder()
                 .cartItems(listCartItem)
                 .cartID(cart.getID())
+                .account(account)
                 .appliedVoucher(cart.getVouchers().stream().toList())
-                .totalPriceAfterSale(totalPrice-totalSale)
+                .totalPriceAfterSale(afterPrice>=0 ? afterPrice  : 0)
                 .totalSale(totalSale)
                 .build();
     }

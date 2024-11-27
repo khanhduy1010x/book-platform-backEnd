@@ -25,4 +25,6 @@ public class BookReadHistory {
     @ManyToOne
     @JoinColumn(name = "bookID")
     Book book;
+
+    double readPercent;
 }

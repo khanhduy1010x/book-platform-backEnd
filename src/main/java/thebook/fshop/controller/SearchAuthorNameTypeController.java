@@ -29,4 +29,11 @@ public class SearchAuthorNameTypeController {
                 .result(bookService.searchBook(param))
                 .build();
     }
+    @GetMapping("/search-admin/{param}")
+    ApiResponse<List<Book>>searchBookAdmin(@PathVariable String param) {
+        log.info(param);
+        return ApiResponse.<List<Book>>builder()
+                .result(bookService.searchBookAdmin(param))
+                .build();
+    }
 }

@@ -1,5 +1,6 @@
 package thebook.fshop.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,12 +10,14 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import thebook.fshop.DTO.Request.BookRateRequest;
+import thebook.fshop.DTO.Request.BookRateUpdateRequest;
 import thebook.fshop.DTO.Response.ApiResponse;
 import thebook.fshop.DTO.Response.BookRateResponse;
 import thebook.fshop.entity.Book;
 import thebook.fshop.entity.BookRate;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
+import thebook.fshop.helper.Rate;
 import thebook.fshop.mapper.BookRateMapper;
 import thebook.fshop.repository.BookRateRepository;
 import thebook.fshop.repository.BookRepository;
@@ -36,9 +39,16 @@ public class BookRateService {
         BookRate bookRate = BookRate.builder()
                 .book(book)
                 .account(account)
-                .rate(request.getRate())
+                .rate(Rate.values()[request.getRate()-1])
                 .comment(request.getComment())
+                .date(new Date())
                 .build();
+        bookRateRepository.save(bookRate);
+    }
+    public void updateBookRate(BookRateUpdateRequest request) {
+        var bookRate = bookRateRepository.findById(request.getBookRateID()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+        bookRate.setRate(Rate.values()[request.getRate()-1]);
+        bookRate.setComment(request.getComment());
         bookRateRepository.save(bookRate);
     }
 

@@ -2,6 +2,7 @@ package thebook.fshop.DTO.Response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import thebook.fshop.entity.Account;
 import thebook.fshop.entity.Book;
 import thebook.fshop.entity.CartItem;
 import thebook.fshop.entity.Voucher;
@@ -19,4 +20,5 @@ public class CartResponse {
     List<Voucher> appliedVoucher;
     long totalPriceAfterSale;
     long totalSale;
+    Account account;
 }

@@ -11,6 +11,6 @@ import thebook.fshop.helper.Rate;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookRateRequest {
     int bookID;
-    Rate rate;
+    int rate;
     String comment;
 }

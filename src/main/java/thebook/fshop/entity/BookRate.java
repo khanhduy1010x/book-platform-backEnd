@@ -6,6 +6,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import thebook.fshop.helper.Rate;
 
+import java.util.Date;
+
 @Entity
 @Data
 @Builder
@@ -32,4 +34,6 @@ public class BookRate {
     String comment;
 
     boolean isHidden;
+
+    Date date;
 }

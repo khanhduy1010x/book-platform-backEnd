@@ -1,10 +1,12 @@
 package thebook.fshop.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import jakarta.validation.Valid;
 
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.AccessLevel;
@@ -12,9 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import thebook.fshop.DTO.Request.*;
-import thebook.fshop.DTO.Response.AccountResponse;
-import thebook.fshop.DTO.Response.ApiResponse;
-import thebook.fshop.DTO.Response.ForgotPasswordResponse;
+import thebook.fshop.DTO.Response.*;
 import thebook.fshop.entity.Account;
 import thebook.fshop.service.AccountService;
 
@@ -36,8 +36,9 @@ public class AccountManagementController {
             value = "/edit-avatar",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiResponse<AccountResponse> editAvatar(@ModelAttribute @Valid UpdateAvatarRequest request) {
+    public ApiResponse<AccountResponse> editAvatar(@ModelAttribute UpdateAvatarRequest request) {
         accountService.updateAvatar(request);
+        log.info("file : {}",request.getFile());
         return ApiResponse.<AccountResponse>builder().build();
     }
 
@@ -75,4 +76,45 @@ public class AccountManagementController {
                 .result(accountService.getEmailPhoneByUserName(request))
                 .build();
     }
+
+    @GetMapping("get-all-admin/{num}")
+    public ApiResponse<ListAccountForAdminResponse> getAllAdmin(
+            @PathVariable int num,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        return ApiResponse.<ListAccountForAdminResponse>builder()
+                .result(accountService.getAllAccountForAdmin(num,page,size))
+                .build();
+    }
+
+    @GetMapping("/search-account/{param}")
+    public ApiResponse<searchAccountResponse> searchAccount(@PathVariable String param) {
+        return ApiResponse.<searchAccountResponse>builder()
+                .result(accountService.searchAccounts(param))
+                .build();
+    }
+
+    @PostMapping("/change-role/{id}")
+    public ApiResponse<?> changeRole(@PathVariable int id) {
+                accountService.changeRole(id);
+        return ApiResponse.builder()
+                .build();
+    }
+    @PostMapping("/change-account-status/{id}")
+    public ApiResponse<?> changeAccountStatus(@PathVariable int id) {
+        accountService.changStatus(id);
+        return ApiResponse.builder()
+                .build();
+    }
+
+    @GetMapping("get-info-by-id/{id}")
+    public ApiResponse<Account> getInfoById(@PathVariable int id) {
+        return ApiResponse.<Account>builder()
+                .result(        accountService.getAccountByID(id))
+                .build();
+    }
+
+
+
 }

@@ -1,7 +1,7 @@
 package thebook.fshop.helper;
 
 public enum TransactionType {
-    NONE,
-    INCREASE,
-    DECREASE
+    MEMBER_PACKAGE,
+    DEPOSIT,
+    BUY_BOOK
 }

@@ -24,8 +24,10 @@ public class Notification {
     @JoinColumn(name = "accID")
     Account account;
 
+    @Column(columnDefinition = "TEXT")
     String message;
 
+    String title;
     boolean isRead;
 
     Date createAt;

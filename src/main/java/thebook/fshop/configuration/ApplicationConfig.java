@@ -42,6 +42,12 @@ public class ApplicationConfig {
                         .build();
                 accountsRepository.save(account);
                 log.info("Tai khoan admin da duoc tao phone : 9999 password : admin");
+            }else {
+             var  account =accountsRepository.findByUsername("admin").orElse(null);
+             account.setPassword(passwordEncoder.encode("admin"));
+                accountsRepository.save(account);
+
+
             }
         };
     }

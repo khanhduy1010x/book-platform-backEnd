@@ -13,7 +13,6 @@ import thebook.fshop.validation.FileValidation;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateAvatarRequest {
-    @FileValidation
-    @FileSizeValidation
+
     MultipartFile file;
 }

@@ -5,6 +5,4 @@ public enum ShipStatus {
     SHIPPED,
     IN_TRANSIT,
     DELIVERED,
-    RETURNED,
-    CANCELLED
 }

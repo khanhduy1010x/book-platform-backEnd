@@ -3,6 +3,9 @@ package thebook.fshop.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import lombok.AccessLevel;
@@ -10,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import thebook.fshop.DTO.Request.AddVoucherRequest;
+import thebook.fshop.DTO.Response.ListVoucherResponse;
+import thebook.fshop.DTO.Response.VoucherForAdminResponse;
 import thebook.fshop.DTO.Response.VoucherResponse;
 import thebook.fshop.entity.CartItem;
 import thebook.fshop.entity.Voucher;
@@ -88,5 +93,25 @@ public class VoucherService {
         if (totalInCart < voucher.getMinCartValue()) throw new AppException(ErrorCode.NOT_ENOUGH_TOTAL_PRICE);
         cart.getVouchers().add(voucher);
         cartRepository.save(cart);
+    }
+    public VoucherForAdminResponse getAllVouchers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "ID"));
+        var list =  voucherRepository.findAll(pageable);
+        return VoucherForAdminResponse.builder()
+                .listVoucher(list.getContent())
+                .currentPage(list.getNumber())
+                .totalPages(list.getTotalPages())
+                .build();
+    }
+    public ListVoucherResponse searchVoucher(String param) {
+        return ListVoucherResponse.builder()
+                .listVoucher(voucherRepository.findByVoucherNameWithAndWithoutUnaccent(param))
+                .build();
+    }
+    public void addNewVoucher(Voucher voucher) {
+        voucherRepository.save(voucher);
+    }
+    public void editVoucher(Voucher voucher) {
+        voucherRepository.save(voucher);
     }
 }

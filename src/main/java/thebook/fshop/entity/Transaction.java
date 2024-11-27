@@ -1,11 +1,14 @@
 package thebook.fshop.entity;
 
+import java.lang.reflect.Method;
 import java.util.Date;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import thebook.fshop.helper.MethodType;
 import thebook.fshop.helper.TransactionType;
 
 @Entity
@@ -26,8 +29,15 @@ public class Transaction {
     Account account;
 
     Date time;
-    long amount;
+    long beforeAmount;
+    long afterAmount;
     String content;
+
+    @Enumerated(EnumType.STRING)
+    MethodType methodType;
+
+    @Nullable
+    long priceQR;
 
     @Enumerated(EnumType.STRING)
     TransactionType transactionType;

@@ -107,6 +107,7 @@ public class AuthenticationService {
             accounts = accountsRepository.findByUsername(request.getUsername());
             if (accounts.isEmpty()) throw new AppException(ErrorCode.INVALID_USERNAME);
         }
+        if(accounts.get().isBanned()) throw new AppException(ErrorCode.IS_BANNED);
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean authenticated =
                 passwordEncoder.matches(request.getPassword(), accounts.get().getPassword());
@@ -260,12 +261,9 @@ public class AuthenticationService {
         if (!request.getNewPassword().equals(request.getConfirmationNewPassword())) {
             throw new AppException(ErrorCode.INVALID_NEW_PASSWORD);
         }
-        if (passwordEncoder.matches(request.getCurrentPassword(), account.getPassword())) {
             account.setPassword(passwordEncoder.encode(request.getConfirmationNewPassword()));
             accountsRepository.save(account);
-        } else {
-            throw new AppException(ErrorCode.PASSWORD_MISMATCH);
-        }
+
     }
 
     public Mono<AuthenticationResponse> getUserByGoogleToken(GoogleLoginRequest request) {

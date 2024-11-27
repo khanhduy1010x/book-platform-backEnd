@@ -24,9 +24,6 @@ public class Cart {
     @JoinColumn(name = "accID")
     Account account;
 
-    @ManyToOne
-    @JoinColumn(name = "voucherID")
-    Voucher voucher;
 
     @ManyToMany
     @JoinTable(

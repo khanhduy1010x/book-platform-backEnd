@@ -14,6 +14,7 @@ public interface AccountMapper {
     Account toAccount(AccountCreationRequest request);
 
     @Mapping(target = "skip_password_prompt", source = "skip_password_prompt")
+    @Mapping(target = "email", source = "email")
     AccountResponse toAccountResponse(Account account);
 
     ForgotPasswordResponse toForgotPasswordResponse(Account account);

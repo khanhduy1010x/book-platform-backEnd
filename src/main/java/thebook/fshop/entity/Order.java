@@ -1,6 +1,7 @@
 package thebook.fshop.entity;
 
 import java.util.Date;
+import java.util.Set;
 
 import jakarta.persistence.*;
 
@@ -27,9 +28,6 @@ public class Order {
     @JoinColumn(name = "accID")
     Account account;
 
-    @ManyToOne
-    @JoinColumn(name = "voucherID")
-    Voucher voucher;
 
     Date date;
 
@@ -43,4 +41,14 @@ public class Order {
     ShipStatus shipStatus;
 
     long totalAmount;
+    long totalAmountBefore;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "shipInfoID")
+    ShipInfo shipInfo;
+    @ManyToMany
+    @JoinTable(
+            name = "OrderVouchers",
+            joinColumns = @JoinColumn(name = "orderID"),
+            inverseJoinColumns = @JoinColumn(name = "voucherID"))
+    Set<Voucher> vouchers;
 }

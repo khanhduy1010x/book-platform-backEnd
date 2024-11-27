@@ -9,4 +9,5 @@ import thebook.fshop.entity.BookRate;
 public interface BookRateRepository extends JpaRepository<BookRate, Integer> {
     // Tìm tất cả các đánh giá cho một cuốn sách cụ thể
     List<BookRate> findByBook_ID(int bookID);
+    BookRate findByAccount_AccIDAndBook_ID(int account_ID, int bookID);
 }

@@ -76,6 +76,11 @@ public enum ErrorCode {
     NOT_ENOUGH_TOTAL_PRICE(1054, "Not enough total price", HttpStatus.BAD_REQUEST),
     INVALID_COMBINABLE_VOUCHER(1055, "Invalid combination voucher", HttpStatus.BAD_REQUEST),
     MAX_VOUCHER_LIMIT_REACHED(1056, "Maximum voucher limit reached", HttpStatus.BAD_REQUEST),
+    NOT_ENOUGH_AMOUNT(1057, "Not enough amount", HttpStatus.BAD_REQUEST),
+    INVALID_PRICE_QR(1058, "invalid price qr", HttpStatus.BAD_REQUEST),
+        LOWER_PACKAGE_PURCHASE_NOT_ALLOWED(1059, "Cannot purchase a package lower than the current package", HttpStatus.CONFLICT),
+    IS_BANNED(1060, "Is banned account", HttpStatus.BAD_REQUEST),
+
     ;
 
     private int code;

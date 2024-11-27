@@ -61,6 +61,15 @@ sms:
 
 upload:
   path: "/Users/khanhduy/Desktop/Project_Spring/fshop/src/main/resources/static/avatars" #Thay đổi ở máy mỗi người
+  path_coverBook: "/Users/khanhduy/Desktop/Project_Spring/fshop/src/main/resources/static/coverBook" #Thay đổi ở máy mỗi người
+  path_epubFile: "/Users/khanhduy/Desktop/Project_Spring/fshop/src/main/resources/static/EpubFile" #Thay đổi ở máy mỗi người
+  path_banner : "/Users/khanhduy/Desktop/Project_Spring/fshop/src/main/resources/static/banner"
+  path_author: "/Users/khanhduy/Desktop/Project_Spring/fshop/src/main/resources/static/author"
+
 path:
   avatar: "http://localhost:9999/avatars/"
+  epub: "http://localhost:9999/EpubFile/"
+  coverImage: "http://localhost:9999/coverBook/"
+  banner: "http://localhost:9999/banner/"
+  author: "http://localhost:9999/author/"
 

@@ -10,6 +10,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import thebook.fshop.DTO.Request.AddVoucherRequest;
 import thebook.fshop.DTO.Response.ApiResponse;
+import thebook.fshop.DTO.Response.ListVoucherResponse;
+import thebook.fshop.DTO.Response.VoucherForAdminResponse;
 import thebook.fshop.DTO.Response.VoucherResponse;
 import thebook.fshop.entity.Voucher;
 import thebook.fshop.service.VoucherService;
@@ -34,6 +36,27 @@ public class VoucherController {
         voucherService.addVoucher(request);
         return ApiResponse.builder()
                 .build();
+    }
+    @GetMapping("/get-all-admin")
+    public  ApiResponse<VoucherForAdminResponse> getALlVoucher(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        return ApiResponse.<VoucherForAdminResponse>builder()
+                .result(voucherService.getAllVouchers(page,size))
+                .build();
+    }
+    @GetMapping("/search/{param}")
+    public ApiResponse<ListVoucherResponse> searchVoucher(@PathVariable String param) {
+        return ApiResponse.<ListVoucherResponse>builder()
+                .result(voucherService.searchVoucher(param))
+                .build();
+    }
+    @PostMapping("/add-new-voucher")
+    public ApiResponse<?> addNewVoucher(@RequestBody Voucher voucher) {
+        voucherService.addNewVoucher(voucher);
+        return ApiResponse.builder()
+                .build();
+
     }
 
 }

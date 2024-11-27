@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import thebook.fshop.helper.MemberType;
 
 @Entity
 @Data
@@ -21,6 +22,9 @@ public class MembershipPackage {
     String packageName;
 
     long price;
+
+    @Enumerated(EnumType.STRING)
+    MemberType memberType;
 
     int durationDays;
 
