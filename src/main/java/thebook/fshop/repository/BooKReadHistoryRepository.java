@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import thebook.fshop.DTO.Response.BookReadHistoryResponse;
+import thebook.fshop.DTO.Response.TopReaderDTO;
 import thebook.fshop.entity.Book;
 import thebook.fshop.entity.BookReadHistory;
 
@@ -44,23 +45,18 @@ public interface BooKReadHistoryRepository extends JpaRepository<BookReadHistory
 
     @Query("SELECT b FROM Book b JOIN Category c ON b.category.ID = c.ID WHERE c.cateName = :category")
     List<Book> findBooksByCategory(@Param("category") String category);
-    // Custom query to fetch top 10 most read books
     @Query("SELECT b FROM Book b JOIN BookReadHistory brh ON b.ID = brh.book.ID GROUP BY b.ID ORDER BY COUNT(brh.id) DESC")
     List<Book> findMostReadBooks();
 
-    // Method to find the total quantity of users who read a specific book by its ID
     @Query("SELECT COUNT(DISTINCT brh.account.accID) FROM BookReadHistory brh WHERE brh.book.ID = :bookId")
     int findTotalQuantityByBookId(@Param("bookId") Integer bookId);
 
-    @Query(value = "SELECT brh.* " +
+    @Query(value = "SELECT brh.accid, COUNT(brh.bookid) AS total_books_read " +
             "FROM public.book_read_histories brh " +
-            "JOIN (SELECT accid, COUNT(bookid) AS total_books_read " +
-            "FROM public.book_read_histories " +
-            "GROUP BY accid " +
-            "ORDER BY total_books_read DESC " +
-            "LIMIT 10) AS top_readers " +
-            "ON brh.accid = top_readers.accid", nativeQuery = true)
-    List<BookReadHistory> findTop10Readers();
+            "GROUP BY brh.accid " +
+            "ORDER BY total_books_read DESC",
+            nativeQuery = true)
+    List<Object[]> findTop10ReadersRaw();
 
     // Get the total number of distinct books read by a specific reader
     @Query("SELECT COUNT(b.book.ID) FROM BookReadHistory b WHERE b.account.accID = :readerId")

@@ -17,10 +17,7 @@ import thebook.fshop.DTO.Response.*;
 import thebook.fshop.entity.*;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
-import thebook.fshop.helper.DiscountType;
-import thebook.fshop.helper.PaymentMethod;
-import thebook.fshop.helper.PaymentStatus;
-import thebook.fshop.helper.ShipStatus;
+import thebook.fshop.helper.*;
 import thebook.fshop.mapper.OrderMapper;
 import thebook.fshop.repository.*;
 
@@ -44,6 +41,8 @@ public class OrderService {
     AccountsRepository accountsRepository;
     OrderMapper orderMapper;
     NotificationService notificationService;
+    TransactionRepository transactionRepository;
+
     @Transactional
     public void createOrderFromCart(OrderCreationRequest request) {
         Account account;
@@ -58,10 +57,12 @@ public class OrderService {
         Cart cart = cartRepository.findByAccount_AccID(account.getAccID())
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
 
+        var afterAmount = account.getAmount();
         List<CartItem> cartItems = cartItemRepository.findByCart_ID(cart.getID());
 
         if (cartItems.isEmpty()) {
-            throw new AppException(ErrorCode.NOT_FOUND);        }
+            throw new AppException(ErrorCode.NOT_FOUND);
+        }
 
         long totalAmount = cartItems.stream()
                 .mapToLong(cartItem -> cartItem.getBook().getPrice() * cartItem.getQuantity())
@@ -77,6 +78,7 @@ public class OrderService {
                 }
             }
         }
+        long beforeAmount = 0 ;
         PaymentMethod paymentMethod = PaymentMethod.valueOf(request.getPaymentMethod());
         long shipFee = 15000;
         long finalPrice = totalAmount-totalSale+shipFee;
@@ -88,7 +90,8 @@ public class OrderService {
                 long accAmount = account.getAmount();
                 if (accAmount < finalPrice) throw new AppException(ErrorCode.NOT_ENOUGH_AMOUNT);
                 account.setAmount(account.getAmount()-finalPrice);
-                accountsRepository.save(account);
+              var beforeAccount =  accountsRepository.save(account);
+                beforeAmount = beforeAccount.getAmount();
                 break;
             case  QR:
                 log.info("isOK2");
@@ -111,7 +114,7 @@ public class OrderService {
                 .date(new Date())
                 .totalAmount(totalAmount)
                 .paymentMethod(paymentMethod)
-                .paymentStatus(PaymentStatus.PENDING)
+                .paymentStatus( paymentMethod == PaymentMethod.CASH ? PaymentStatus.PENDING : PaymentStatus.COMPLETED)
                 .shipStatus(ShipStatus.PENDING)
                 .vouchers(cart.getVouchers())
                 .totalAmountBefore(finalPrice > 0 ? finalPrice : 0)
@@ -137,6 +140,18 @@ public class OrderService {
                 .message("Cảm ơn bạn đã tin tưởng và mua hàng tại cửa hàng của chúng tôi! Đơn hàng của bạn đã được xác nhận và chúng tôi đang tiến hành chuẩn bị để giao đến bạn trong thời gian sớm nhất. Nếu bạn có bất kỳ thắc mắc nào, đừng ngần ngại liên hệ với chúng tôi. Chúc bạn có những trải nghiệm mua sắm tuyệt vời cùng chúng tôi!")
                 .account(account)
                 .build();
+        if(paymentMethod == PaymentMethod.ONLINE) {
+            transactionRepository.save(Transaction.builder()
+                            .time(new Date())
+                            .priceQR(0)
+                            .transactionType(TransactionType.BUY_BOOK)
+                            .content("Đặt đơn hàng sách giấy Mã đơn :" + order.getID())
+                            .afterAmount(afterAmount)
+                            .beforeAmount(beforeAmount)
+                            .account(account)
+                            .methodType(MethodType.WEBSITE)
+                    .build());
+        }
         notificationService.saveNotification(notification);
     }
 

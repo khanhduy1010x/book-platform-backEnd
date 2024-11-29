@@ -63,7 +63,7 @@ public class BookService {
     public List<ListBookByCateResponse> searchBook(String query) {
         // Fetching books from the repository
         log.info(query);
-        List<Book> books = bookRepository.findByBookNameAndAuthorAndCategory(
+        List<Book> books = bookRepository.findByBookNameAndAuthorAndCategoryUser(
                 query.toLowerCase());
         if (books.isEmpty()) {
             throw new AppException(ErrorCode.NOT_FOUND);
@@ -81,7 +81,7 @@ public class BookService {
         if (categories.isEmpty()) throw new AppException(ErrorCode.NOT_FOUND);
         List<ListBookByCateResponse> books = new ArrayList<>();
         for (Category category : categories) {
-            var listBook = bookRepository.findBookByCategory_ID(category.getID());
+            var listBook = bookRepository.findBookByCategory_IDAndIsVisible(category.getID(),true);
             ListBookByCateResponse listBookResponse = ListBookByCateResponse.builder()
                     .cateName(category.getCateName())
                     .listBook(listBook)
@@ -156,7 +156,7 @@ public class BookService {
     }
 
     public List<BookCateResponse> getByCateAndBookType(int cateID, String bookType) {
-        List<Book> books = bookRepository.findBookByCategory_IDAndBookTypeOrderByMemberTypeDesc(cateID, BookType.valueOf(bookType));
+        List<Book> books = bookRepository.findBookByCategory_IDAndBookTypeAndIsVisibleOrderByMemberTypeDesc(cateID, BookType.valueOf(bookType),true);
         Comparator<MemberType> memberTypeComparator = Comparator.comparingInt(memberType -> {
             switch (memberType) {
                 case PREMIUM:
@@ -187,7 +187,7 @@ public class BookService {
     }
 
     public List<ListBookByCateResponse> getListBookByType(String type) {
-        var listBook = bookRepository.findBookByBookType(BookType.valueOf(type));
+        var listBook = bookRepository.findBookByBookTypeAndIsVisible(BookType.valueOf(type),true);
         return getListBookByCateResponses(listBook);
     }
 
@@ -278,6 +278,7 @@ public class BookService {
         var book = Book.builder()
                 .author(author)
                 .category(cate)
+                .isVisible(request.getIsVisible())
                 .bookName(request.getBookName())
                 .bookType(BookType.valueOf(request.getBookType()))
                 .coverImage(coverImage)
@@ -348,7 +349,8 @@ public class BookService {
                 .coverImage(coverImage)
                 .description(request.getDescription())
                 .price(Long.parseLong(request.getPrice()))
-                .memberType( MemberType.valueOf(request.getMemberType()))
+                 .isVisible(request.getIsVisible())
+                 .memberType( MemberType.valueOf(request.getMemberType()))
                 .url(epubFile)
                 .ebookType(BookType.valueOf(request.getBookType()) == BookType.EBOOK ? EbookType.EPUB : null)
                 .build();
@@ -356,12 +358,9 @@ public class BookService {
 
     }
     public List<ListBookMostStatistic> getStatisticsOnMostPurchasedBooks() {
-        // Fetch top 10 most purchased books using the repository method
         List<Book> topBooks = bookRepository.findTop10MostPurchasedBooks();
-        // Map the books to ListBookMostStatistic objects
         return topBooks.stream()
                 .map(book -> {
-                    // Fetch total quantity directly within this method
                     int totalQuantity = orderDetailRepository.findTotalQuantityByBookId(book.getID());
                     return ListBookMostStatistic.builder()
                             .book(book)
@@ -373,10 +372,7 @@ public class BookService {
 
 
     public List<ListReadBookStatisticResponse> getStatisticsOnMostReadBooks() {
-        // Fetch top 10 most read books using the repository method
-        List<Book> topBooks = booKReadHistoryRepository.findMostReadBooks();
-
-        // Map the ListReadBookStatisticResponse objects with total read user count
+        List<Book> topBooks = booKReadHistoryRepository.findMostReadBooks().subList(0,9);
         return topBooks.stream()
                 .map(bookProj -> {
                     int totalQuantity = booKReadHistoryRepository.findTotalQuantityByBookId(bookProj.getID());
@@ -389,18 +385,19 @@ public class BookService {
                 .collect(Collectors.toList());
     }
 
-    public List<ListReaderStatisticResponse> getStatisticsOnMostReader() {
-        List<BookReadHistory> topBooks = booKReadHistoryRepository.findTop10Readers();
-        return topBooks.stream()
-                .map(reader -> {
-                    int total_read = booKReadHistoryRepository.findTotalBookByReader(reader.getId());
-                    return ListReaderStatisticResponse.builder()
-                            .acc(accountMapper.toAccountResponse(reader.getAccount()))
-                            .total_read(total_read)
-                            .build();
+    public List<TopReaderDTO> getStatisticsOnMostReader() {
+       return convertToTopReaderDTO(booKReadHistoryRepository.findTop10ReadersRaw()).subList(0,9);
+    }
 
-                })
-                .collect(Collectors.toList());
+    public List<TopReaderDTO> convertToTopReaderDTO(List<Object[]> rawResults) {
+        List<TopReaderDTO> topReaderDTOList = new ArrayList<>();
+        for (Object[] result : rawResults) {
+            Integer accid = (Integer) result[0];
+            Long totalBooksRead = (Long) result[1];
+            TopReaderDTO dto = new TopReaderDTO(accid, totalBooksRead);
+            topReaderDTOList.add(dto);
+        }
+        return topReaderDTOList;
     }
 
     public List<ListStatisticTopContentResponse> getStatisticsTopContent() {
@@ -430,12 +427,14 @@ public class BookService {
                     book.setUrl((String) row[4]);
                     book.setCoverImage((String) row[5]);
                     int revenue = ((Number) row[6]).intValue();
+
                     result.add(new ListStatisticRevenueByBookResponse(book, revenue));
                 }
                 break;
 
             case MONTH:
                 List<Object[]> monthlyRevenueData = bookRepository.findRevenueByMonth(request.getMonth(), request.getYear());
+                List<ListStatisticRevenueByBookResponse> tempList = new ArrayList<>();
                 for (Object[] row : monthlyRevenueData) {
                     Book book = new Book();
                     book.setID(((Number) row[1]).intValue());
@@ -444,8 +443,25 @@ public class BookService {
                     book.setUrl((String) row[4]);
                     book.setCoverImage((String) row[5]);
                     int revenue = ((Number) row[6]).intValue();
-                    result.add(new ListStatisticRevenueByBookResponse(book, revenue));
+
+                    boolean found = false;
+                    if(result.size() > 0) {
+                        for (ListStatisticRevenueByBookResponse item : result) {
+                            log.info(item.getBook().getBookName(), book.getBookName());
+                            if (book.getID() == item.getBook().getID()) {
+                                item.setRevenue(item.getRevenue() + revenue);
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+
+
+                    if (!found) {
+                        tempList.add(new ListStatisticRevenueByBookResponse(book, revenue));
+                    }
                 }
+                result.addAll(tempList);
                 break;
 
             case YEAR:
@@ -454,7 +470,7 @@ public class BookService {
                     Book book = new Book();
                     book.setID(((Number) row[1]).intValue());
                     book.setBookName((String) row[2]);
-                    book.setAuthor(authorRepository.findByName((String) row[3]));
+                    book.setAuthor(authorRepository.findById((Integer) row[3]).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND)));
                     book.setUrl((String) row[4]);
                     book.setCoverImage((String) row[5]);
 
@@ -468,7 +484,7 @@ public class BookService {
     }
 
     public List<Book> findByCateAndBooKType(String cate, String type){
-        return bookRepository.findAllByCategory_CateNameAndBookType(cate,BookType.valueOf(type));
+        return bookRepository.findAllByCategory_CateNameAndBookTypeAndIsVisible(cate,BookType.valueOf(type),true);
     }
 
 }

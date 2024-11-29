@@ -22,5 +22,6 @@ public class AddNewBookRequest {
     MultipartFile coverImage;
     String description;
     String bookType;
+    Boolean isVisible;
 
 }

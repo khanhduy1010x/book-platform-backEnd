@@ -44,14 +44,6 @@ public class CartService {
 
     public void addToCart(AddToCartRequest request) {
         var account = securityService.getAccountByJWT();
-        Inventory inventory = inventoryRepository
-                .findByBook_ID(request.getBookId())
-                .orElseThrow(() -> new AppException(ErrorCode.INVALID_INVENTORY));
-
-        if (inventory.getQuantity() < request.getQuantity()) {
-            throw new AppException(ErrorCode.OVER_QUANTITY);
-        }
-
         Optional<Cart> optionalCart = cartRepository.findByAccount_AccID(account.getAccID());
         Cart cart = optionalCart.orElseGet(() -> {
             Cart newCart = new Cart();
@@ -68,7 +60,7 @@ public class CartService {
         if (existingItem.isPresent()) {
             CartItem item = existingItem.get();
             int quantity = item.getQuantity() + request.getQuantity();
-            if (quantity > inventory.getQuantity()) throw new AppException(ErrorCode.OVER_QUANTITY);
+//            if (quantity > inventory.getQuantity()) throw new AppException(ErrorCode.OVER_QUANTITY);
             item.setQuantity(item.getQuantity() + request.getQuantity());
             cartItemRepository.save(item);
         } else {

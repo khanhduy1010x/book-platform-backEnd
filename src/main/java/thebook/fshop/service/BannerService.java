@@ -91,6 +91,7 @@ public class BannerService {
             String fileExtension = originalFileName
                     .substring(originalFileName.lastIndexOf(".") + 1)
                     .toLowerCase();
+
             if (!fileExtension.equals("jpg") && !fileExtension.equals("png") && !fileExtension.equals("webp")) {
                 throw new AppException(ErrorCode.INVALID_BANNER); // Invalid file extension
             }

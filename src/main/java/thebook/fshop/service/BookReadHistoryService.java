@@ -27,10 +27,11 @@ import thebook.fshop.repository.BookRepository;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class BookReadHistoryService {
-    BookReadHistoryMapper bookReadHistoryMapper;
     BooKReadHistoryRepository booKReadHistoryRepository;
     SecurityService securityService;
     BookRepository bookRepository;
+
+
     public List<BookReadHistoryResponse> getBookReadHistoryByAccount() {
         var account = securityService.getAccountByJWT();
         return booKReadHistoryRepository.findByAccountId(account.getAccID());
@@ -73,7 +74,9 @@ public class BookReadHistoryService {
             uniqueBooks.addAll(booksByCategory);
             // Create RecommendationResponse objects for each unique book
             for (Book book : uniqueBooks) {
-                listBook.add(book);
+                if(book.getIsVisible()){
+                    listBook.add(book);
+                }
             }
         }
 

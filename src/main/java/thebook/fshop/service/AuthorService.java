@@ -95,4 +95,8 @@ public class AuthorService {
       return authorRepository.searchAuthor(search);
     }
 
+    public List<Author> getAllHome() {
+      return authorRepository.findAll();
+    }
+
 }

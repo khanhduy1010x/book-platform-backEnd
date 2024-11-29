@@ -47,6 +47,7 @@ public class VoucherService {
                 .sum();
         var listAllVoucher = voucherRepository.findAll();
         var voucherPrivate = userVoucherRepository.findByAccount_AccID(account.getAccID());
+        var listVoucherOfUser = voucherPrivate.stream().map(item -> item.getVoucher()).toList();
         if (listAllVoucher.isEmpty()) {
             voucherPrivate.stream().forEach((item) ->
                             listAllVoucher.add(item.getVoucher())
@@ -65,7 +66,7 @@ public class VoucherService {
                     if (voucher.isPublic()) {
                         isAvailable = listVoucherAvailable.contains(voucher) && publicVoucherCount < 3;
                     } else {
-                        isAvailable = !hasNonPublicVoucherInCart && listVoucherAvailable.contains(voucher) ;
+                        isAvailable = !hasNonPublicVoucherInCart && listVoucherAvailable.contains(voucher) && listVoucherOfUser.contains(voucher) ;
                     }
                     return new VoucherResponse(voucher, isAvailable, cart.getVouchers().contains(voucher));
                 })

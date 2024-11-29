@@ -19,5 +19,6 @@ public class UpdateBookRequest {
     MultipartFile coverImage;
     String description;
     String bookType;
+    Boolean isVisible;
 
 }

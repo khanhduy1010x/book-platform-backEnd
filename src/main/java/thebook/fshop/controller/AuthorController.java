@@ -47,5 +47,11 @@ public class AuthorController {
                 .result(authorService.searchAuthor(search.toLowerCase()))
                 .build();
     }
+    @GetMapping("/get-all-home")
+    public ApiResponse<List<Author>> getAllHome() {
+        return ApiResponse.<List<Author>>builder()
+                .result(authorService.getAllHome())
+                .build();
+    }
 }
 

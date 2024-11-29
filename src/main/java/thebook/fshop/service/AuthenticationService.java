@@ -224,35 +224,35 @@ public class AuthenticationService {
         if (template.getExpire(phone, TimeUnit.SECONDS) > 0) throw new AppException(ErrorCode.WAITING_TIME);
         Random rand = new Random();
         int otp = rand.nextInt(900000) + 100000;
-        template.opsForValue().set(phone, String.valueOf(otp));
-        template.expire(phone, 1200, TimeUnit.SECONDS);
-        //        SendSMSServer sendSMSServer = SendSMSServer.builder()
-        //                .content("Book4.0 - Mã OTP kích hoạt số điện thoại của bạn là: " + otp)
-        //                .to(phone)
-        //                .sender(DEVICE_KEY)
-        //                .build();
-        //        webClient
-        //                .post()
-        //                .uri(uriSendSMS)
-        //                .contentType(MediaType.APPLICATION_JSON)
-        //                .bodyValue(sendSMSServer)
-        //                .headers(headers -> headers.setBasicAuth(SMS_KEY, ""))
-        //                .retrieve()
-        //                .bodyToMono(Map.class)
-        //                .subscribe(
-        //                        response -> {
-        //                            log.info(response.toString());
-        //                            String status = (String) response.get("status");
-        //                            if (!"success".equals(status)) {
-        //                                throw new AppException(ErrorCode.ERROR_SEND);
-        //                            }
-        //                            log.info(template.getExpire(phone, TimeUnit.SECONDS).toString());
-        //                            template.opsForValue().set(phone, String.valueOf(otp));
-        //                            template.expire(phone, 1200, TimeUnit.SECONDS);
-        //                        },
-        //                        error -> {
-        //                            throw new AppException(ErrorCode.ERROR_SEND);
-        //                        });
+//        template.opsForValue().set(phone, String.valueOf(otp));
+//        template.expire(phone, 1200, TimeUnit.SECONDS);
+                SendSMSServer sendSMSServer = SendSMSServer.builder()
+                        .content("Book4.0 - Mã OTP kích hoạt số điện thoại của bạn là: " + otp)
+                        .to(phone)
+                        .sender(DEVICE_KEY)
+                        .build();
+                webClient
+                        .post()
+                        .uri(uriSendSMS)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(sendSMSServer)
+                        .headers(headers -> headers.setBasicAuth(SMS_KEY, ""))
+                        .retrieve()
+                        .bodyToMono(Map.class)
+                        .subscribe(
+                                response -> {
+                                    log.info(response.toString());
+                                    String status = (String) response.get("status");
+                                    if (!"success".equals(status)) {
+                                        throw new AppException(ErrorCode.ERROR_SEND);
+                                    }
+                                    log.info(template.getExpire(phone, TimeUnit.SECONDS).toString());
+                                    template.opsForValue().set(phone, String.valueOf(otp));
+                                    template.expire(phone, 1200, TimeUnit.SECONDS);
+                                },
+                                error -> {
+                                    throw new AppException(ErrorCode.ERROR_SEND);
+                                });
     }
 
     public void changePassword(ChangePasswordRequest request) {
@@ -341,10 +341,14 @@ public class AuthenticationService {
         Account account = accountsRepository
                 .findByUsername(request.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+        log.info("isPhone {}", request.isPhone());
         boolean isPhone = request.isPhone();
         Random rand = new Random();
         int otp = rand.nextInt(900000) + 100000;
         if (!isPhone) {
+            if(account.getEmail() == null) {
+                throw new AppException(ErrorCode.NOT_FOUND);
+            }
             emailService.sendEmail(
                     account.getFullName(), account.getEmail(), "OTP Đặt lại mật khẩu Book4.0", String.valueOf(otp));
             template.opsForValue().set(String.valueOf(account.getUsername()), String.valueOf(otp));

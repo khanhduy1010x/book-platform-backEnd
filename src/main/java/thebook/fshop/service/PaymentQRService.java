@@ -14,6 +14,7 @@ import thebook.fshop.DTO.Response.QRCodeResponse;
 import thebook.fshop.DTO.Response.StatusQROrderResponse;
 import thebook.fshop.entity.Account;
 import thebook.fshop.entity.Book;
+import thebook.fshop.entity.Notification;
 import thebook.fshop.entity.Transaction;
 import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
@@ -25,6 +26,7 @@ import thebook.fshop.repository.UserMemberShipRepository;
 
 import java.lang.reflect.Member;
 import java.security.SecureRandom;
+import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -50,6 +52,7 @@ public class PaymentQRService {
     OrderService orderService;
     UserMemberShipRepository userMemberShipRepository;
     TransactionRepository transactionRepository;
+    NotificationService notificationService;
 
     public static String generateQRUrl(String description, double amount) {
         String bankId = "mbbank";
@@ -172,6 +175,14 @@ public class PaymentQRService {
         account.setAmount(account.getAmount() + amount);
         var trans = createTransaction(account, beforeAccount,MethodType.QR_CODE,TransactionType.DEPOSIT,amount);
         transactionRepository.save(trans);
+        DecimalFormat formatter = new DecimalFormat("#,###");
+
+        notificationService.saveNotification(Notification.builder()
+                        .message("Bạn vừa nạp thành công " + formatter.format(amount) + "đ vào tài khoản")
+                        .title("Nạp tiền thành công ")
+                        .createAt(new Date())
+                        .account(account)
+                .build());
         accountsRepository.save(account);
     }
     public Transaction createTransaction(Account account, long beforeAmount, MethodType methodType, TransactionType transactionType, long price ) {

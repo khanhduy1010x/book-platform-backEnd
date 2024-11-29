@@ -1,5 +1,6 @@
 package thebook.fshop.entity;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 
 import lombok.*;
@@ -26,6 +27,9 @@ public class Book {
     Category category;
 
     String bookName;
+
+    @Nullable
+    Boolean isVisible;
 
     @ManyToOne
             @JoinColumn(name ="authorID")

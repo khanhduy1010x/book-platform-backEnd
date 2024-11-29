@@ -19,8 +19,8 @@ import thebook.fshop.helper.BookType;
 
 @Repository
 public interface BookRepository extends JpaRepository<Book, Integer> {
-    List<Book> findBookByCategory_ID(int ID);
-    List<Book> findBookByBookType(BookType type);
+    List<Book> findBookByCategory_IDAndIsVisible(int ID,boolean isVisible);
+    List<Book> findBookByBookTypeAndIsVisible(BookType type,boolean isVisible);
     Page<Book> findBookByBookTypeOrderByIDAsc(BookType type, Pageable pageable);
 
     @Query(
@@ -33,22 +33,42 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
                     "OR LOWER(b.category.cateName) ILIKE %:query%"
     )
     List<Book> findByBookNameAndAuthorAndCategory(String query);
+    @Query(
+            "SELECT b FROM Book b WHERE " +
+                    "(LOWER(FUNCTION('unaccent', b.bookName)) ILIKE %:query% " +
+                    "OR LOWER(b.bookName) ILIKE %:query% " +
+                    "OR LOWER(FUNCTION('unaccent', b.author.name)) ILIKE %:query% " +
+                    "OR LOWER(b.author.name) ILIKE %:query% " +
+                    "OR LOWER(FUNCTION('unaccent', b.category.cateName)) ILIKE %:query% " +
+                    "OR LOWER(b.category.cateName) ILIKE %:query%) " +
+                    "AND b.isVisible = true"
+    )
+    List<Book> findByBookNameAndAuthorAndCategoryUser(String query);
 
-    List<Book> findBookByCategory_IDAndBookTypeOrderByMemberTypeDesc(int cateID, BookType bookType);
+    List<Book> findBookByCategory_IDAndBookTypeAndIsVisibleOrderByMemberTypeDesc(int cateID, BookType bookType,boolean isVisible);
 
     Optional<Book> findByID(int bookID);
     @Query("SELECT DISTINCT b.category FROM Book b WHERE b.bookType = :bookType")
     List<Category> findCateIdsByBookType(BookType bookType);
-    @Query(value = "SELECT b.bookid, b.book_name, b.authorid, b.cover_image, b.description, b.price, b.book_type, " +
+
+
+
+    @Query(value = "SELECT b.bookid, b.book_name, b.authorid, b.cover_image, b.is_visible, b.description, b.price, b.book_type, " +
             "b.ebook_type, b.member_type, b.cateid, b.url, SUM(od.quantity) AS total_quantity " +
             "FROM books b " +
             "JOIN order_details od ON b.bookid = od.bookid " +
             "JOIN orders o ON od.orderid = o.orderid " +
-            "GROUP BY b.bookid, b.book_name, b.authorid, b.cover_image, b.description, " +
+            "GROUP BY b.bookid, b.book_name, b.authorid,b.is_visible ,b.cover_image, b.description, " +
             "b.price, b.book_type, b.ebook_type, b.member_type, b.cateid, b.url " +
             "ORDER BY total_quantity DESC " +
             "LIMIT 10", nativeQuery = true)
     List<Book> findTop10MostPurchasedBooks();
+
+
+
+
+
+
 
     @Query("SELECT a FROM Account a JOIN BookRate br ON a.accID = br.account.accID GROUP BY a.accID ORDER BY COUNT(br.id) DESC")
     List<Account> findTop10Content();
@@ -91,7 +111,7 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
     @Query(value = "SELECT EXTRACT(YEAR FROM o.date) AS order_year, " +
             "b.bookid AS id, " +
             "b.book_name AS book_name, " +
-            "b.author AS author, " +
+            "b.authorid AS author, " +
             "b.url AS url, " +
             "b.cover_image AS cover_image, " +
             "SUM(od.quantity * b.price) AS total_revenue " +
@@ -100,9 +120,9 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
             "JOIN public.orders o ON od.orderid = o.orderid " +
             "WHERE o.payment_status = 'COMPLETED' " +
             "AND EXTRACT(YEAR FROM o.date) = :year " +
-            "GROUP BY EXTRACT(YEAR FROM o.date), b.bookid, b.book_name, b.author, b.url, b.cover_image " +
+            "GROUP BY EXTRACT(YEAR FROM o.date), b.bookid, b.book_name, b.authorid, b.url, b.cover_image " +
             "ORDER BY total_revenue DESC", nativeQuery = true)
     List<Object[]> findRevenueByYear(@Param("year") int year);
 
-    List<Book> findAllByCategory_CateNameAndBookType(String category, BookType bookType);
+    List<Book> findAllByCategory_CateNameAndBookTypeAndIsVisible(String category, BookType bookType,boolean isVisible);
 }
