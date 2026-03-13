@@ -66,7 +66,7 @@ public class BookService {
         List<Book> books = bookRepository.findByBookNameAndAuthorAndCategoryUser(
                 query.toLowerCase());
         if (books.isEmpty()) {
-            throw new AppException(ErrorCode.NOT_FOUND);
+            return new ArrayList<>();
         }
         return getListBookByCateResponses(books);
     }

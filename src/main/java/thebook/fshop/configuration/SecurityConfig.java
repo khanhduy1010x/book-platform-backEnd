@@ -18,6 +18,8 @@ import org.springframework.web.filter.CorsFilter;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
@@ -39,10 +41,11 @@ public class SecurityConfig {
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.addAllowedOrigin("http://localhost:3000");
-        corsConfiguration.addAllowedOriginPattern("https://*.ngrok-free.app");
-        corsConfiguration.addAllowedHeader("*");
-        corsConfiguration.addAllowedMethod("*");
+        corsConfiguration.setAllowedOriginPatterns(List.of("*")); // mở tất cả domain
+        corsConfiguration.setAllowedMethods(List.of("*"));         // mọi method
+        corsConfiguration.setAllowedHeaders(List.of("*"));         // mọi header
+        corsConfiguration.setAllowCredentials(true);               // nếu dùng cookie / jwt
+
 
         UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);

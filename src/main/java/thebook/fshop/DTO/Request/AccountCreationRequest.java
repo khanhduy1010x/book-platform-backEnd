@@ -25,7 +25,6 @@ public class AccountCreationRequest {
     @NotBlank(message = "NULL_FULL_NAME")
     String fullName;
 
-    @NotBlank(message = "NULL_OTP")
     String otp;
 
     @NotBlank(message = "NULL_USERNAME")

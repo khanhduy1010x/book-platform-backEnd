@@ -25,21 +25,15 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
 
     @Query(
             "SELECT b FROM Book b WHERE " +
-                    "LOWER(FUNCTION('unaccent', b.bookName)) ILIKE %:query% " +
-                    "OR LOWER(b.bookName) ILIKE %:query% " +
-                    "OR LOWER(FUNCTION('unaccent', b.author.name)) ILIKE %:query% " +
+                    "LOWER(b.bookName) ILIKE %:query% " +
                     "OR LOWER(b.author.name) ILIKE %:query% " +
-                    "OR LOWER(FUNCTION('unaccent', b.category.cateName)) ILIKE %:query% " +
                     "OR LOWER(b.category.cateName) ILIKE %:query%"
     )
     List<Book> findByBookNameAndAuthorAndCategory(String query);
     @Query(
             "SELECT b FROM Book b WHERE " +
-                    "(LOWER(FUNCTION('unaccent', b.bookName)) ILIKE %:query% " +
-                    "OR LOWER(b.bookName) ILIKE %:query% " +
-                    "OR LOWER(FUNCTION('unaccent', b.author.name)) ILIKE %:query% " +
+                    "(LOWER(b.bookName) ILIKE %:query% " +
                     "OR LOWER(b.author.name) ILIKE %:query% " +
-                    "OR LOWER(FUNCTION('unaccent', b.category.cateName)) ILIKE %:query% " +
                     "OR LOWER(b.category.cateName) ILIKE %:query%) " +
                     "AND b.isVisible = true"
     )

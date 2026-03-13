@@ -36,10 +36,10 @@ public class AccountManagementController {
             value = "/edit-avatar",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApiResponse<AccountResponse> editAvatar(@ModelAttribute UpdateAvatarRequest request) {
-        accountService.updateAvatar(request);
+    public ApiResponse<String> editAvatar(@ModelAttribute UpdateAvatarRequest request) {
+        String avatarUrl = accountService.updateAvatar(request);
         log.info("file : {}",request.getFile());
-        return ApiResponse.<AccountResponse>builder().build();
+        return ApiResponse.<String>builder().result(avatarUrl).build();
     }
 
     @PostMapping(value = "/edit-information")

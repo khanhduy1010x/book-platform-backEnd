@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import thebook.fshop.DTO.Response.ApiResponse;
+import thebook.fshop.DTO.Response.BannerResponse;
 import thebook.fshop.entity.Banner;
 import thebook.fshop.service.BannerService;
 
@@ -26,8 +27,8 @@ public class BannerController {
     BannerService bannerService;
 
     @GetMapping("/view-banner")
-    ApiResponse<List<Banner>> viewBanner() {
-        return ApiResponse.<List<Banner>>builder()
+    ApiResponse<List<BannerResponse>> viewBanner() {
+        return ApiResponse.<List<BannerResponse>>builder()
                 .result(bannerService.viewBanner())
                 .build();
     }

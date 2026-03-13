@@ -7,8 +7,8 @@ spring:
       client:
         registration:
           google:
-            client-id: 969220749279-fhocrc4hmpm138tanbgv4dun7ve34ir8.apps.googleusercontent.com
-            client-secret: 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
+            client-id: 83839772058-dd75gs5bntr1rqih85uo9gjbfbo9p2rr.apps.googleusercontent.com
+            client-secret: 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
             scope: profile, email
             redirect-uri:
             client-name: Google
@@ -60,16 +60,16 @@ sms:
  device: "df88a66e8fcfb6e2"
 
 upload:
-  path: "/Users/khanhduy/Desktop/Project_Spring/fshop/src/main/resources/static/avatars" #Thay đổi ở máy mỗi người
-  path_coverBook: "/Users/khanhduy/Desktop/Project_Spring/fshop/src/main/resources/static/coverBook" #Thay đổi ở máy mỗi người
-  path_epubFile: "/Users/khanhduy/Desktop/Project_Spring/fshop/src/main/resources/static/EpubFile" #Thay đổi ở máy mỗi người
-  path_banner : "/Users/khanhduy/Desktop/Project_Spring/fshop/src/main/resources/static/banner"
-  path_author: "/Users/khanhduy/Desktop/Project_Spring/fshop/src/main/resources/static/author"
+  path: "/var/www/uploads/avatars"
+  path_coverBook: "/var/www/uploads/coverBook"
+  path_epubFile: "/var/www/uploads/EpubFile"
+  path_banner: "/var/www/uploads/banner"
+  path_author: "/var/www/uploads/author"
 
 path:
-  avatar: "http://localhost:9999/avatars/"
-  epub: "http://localhost:9999/EpubFile/"
-  coverImage: "http://localhost:9999/coverBook/"
-  banner: "http://localhost:9999/banner/"
-  author: "http://localhost:9999/author/"
+  avatar: "https://api.doc-sach.online/avatars/"
+  epub: "https://api.doc-sach.online/EpubFile/"
+  coverImage: "https://api.doc-sach.online/coverBook/"
+  banner: "https://api.doc-sach.online/banner/"
+  author: "https://api.doc-sach.online/author/"
 

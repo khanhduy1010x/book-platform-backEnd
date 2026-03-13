@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,7 +32,6 @@ import thebook.fshop.exception.AppException;
 import thebook.fshop.exception.ErrorCode;
 import thebook.fshop.helper.LoginType;
 import thebook.fshop.helper.MemberType;
-import thebook.fshop.helper.PaymentStatus;
 import thebook.fshop.helper.Role;
 import thebook.fshop.mapper.AccountMapper;
 import thebook.fshop.repository.AccountsRepository;
@@ -47,7 +44,6 @@ public class AccountService {
     AccountsRepository accountsRepository;
     AccountMapper accountMapper;
     SecurityService securityService;
-    RedisTemplate<String, Object> template;
 
     @NonFinal
     @Value("${upload.path}")
@@ -64,12 +60,6 @@ public class AccountService {
     }
 
     public AccountResponse createAccount(AccountCreationRequest request) {
-        String otp = (String) template.opsForValue().get(request.getPhone());
-        if (otp == null) throw new AppException(ErrorCode.EXPIRED_OTP);
-        log.info("IT IS: " + (Objects.equals(otp, request.getOtp())));
-        log.info("Redis OTP  : " + otp);
-        log.info("Request OTP: " + request.getOtp());
-        if (!Objects.equals(otp, request.getOtp())) throw new AppException(ErrorCode.INVALID_OTP);
         if (accountsRepository.existsByPhone(request.getPhone())) throw new AppException(ErrorCode.EXITS_USERNAME);
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         request.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -97,14 +87,13 @@ public class AccountService {
         return accountResponse;
     }
 
-    public void updateAvatar(UpdateAvatarRequest request) {
+    public String updateAvatar(UpdateAvatarRequest request) {
         var account = securityService.getAccountByJWT();
         MultipartFile fileAvatar = request.getFile();
         if (fileAvatar != null && !fileAvatar.isEmpty()) {
             String originalFileName = fileAvatar.getOriginalFilename();
             String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
             String baseName = originalFileName.substring(0, originalFileName.lastIndexOf("."));
-            // Thêm UUID vào tên file
             String uniqueID = UUID.randomUUID().toString();
             String fileName = baseName + "_" + uniqueID + fileExtension;
             File uploadDir = new File(UPLOAD_PATH);
@@ -115,13 +104,17 @@ public class AccountService {
             log.info(filePart);
             try {
                 fileAvatar.transferTo(new File(filePart, fileName));
-                account.setAvatar(PATH_AVATAR + fileName);
+                String avatarUrl = PATH_AVATAR + fileName;
+                account.setAvatar(avatarUrl);
+                accountsRepository.save(account);
+                return avatarUrl;
             } catch (IOException e) {
                 log.error(e.getMessage());
                 throw new AppException(ErrorCode.INVALID_FILE_NULL);
             }
         }
         accountsRepository.save(account);
+        return account.getAvatar();
     }
 
     public void updateInformation(UpdateAccountInformationRequest request) {
