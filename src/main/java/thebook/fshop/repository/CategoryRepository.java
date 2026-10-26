@@ -2,8 +2,11 @@ package thebook.fshop.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import java.util.Optional;
 
 import thebook.fshop.entity.Category;
 
 @Repository
-public interface CategoryRepository extends JpaRepository<Category, Integer> {}
+public interface CategoryRepository extends JpaRepository<Category, Integer> {
+    Optional<Category> findByCateName(String cateName);
+}

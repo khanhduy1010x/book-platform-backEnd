@@ -6,9 +6,9 @@ spring:
     enabled: false
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/thebook1
-    username: postgres
-    password: 123123
+    url: ${BOOK_DB_URL}
+    username: ${BOOK_DB_USER}
+    password: ${BOOK_DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -17,14 +17,14 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: true
+    show-sql: false
 
 jwt:
-  signerKey: "CYXfKCsUaBwDgqbbZJ8iv5Xz8muv+o3DdfrFZkc/x39KcUfRVkaE00anvOVDkgy4"
+  signerKey: ${BOOK_JWT_SIGNER_KEY}
   valid-duration: 8640  # 1 ngay
   refreshable-duration: 86400 # 1 tuan
 
 sms:
- key: "8rHmonzVEr9JuCHhfxDxt71rFb12L_h3"
- device: "df88a66e8fcfb6e2"
+ key: ${BOOK_SMS_KEY:}
+ device: ${BOOK_SMS_DEVICE:}
 
