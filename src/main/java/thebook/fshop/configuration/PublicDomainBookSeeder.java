@@ -1,5 +1,10 @@
 package thebook.fshop.configuration;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +29,23 @@ public class PublicDomainBookSeeder {
     @Bean
     ApplicationRunner seedPublicDomainBooks(BookRepository bookRepository, CategoryRepository categoryRepository) {
         return args -> {
-            for (Seed seed : BOOKS) {
+            List<Seed> seeds = new ArrayList<>(List.of(BOOKS));
+            try (InputStream catalog = getClass().getResourceAsStream("/additional-books.json")) {
+                if (catalog == null) {
+                    throw new IllegalStateException("Missing additional-books.json catalog");
+                }
+                for (JsonNode book : new ObjectMapper().readTree(catalog)) {
+                    seeds.add(new Seed(
+                        book.path("title").asText(),
+                        book.path("author").asText(),
+                        book.path("category").asText(),
+                        book.path("epub").asText(),
+                        book.path("image").asText(),
+                        book.path("description").asText()
+                    ));
+                }
+            }
+            for (Seed seed : seeds) {
                 Category category = categoryRepository.findByCateName(seed.category())
                     .orElseGet(() -> categoryRepository.save(Category.builder().cateName(seed.category()).build()));
                 if (bookRepository.findByUrl(seed.epub()).isEmpty()) {

@@ -2,6 +2,10 @@ server:
   port: 9999
 
 spring:
+  data:
+    redis:
+      repositories:
+        enabled: false
   security:
     enabled: false
 
